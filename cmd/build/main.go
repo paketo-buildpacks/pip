@@ -28,16 +28,24 @@ func main() {
 func runBuild(context build.Build) (int, error) {
 	context.Logger.FirstLine(context.Logger.PrettyIdentity(context.Buildpack))
 
-	pip := pip.PIP{
-	}
+	//pipContributor, willContribute, err := pip.NewContributor(context)
+	//if err != nil {
+	//	return context.Failure(102), err
+	//}
+	//
+	//if willContribute {
+	//	if err := pipContributor.Contribute(); err != nil {
+	//		return context.Failure(103), err
+	//	}
+	//}
 
-	contributor, willContribute, err := python_packages.NewContributor(context, pip)
+	packagesContributor, willContribute, err := python_packages.NewContributor(context, pip.PIP{})
 	if err != nil {
 		return context.Failure(102), err
 	}
 
 	if willContribute {
-		if err := contributor.Contribute(); err != nil {
+		if err := packagesContributor.Contribute(); err != nil {
 			return context.Failure(103), err
 		}
 	}

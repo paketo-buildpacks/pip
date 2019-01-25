@@ -2,6 +2,7 @@ module pip-cnb
 
 require (
 	github.com/buildpack/libbuildpack v1.9.0
+	github.com/cloudfoundry/dagger v0.0.0-20190124143346-8823af7b308c
 	github.com/cloudfoundry/libcfbuildpack v1.38.0
 	github.com/cloudfoundry/python-cnb v0.0.0-20190123155909-fe952f93647a
 	github.com/golang/mock v1.2.0
