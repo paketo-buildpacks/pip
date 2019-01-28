@@ -6,14 +6,12 @@ import (
 	"github.com/buildpack/libbuildpack/buildplan"
 	"github.com/cloudfoundry/libcfbuildpack/detect"
 	"github.com/cloudfoundry/libcfbuildpack/helper"
+	"github.com/cloudfoundry/python-cnb/python"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"pip-cnb/pip"
 	"pip-cnb/python_packages"
-
-	"github.com/cloudfoundry/python-cnb/python"
 )
 
 func main() {
@@ -79,11 +77,8 @@ func runDetect(context detect.Detect) (int, error) {
 			Version:  version,
 			Metadata: buildplan.Metadata{"build": true, "launch": true},
 		},
-		pip.Dependency: buildplan.Dependency{
-			Metadata: buildplan.Metadata{"build": true},
-		},
 		python_packages.Dependency: buildplan.Dependency{
-			Metadata: buildplan.Metadata{"launch": true},
+			Metadata: buildplan.Metadata{"build": true, "launch": true},
 		},
 	})
 }

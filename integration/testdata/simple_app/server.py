@@ -1,17 +1,9 @@
-from flask import Flask, request
-import subprocess
-
+from flask import Flask
 app = Flask(__name__)
 
-@app.route("/")
+@app.route('/')
+def hello_world():
+    return 'Hello, World!'
 
-def hello():
-    return "Hello, World!"
-
-@app.route('/execute', methods=['POST'])
-def execute():
-    with open('runtime.py', 'w') as f:
-        f.write(request.values.get('code'))
-    return subprocess.check_output(["python", "runtime.py"])
-
-app.debug=True
+if __name__ == "__main__":
+    app.run()

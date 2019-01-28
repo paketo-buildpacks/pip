@@ -10,8 +10,7 @@ type PIP struct {
 }
 
 func (p PIP) Install(requirementsPath, location string) error {
-	// TODO can --src be replaced by --prefix
-	cmd := exec.Command("python", "-m", "pip", "install", "-r", requirementsPath, "--ignore-installed", "--exists-action=w", "--src="+location)
+	cmd := exec.Command("python", "-m", "pip", "-v", "install", "-v", "-r", requirementsPath, "--ignore-installed", "--exists-action=w", "--target="+location)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd.Run()

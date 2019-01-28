@@ -4,14 +4,6 @@ id = "org.cloudfoundry.buildpacks.pip"
 name = "PIP Buildpack"
 version = "0.0.1"
 
-[[metadata.dependencies]]
-    stacks = ["org.cloudfoundry.stacks.cflinuxfs2", "org.cloudfoundry.stacks.cflinuxfs3"]
-    id = "pip"
-    name = "PIP"
-    sha256 = "7bf48f9a693be1d58f49f7af7e0ae9fe29fd671cde8a55e6edca3581c4ef5796"
-    uri = "https://buildpacks.cloudfoundry.org/dependencies/pip/pip-9.0.3-7bf48f9a.tar.gz"
-    version = "9.0.3"
-
 [[stacks]]
 id = "org.cloudfoundry.stacks.cflinuxfs2"
 

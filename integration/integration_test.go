@@ -1,4 +1,4 @@
-package integration
+package integration_test
 
 import (
 	"fmt"
@@ -34,7 +34,7 @@ func testIntegration(t *testing.T, when spec.G, it spec.S) {
 				Buildpacks: []dagger.Buildpack{
 					{
 						ID:  "org.cloudfoundry.buildpacks.python",
-						URI: "file:///tmp/python-cnb_7d98ae90bcdcbb5487a44822",
+						URI: "file:///tmp/python-cnb_e585403a9926c0d8fa242f30",
 					},
 					{
 						ID:  "org.cloudfoundry.buildpacks.pip",
@@ -76,7 +76,7 @@ func testIntegration(t *testing.T, when spec.G, it spec.S) {
 				t.FailNow()
 			}
 
-			err = app.HTTPGet("/index.html")
+			err = app.HTTPGet("/")
 			Expect(err).ToNot(HaveOccurred())
 
 			Expect(app.Destroy()).To(Succeed())

@@ -6,7 +6,6 @@ import (
 	"github.com/cloudfoundry/libcfbuildpack/helper"
 	"github.com/cloudfoundry/python-cnb/python"
 	"path/filepath"
-	"pip-cnb/pip"
 	"pip-cnb/python_packages"
 	"testing"
 
@@ -54,11 +53,8 @@ func testDetect(t *testing.T, when spec.G, it spec.S) {
 						Version:  "",
 						Metadata: buildplan.Metadata{"build": true, "launch": true},
 					},
-					pip.Dependency: buildplan.Dependency{
-						Metadata: buildplan.Metadata{"build": true},
-					},
 					python_packages.Dependency: buildplan.Dependency{
-						Metadata: buildplan.Metadata{"launch": true},
+						Metadata: buildplan.Metadata{"build": true, "launch": true},
 					},
 				}))
 			})
@@ -83,11 +79,8 @@ func testDetect(t *testing.T, when spec.G, it spec.S) {
 						Version:  version,
 						Metadata: buildplan.Metadata{"build": true, "launch": true},
 					},
-					pip.Dependency: buildplan.Dependency{
-						Metadata: buildplan.Metadata{"build": true},
-					},
 					python_packages.Dependency: buildplan.Dependency{
-						Metadata: buildplan.Metadata{"launch": true},
+						Metadata: buildplan.Metadata{"build": true, "launch": true},
 					},
 				}))
 			})
@@ -114,11 +107,8 @@ func testDetect(t *testing.T, when spec.G, it spec.S) {
 						Version:  version,
 						Metadata: buildplan.Metadata{"build": true, "launch": true},
 					},
-					pip.Dependency: buildplan.Dependency{
-						Metadata: buildplan.Metadata{"build": true},
-					},
 					python_packages.Dependency: buildplan.Dependency{
-						Metadata: buildplan.Metadata{"launch": true},
+						Metadata: buildplan.Metadata{"build": true, "launch": true},
 					},
 				}))
 			})
@@ -147,11 +137,8 @@ func testDetect(t *testing.T, when spec.G, it spec.S) {
 						Version:  buildpackYAMLVersion,
 						Metadata: buildplan.Metadata{"build": true, "launch": true},
 					},
-					pip.Dependency: buildplan.Dependency{
-						Metadata: buildplan.Metadata{"build": true},
-					},
 					python_packages.Dependency: buildplan.Dependency{
-						Metadata: buildplan.Metadata{"launch": true},
+						Metadata: buildplan.Metadata{"build": true, "launch": true},
 					},
 				}))
 			})

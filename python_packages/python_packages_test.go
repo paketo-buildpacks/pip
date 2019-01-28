@@ -62,7 +62,7 @@ func testPythonPackages(t *testing.T, when spec.G, it spec.S) {
 		when("the app is not vendored", func() {
 			it.Before(func() {
 				requirementsPath := filepath.Join(factory.Build.Application.Root, "requirements.txt")
-				packages := filepath.Join(factory.Build.Layers.Layer(python_packages.Dependency).Root, python_packages.PackagesDir)
+				packages := factory.Build.Layers.Layer(python_packages.Dependency).Root
 
 				mockPkgManager.EXPECT().Install(requirementsPath, packages).Do(func(_, packages string) {
 					Expect(os.MkdirAll(packages, os.ModePerm)).To(Succeed())
@@ -82,7 +82,7 @@ func testPythonPackages(t *testing.T, when spec.G, it spec.S) {
 
 				packagesLayer := factory.Build.Layers.Layer(python_packages.Dependency)
 				Expect(packagesLayer).To(test.HaveLayerMetadata(true, true, false))
-				Expect(filepath.Join(packagesLayer.Root, python_packages.PackagesDir, "package")).To(BeARegularFile())
+				Expect(filepath.Join(packagesLayer.Root, "package")).To(BeARegularFile())
 			})
 
 			it("contributes for the launch phase", func() {
@@ -102,7 +102,7 @@ func testPythonPackages(t *testing.T, when spec.G, it spec.S) {
 
 				packagesLayer := factory.Build.Layers.Layer(python_packages.Dependency)
 				Expect(packagesLayer).To(test.HaveLayerMetadata(false, true, true))
-				Expect(filepath.Join(packagesLayer.Root, python_packages.PackagesDir, "package")).To(BeARegularFile())
+				Expect(filepath.Join(packagesLayer.Root, "package")).To(BeARegularFile())
 			})
 		})
 	})

@@ -12,7 +12,6 @@ import (
 
 const (
 	Dependency       = "python_packages"
-	PackagesDir      = "packages"
 	RequirementsFile = "requirements.txt"
 )
 
@@ -56,9 +55,12 @@ func NewContributor(context build.Build, manager PackageManager) (Contributor, b
 func (c Contributor) Contribute() error {
 	return c.packagesLayer.Contribute(nil, func(layer layers.Layer) error {
 		requirements := filepath.Join(c.app.Root, RequirementsFile)
-		packages := filepath.Join(c.packagesLayer.Root, PackagesDir)
 
-		if err := c.manager.Install(requirements, packages); err != nil {
+		if err := c.manager.Install(requirements, c.packagesLayer.Root); err != nil {
+			return err
+		}
+
+		if err := layer.AppendPathSharedEnv("PYTHONPATH", c.packagesLayer.Root); err != nil {
 			return err
 		}
 
