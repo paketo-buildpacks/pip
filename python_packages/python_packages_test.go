@@ -59,6 +59,34 @@ func testPythonPackages(t *testing.T, when spec.G, it spec.S) {
 			Expect(willContribute).To(BeFalse())
 		})
 
+		when("the app is vendored", func() {
+			it.Before(func() {
+				requirementsPath := filepath.Join(factory.Build.Application.Root, "requirements.txt")
+				packages := factory.Build.Layers.Layer(python_packages.Dependency).Root
+				vendorDir := filepath.Join(factory.Build.Application.Root, "vendor")
+				os.MkdirAll(vendorDir, 0777)
+
+				mockPkgManager.EXPECT().InstallVendor(requirementsPath, packages, vendorDir).Do(func(_, packages, _ string) {
+					Expect(os.MkdirAll(packages, os.ModePerm)).To(Succeed())
+					test.WriteFile(t, filepath.Join(packages, "vendoredFile"), "vendored package contents")
+				})
+			})
+			it("contributes for the build phase", func() {
+				factory.AddBuildPlan(python_packages.Dependency, buildplan.Dependency{
+					Metadata: buildplan.Metadata{"build": true},
+				})
+
+				contributor, _, err := python_packages.NewContributor(factory.Build, mockPkgManager)
+				Expect(err).NotTo(HaveOccurred())
+
+				Expect(contributor.Contribute()).To(Succeed())
+
+				packagesLayer := factory.Build.Layers.Layer(python_packages.Dependency)
+				Expect(packagesLayer).To(test.HaveLayerMetadata(true, true, false))
+				Expect(filepath.Join(packagesLayer.Root, "vendoredFile")).To(BeARegularFile())
+			})
+		})
+
 		when("the app is not vendored", func() {
 			it.Before(func() {
 				requirementsPath := filepath.Join(factory.Build.Application.Root, "requirements.txt")

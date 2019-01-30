@@ -1,6 +1,7 @@
 package python_packages
 
 import (
+	"fmt"
 	"github.com/buildpack/libbuildpack/application"
 	"github.com/cloudfoundry/libcfbuildpack/build"
 	"github.com/cloudfoundry/libcfbuildpack/helper"
@@ -17,6 +18,7 @@ const (
 
 type PackageManager interface {
 	Install(requirementsPath, location string) error
+	InstallVendor(requirementsPath, location, vendorDir string) error
 }
 
 type Contributor struct {
@@ -52,12 +54,29 @@ func NewContributor(context build.Build, manager PackageManager) (Contributor, b
 	return contributor, true, nil
 }
 
+
+// if -> we have the same metadata (sha of our python_modules)
+// then -> we should re-install all of this stuff.
+// also we might want to look at how pip packages are
 func (c Contributor) Contribute() error {
 	return c.packagesLayer.Contribute(nil, func(layer layers.Layer) error {
 		requirements := filepath.Join(c.app.Root, RequirementsFile)
+		vendorDir := filepath.Join(c.app.Root, "vendor")
 
-		if err := c.manager.Install(requirements, c.packagesLayer.Root); err != nil {
-			return err
+		vendored, err := helper.FileExists(vendorDir)
+		if err != nil {
+			return fmt.Errorf("unable to stat vendor dir: %s", err.Error())
+		}
+
+		if vendored {
+			c.packagesLayer.Logger.Info("pip installing from vendor directory")
+			if err := c.manager.InstallVendor(requirements, c.packagesLayer.Root, vendorDir); err != nil {
+				return err
+			}
+		} else {
+			if err := c.manager.Install(requirements, c.packagesLayer.Root); err != nil {
+				return err
+			}
 		}
 
 		if err := layer.AppendPathSharedEnv("PYTHONPATH", c.packagesLayer.Root); err != nil {

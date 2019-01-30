@@ -45,3 +45,17 @@ func (mr *MockPackageManagerMockRecorder) Install(requirementsPath, location int
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Install", reflect.TypeOf((*MockPackageManager)(nil).Install), requirementsPath, location)
 }
+
+// InstallVendor mocks base method
+func (m *MockPackageManager) InstallVendor(requirementsPath, location, vendorDir string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "InstallVendor", requirementsPath, location, vendorDir)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// InstallVendor indicates an expected call of InstallVendor
+func (mr *MockPackageManagerMockRecorder) InstallVendor(requirementsPath, location, vendorDir interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InstallVendor", reflect.TypeOf((*MockPackageManager)(nil).InstallVendor), requirementsPath, location, vendorDir)
+}
