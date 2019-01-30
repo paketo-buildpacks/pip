@@ -85,6 +85,25 @@ func testPythonPackages(t *testing.T, when spec.G, it spec.S) {
 				Expect(packagesLayer).To(test.HaveLayerMetadata(true, true, false))
 				Expect(filepath.Join(packagesLayer.Root, "vendoredFile")).To(BeARegularFile())
 			})
+
+			it("contributes for the launch phase", func() {
+				procFileString := "web: gunicorn server:app"
+				Expect(helper.WriteFile(filepath.Join(factory.Build.Application.Root, "Procfile"), 0666, procFileString)).To(Succeed())
+
+				factory.AddBuildPlan(python_packages.Dependency, buildplan.Dependency{
+					Metadata: buildplan.Metadata{"launch": true},
+				})
+
+				contributor, _, err := python_packages.NewContributor(factory.Build, mockPkgManager)
+				Expect(err).NotTo(HaveOccurred())
+
+				Expect(contributor.Contribute()).To(Succeed())
+
+				Expect(factory.Build.Layers).To(test.HaveLaunchMetadata(layers.Metadata{Processes: []layers.Process{{"web", "gunicorn server:app"}}}))
+
+				packagesLayer := factory.Build.Layers.Layer(python_packages.Dependency)
+				Expect(packagesLayer).To(test.HaveLayerMetadata(false, true, true))
+				Expect(filepath.Join(packagesLayer.Root, "vendoredFile")).To(BeARegularFile())
 		})
 
 		when("the app is not vendored", func() {
@@ -134,4 +153,5 @@ func testPythonPackages(t *testing.T, when spec.G, it spec.S) {
 			})
 		})
 	})
+})
 }
