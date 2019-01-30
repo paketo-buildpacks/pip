@@ -10,7 +10,7 @@ type PIP struct {
 }
 
 func (p PIP) InstallVendor(requirementsPath, location, vendorDir string) error {
-	installArgs := []string{"-m", "pip", "install", "-r", requirementsPath, "--ignore-installed", "--no-warn-script-location", "--exists-action=w", "--no-index", "--find-links=file://"+vendorDir, "--target="+location}
+	installArgs := []string{"-m", "pip", "install", "-r", requirementsPath, "--ignore-installed", "--exists-action=w", "--no-index", "--find-links=file://"+vendorDir, "--target="+location}
 	cmd := exec.Command("python", installArgs...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

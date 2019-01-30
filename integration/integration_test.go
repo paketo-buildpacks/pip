@@ -34,7 +34,7 @@ func testIntegration(t *testing.T, when spec.G, it spec.S) {
 				Buildpacks: []dagger.Buildpack{
 					{
 						ID:  "org.cloudfoundry.buildpacks.python",
-						URI: "file:///tmp/python-cnb_e585403a9926c0d8fa242f30",
+						URI: "file:///tmp/python-cnb_4e0e8eeb15e5fb33d56c6bc7",
 					},
 					{
 						ID:  "org.cloudfoundry.buildpacks.pip",
