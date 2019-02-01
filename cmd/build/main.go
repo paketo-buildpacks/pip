@@ -29,7 +29,9 @@ func main() {
 func runBuild(context build.Build) (int, error) {
 	context.Logger.FirstLine(context.Logger.PrettyIdentity(context.Buildpack))
 
-	packagesContributor, willContribute, err := python_packages.NewContributor(context, pip.PIP{})
+	pipPackageManager := pip.PIP{Logger: context.Logger}
+
+	packagesContributor, willContribute, err := python_packages.NewContributor(context, pipPackageManager)
 	if err != nil {
 		return context.Failure(102), err
 	}

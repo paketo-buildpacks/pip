@@ -2,11 +2,11 @@ package python_packages
 
 import (
 	"fmt"
-	"io"
 	"io/ioutil"
-	"os"
 	"path/filepath"
 	"regexp"
+
+	"github.com/fatih/color"
 
 	"github.com/buildpack/libbuildpack/application"
 	"github.com/cloudfoundry/libcfbuildpack/build"
@@ -68,32 +68,23 @@ func NewContributor(context build.Build, manager PackageManager) (Contributor, b
 }
 
 func (c Contributor) Contribute() error {
-
-	if err := c.packagesLayer.Contribute(nil, c.contributePythonModules, c.flags()...); err != nil {
+	if err := c.contributePythonModules(); err != nil {
 		return err
 	}
-	return c.cacheLayer.Contribute(nil, c.contributePipCache, layers.Cache)
-}
 
-// cache will have been written to layer during contributePythonModules so we just add to layer
-func (c Contributor) contributePipCache(layer layers.Layer) error {
-	if err := os.MkdirAll(layer.Root, 0777); err != nil {
-		return fmt.Errorf("unable make pip cache layer: %s", err.Error())
+	if err := c.contributePipCache(); err != nil {
+		return err
 	}
 
-	if empty, err := isEmptyDir(layer.Root); err != nil || empty {
-		if err != nil {
-			layer.Logger.Info("cache dir does not exist")
-		} else {
-			layer.Logger.Info("Did not contribute cache layer")
-		}
-	} else {
-		layer.Logger.Info("contributed cache layer")
-	}
-	return nil
+	return c.contributeStartCommand()
 }
 
-func (c Contributor) contributePythonModules(layer layers.Layer) error {
+func (c Contributor) contributePythonModules() error {
+	c.packagesLayer.Touch()
+
+	c.packagesLayer.Logger.FirstLine("%s: %s to layer",
+		c.packagesLayer.Logger.PrettyIdentity(pythonPackagesID{}), color.YellowString("Contributing"))
+
 	requirements := filepath.Join(c.app.Root, RequirementsFile)
 	vendorDir := filepath.Join(c.app.Root, "vendor")
 
@@ -114,14 +105,14 @@ func (c Contributor) contributePythonModules(layer layers.Layer) error {
 		}
 	}
 
-	if err := layer.AppendPathSharedEnv("PYTHONUSERBASE", c.packagesLayer.Root); err != nil {
+	if err := c.packagesLayer.AppendPathSharedEnv("PYTHONUSERBASE", c.packagesLayer.Root); err != nil {
 		return err
 	}
 
-	return c.contributeStartCommand(layer)
+	return c.packagesLayer.WriteMetadata(nil, c.flags()...)
 }
 
-func (c Contributor) contributeStartCommand(layer layers.Layer) error {
+func (c Contributor) contributeStartCommand() error {
 	procfile := filepath.Join(c.app.Root, "Procfile")
 	exists, err := helper.FileExists(procfile)
 	if err != nil {
@@ -136,6 +127,21 @@ func (c Contributor) contributeStartCommand(layer layers.Layer) error {
 
 		proc := regexp.MustCompile(`^\s*web\s*:\s*`).ReplaceAllString(string(buf), "")
 		return c.launchLayer.WriteMetadata(layers.Metadata{Processes: []layers.Process{{"web", proc}}})
+	}
+
+	return nil
+}
+
+func (c Contributor) contributePipCache() error {
+	if cacheExists, err := helper.FileExists(c.cacheLayer.Root); err != nil {
+		return err
+	} else if cacheExists {
+		c.cacheLayer.Touch()
+
+		c.cacheLayer.Logger.FirstLine("%s: %s to layer",
+			c.cacheLayer.Logger.PrettyIdentity(pipCacheID{}), color.YellowString("Contributing"))
+
+		return c.cacheLayer.WriteMetadata(nil, layers.Cache)
 	}
 	return nil
 }
@@ -153,16 +159,16 @@ func (c Contributor) flags() []layers.Flag {
 	return flags
 }
 
-func isEmptyDir(name string) (bool, error) {
-	f, err := os.Open(name)
-	if err != nil {
-		return false, err
-	}
-	defer f.Close()
+type pythonPackagesID struct {
+}
 
-	_, err = f.Readdirnames(1) // Or f.Readdir(1)
-	if err == io.EOF {
-		return true, nil
-	}
-	return false, err // Either not empty or error, suits both cases
+func (p pythonPackagesID) Identity() (name string, description string) {
+	return "Python Packages", "latest"
+}
+
+type pipCacheID struct {
+}
+
+func (p pipCacheID) Identity() (name string, description string) {
+	return "PIP Cache", "latest"
 }

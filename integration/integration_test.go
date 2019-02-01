@@ -79,8 +79,9 @@ func testIntegration(t *testing.T, when spec.G, it spec.S) {
 				t.FailNow()
 			}
 
-			err = app.HTTPGet("/")
+			body, _, err := app.HTTPGetAll("/")
 			Expect(err).ToNot(HaveOccurred())
+			Expect(body).To(ContainSubstring("Hello, World!"))
 
 			Expect(app.Destroy()).To(Succeed())
 		})
@@ -140,8 +141,9 @@ func testIntegration(t *testing.T, when spec.G, it spec.S) {
 				t.FailNow()
 			}
 
-			err = app.HTTPGet("/")
+			body, _, err := app.HTTPGetAll("/")
 			Expect(err).ToNot(HaveOccurred())
+			Expect(body).To(ContainSubstring("Hello, World!"))
 
 			Expect(app.Destroy()).To(Succeed())
 		})

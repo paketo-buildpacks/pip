@@ -4,9 +4,16 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+
+	"github.com/cloudfoundry/libcfbuildpack/helper"
 )
 
+type Logger interface {
+	Info(format string, args ...interface{})
+}
+
 type PIP struct {
+	Logger Logger
 }
 
 func (p PIP) InstallVendor(requirementsPath, location, vendorDir string) error {
@@ -31,6 +38,12 @@ func (p PIP) InstallVendor(requirementsPath, location, vendorDir string) error {
 }
 
 func (p PIP) Install(requirementsPath, location, cacheDir string) error {
+	if cacheExists, err := helper.FileExists(cacheDir); err != nil {
+		return err
+	} else if cacheExists {
+		p.Logger.Info("Reusing existing pip cache")
+	}
+
 	cmd := exec.Command(
 		"python",
 		"-m",

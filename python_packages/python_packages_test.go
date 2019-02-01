@@ -93,10 +93,8 @@ func testPythonPackages(t *testing.T, when spec.G, it spec.S) {
 
 				Expect(contributor.Contribute()).To(Succeed())
 
-				cacheLayer := factory.Build.Layers.Layer(python_packages.Cache)
 				packagesLayer := factory.Build.Layers.Layer(python_packages.Dependency)
 				Expect(packagesLayer).To(test.HaveLayerMetadata(true, true, false))
-				Expect(cacheLayer).To(test.HaveLayerMetadata(false, true, false))
 
 				Expect(filepath.Join(packagesLayer.Root, "vendoredFile")).To(BeARegularFile())
 			})
@@ -115,9 +113,7 @@ func testPythonPackages(t *testing.T, when spec.G, it spec.S) {
 				Expect(contributor.Contribute()).To(Succeed())
 
 				Expect(factory.Build.Layers).To(test.HaveLaunchMetadata(layers.Metadata{Processes: []layers.Process{{"web", "gunicorn server:app"}}}))
-				cacheLayer := factory.Build.Layers.Layer(python_packages.Cache)
 				packagesLayer := factory.Build.Layers.Layer(python_packages.Dependency)
-				Expect(cacheLayer).To(test.HaveLayerMetadata(false, true, false))
 				Expect(packagesLayer).To(test.HaveLayerMetadata(false, true, true))
 				Expect(filepath.Join(packagesLayer.Root, "vendoredFile")).To(BeARegularFile())
 			})
@@ -133,6 +129,8 @@ func testPythonPackages(t *testing.T, when spec.G, it spec.S) {
 				mockPkgManager.EXPECT().Install(requirementsPath, packages, cacheDir).Do(func(_, packages, _ string) {
 					Expect(os.MkdirAll(packages, os.ModePerm)).To(Succeed())
 					test.WriteFile(t, filepath.Join(packages, "package"), "package contents")
+
+					Expect(os.MkdirAll(cacheDir, os.ModePerm)).To(Succeed())
 				})
 			})
 
