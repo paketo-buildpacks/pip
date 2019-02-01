@@ -5,8 +5,9 @@
 package python_packages_test
 
 import (
-	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
+
+	gomock "github.com/golang/mock/gomock"
 )
 
 // MockPackageManager is a mock of PackageManager interface
@@ -33,17 +34,17 @@ func (m *MockPackageManager) EXPECT() *MockPackageManagerMockRecorder {
 }
 
 // Install mocks base method
-func (m *MockPackageManager) Install(requirementsPath, location string) error {
+func (m *MockPackageManager) Install(requirementsPath, location, cacheDir string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Install", requirementsPath, location)
+	ret := m.ctrl.Call(m, "Install", requirementsPath, location, cacheDir)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Install indicates an expected call of Install
-func (mr *MockPackageManagerMockRecorder) Install(requirementsPath, location interface{}) *gomock.Call {
+func (mr *MockPackageManagerMockRecorder) Install(requirementsPath, location, cacheDir interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Install", reflect.TypeOf((*MockPackageManager)(nil).Install), requirementsPath, location)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Install", reflect.TypeOf((*MockPackageManager)(nil).Install), requirementsPath, location, cacheDir)
 }
 
 // InstallVendor mocks base method

@@ -3,15 +3,16 @@ package main
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"os"
+	"path/filepath"
+	"pip-cnb/python_packages"
+
 	"github.com/buildpack/libbuildpack/buildplan"
 	"github.com/cloudfoundry/libcfbuildpack/detect"
 	"github.com/cloudfoundry/libcfbuildpack/helper"
 	"github.com/cloudfoundry/python-cnb/python"
 	"gopkg.in/yaml.v2"
-	"io/ioutil"
-	"os"
-	"path/filepath"
-	"pip-cnb/python_packages"
 )
 
 func main() {
@@ -64,7 +65,11 @@ func runDetect(context detect.Detect) (int, error) {
 			return detect.FailStatusCode, err
 		}
 
-		config := struct{ Python struct{ Version string `yaml:"version"` } `yaml:"python"` }{}
+		config := struct {
+			Python struct {
+				Version string `yaml:"version"`
+			} `yaml:"python"`
+		}{}
 		if err := yaml.Unmarshal(buf, &config); err != nil {
 			return detect.FailStatusCode, err
 		}

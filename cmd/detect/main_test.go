@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/buildpack/libbuildpack/buildplan"
-	"github.com/cloudfoundry/libcfbuildpack/helper"
-	"github.com/cloudfoundry/python-cnb/python"
 	"path/filepath"
 	"pip-cnb/python_packages"
 	"testing"
+
+	"github.com/buildpack/libbuildpack/buildplan"
+	"github.com/cloudfoundry/libcfbuildpack/helper"
+	"github.com/cloudfoundry/python-cnb/python"
 
 	"github.com/cloudfoundry/libcfbuildpack/detect"
 	"github.com/cloudfoundry/libcfbuildpack/test"

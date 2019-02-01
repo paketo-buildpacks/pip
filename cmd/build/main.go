@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/buildpack/libbuildpack/buildplan"
 	"os"
 	"pip-cnb/pip"
 	"pip-cnb/python_packages"
+
+	"github.com/buildpack/libbuildpack/buildplan"
 
 	"github.com/cloudfoundry/libcfbuildpack/build"
 )

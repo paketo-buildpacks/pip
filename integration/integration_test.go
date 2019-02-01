@@ -30,11 +30,14 @@ func testIntegration(t *testing.T, when spec.G, it spec.S) {
 			uri, err := dagger.PackageBuildpack()
 			Expect(err).ToNot(HaveOccurred())
 
+			pythonCNBURI, err := dagger.GetRemoteBuildpack("https://github.com/cloudfoundry/python-cnb/releases/download/v0.0.1/python-cnb-0.0.1.tgz")
+			Expect(err).ToNot(HaveOccurred())
+
 			builderMetadata := dagger.BuilderMetadata{
 				Buildpacks: []dagger.Buildpack{
 					{
 						ID:  "org.cloudfoundry.buildpacks.python",
-						URI: "file:///tmp/python-cnb_4e0e8eeb15e5fb33d56c6bc7",
+						URI: pythonCNBURI,
 					},
 					{
 						ID:  "org.cloudfoundry.buildpacks.pip",
@@ -88,11 +91,14 @@ func testIntegration(t *testing.T, when spec.G, it spec.S) {
 			uri, err := dagger.PackageBuildpack()
 			Expect(err).ToNot(HaveOccurred())
 
+			pythonCNBURI, err := dagger.GetRemoteBuildpack("https://github.com/cloudfoundry/python-cnb/releases/download/v0.0.1/python-cnb-0.0.1.tgz")
+			Expect(err).ToNot(HaveOccurred())
+
 			builderMetadata := dagger.BuilderMetadata{
 				Buildpacks: []dagger.Buildpack{
 					{
 						ID:  "org.cloudfoundry.buildpacks.python",
-						URI: "file:///tmp/python-cnb_e585403a9926c0d8fa242f30",
+						URI: pythonCNBURI,
 					},
 					{
 						ID:  "org.cloudfoundry.buildpacks.pip",
@@ -134,8 +140,6 @@ func testIntegration(t *testing.T, when spec.G, it spec.S) {
 				t.FailNow()
 			}
 
-			containerID, imageName, volumeIDs, err := app.ContainerInfo()
-			fmt.Printf("ContainerID: %s\nImage Name: %s\nAll leftover cached volumes: %v\n", containerID, imageName, volumeIDs)
 			err = app.HTTPGet("/")
 			Expect(err).ToNot(HaveOccurred())
 
