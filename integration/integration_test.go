@@ -21,6 +21,8 @@ func TestIntegration(t *testing.T) {
 func testIntegration(t *testing.T, when spec.G, it spec.S) {
 	it.Before(func() {
 		RegisterTestingT(t)
+		err := dagger.BuildCFLinuxFS3()
+		Expect(err).ToNot(HaveOccurred())
 	})
 
 	when("building a simple app", func() {
