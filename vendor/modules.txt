@@ -14,14 +14,14 @@ github.com/buildpack/libbuildpack/buildpack
 github.com/buildpack/libbuildpack/platform
 github.com/buildpack/libbuildpack/services
 github.com/buildpack/libbuildpack/stack
-# github.com/cloudfoundry/cnb-tools v0.0.0-20190215212458-9f2608d9b21d => /Users/pivotal/workspace/cnb-tools
+# github.com/cloudfoundry/cnb-tools v0.0.0-20190219172305-154ea1cc62b2
 github.com/cloudfoundry/cnb-tools/install_tools
 github.com/cloudfoundry/cnb-tools/integration
 github.com/cloudfoundry/cnb-tools/package
 github.com/cloudfoundry/cnb-tools/unit
 github.com/cloudfoundry/cnb-tools/action
 github.com/cloudfoundry/cnb-tools/utils
-# github.com/cloudfoundry/dagger v0.0.0-20190213230508-00bbf4abea4d
+# github.com/cloudfoundry/dagger v0.0.0-20190219165033-d9b29e00cb50
 github.com/cloudfoundry/dagger
 # github.com/cloudfoundry/libcfbuildpack v1.42.0
 github.com/cloudfoundry/libcfbuildpack/build
@@ -58,6 +58,8 @@ github.com/onsi/gomega/matchers/support/goraph/bipartitegraph
 github.com/onsi/gomega/matchers/support/goraph/edge
 github.com/onsi/gomega/matchers/support/goraph/node
 github.com/onsi/gomega/matchers/support/goraph/util
+# github.com/pkg/errors v0.8.1
+github.com/pkg/errors
 # github.com/sclevine/spec v1.2.0
 github.com/sclevine/spec
 github.com/sclevine/spec/report

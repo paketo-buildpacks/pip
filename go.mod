@@ -2,8 +2,8 @@ module pip-cnb
 
 require (
 	github.com/buildpack/libbuildpack v1.10.0
-	github.com/cloudfoundry/cnb-tools v0.0.0-20190215212458-9f2608d9b21d
-	github.com/cloudfoundry/dagger v0.0.0-20190213230508-00bbf4abea4d
+	github.com/cloudfoundry/cnb-tools v0.0.0-20190219172305-154ea1cc62b2
+	github.com/cloudfoundry/dagger v0.0.0-20190219165033-d9b29e00cb50
 	github.com/cloudfoundry/libcfbuildpack v1.42.0
 	github.com/cloudfoundry/python-cnb v0.0.1
 	github.com/fatih/color v1.7.0

@@ -39,7 +39,6 @@ func Run() error {
 		runImage = DEFAULT_RUN_IMAGE
 	}
 
-	fmt.Println("pre building docker image")
 	for _, image := range []string{runImage, buildImage} {
 		cmd := exec.Command("docker", "pull", image)
 		if err := cmd.Run(); err != nil {

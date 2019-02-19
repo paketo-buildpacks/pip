@@ -84,6 +84,11 @@ func installPack(version string) error {
 
 	json.NewDecoder(resp.Body).Decode(&release)
 
+	if len(release.Assets) < 2 {
+		return fmt.Errorf("invalid number of assets from github, please check the following url" +
+			"https://api.github.com/repos/buildpack/pack/releases/latest")
+	}
+
 	url := release.Assets[0].DownloadUrl
 	if OS == MACOS {
 		url = release.Assets[1].DownloadUrl

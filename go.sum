@@ -8,8 +8,12 @@ github.com/buildpack/libbuildpack v1.10.0 h1:xwgXTulLRU2zCFbYy35azMsHOjy8uQVyw9x
 github.com/buildpack/libbuildpack v1.10.0/go.mod h1:5YC4KNbppjwmsX561s0rS+4rtuJA++AnzUvcKc6lexc=
 github.com/cloudfoundry/cnb-tools v0.0.0-20190215212458-9f2608d9b21d h1:EFmGD1BS8AFbjYZP2ODd24IjwrVbkNm7SJV3KQlHaYc=
 github.com/cloudfoundry/cnb-tools v0.0.0-20190215212458-9f2608d9b21d/go.mod h1:4/XXo++Se0dkBKJIHUJcQBQqwZsSiEmUxd84Su8ER3E=
+github.com/cloudfoundry/cnb-tools v0.0.0-20190219172305-154ea1cc62b2 h1:28ef8Q5X8QmcGGXVcp1MyBtyV6kzKChnhEuyXRUiyr4=
+github.com/cloudfoundry/cnb-tools v0.0.0-20190219172305-154ea1cc62b2/go.mod h1:4/XXo++Se0dkBKJIHUJcQBQqwZsSiEmUxd84Su8ER3E=
 github.com/cloudfoundry/dagger v0.0.0-20190213230508-00bbf4abea4d h1:MvwcIUVy2qnwM+3afQrAMAKhFbrH7ThWM5Km+1nOYe4=
 github.com/cloudfoundry/dagger v0.0.0-20190213230508-00bbf4abea4d/go.mod h1:lew8J5SVLq1xe9PXy+38XTiuuW31NWHU92oP6YRkn1w=
+github.com/cloudfoundry/dagger v0.0.0-20190219165033-d9b29e00cb50 h1:q7jpaXNSkqoKSKerNTazVRig8bXBDqKx8Q+0AEmJZl4=
+github.com/cloudfoundry/dagger v0.0.0-20190219165033-d9b29e00cb50/go.mod h1:KYnuvu2XJXZCM7FHvRzALsYWGC5uSgEnx3MXwFWahT0=
 github.com/cloudfoundry/libcfbuildpack v1.29.0/go.mod h1:OEwAwCqppAMwWrcrnxE0j0llq5HcvQHrUa6J5n8XMMc=
 github.com/cloudfoundry/libcfbuildpack v1.37.0/go.mod h1:WqW/cPLKqNnxhBt0JLTCQGpcKlFfC1T6vLHg0gNRtAA=
 github.com/cloudfoundry/libcfbuildpack v1.42.0 h1:vHVF9t0Px4p0WsgCG2EkUTTyXxI3QgE95O+hMKUq7z0=
