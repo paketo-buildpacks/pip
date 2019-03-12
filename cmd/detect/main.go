@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -31,15 +30,18 @@ func main() {
 }
 
 func runDetect(context detect.Detect) (int, error) {
-	exists, err := helper.FileExists(filepath.Join(context.Application.Root, "requirements.txt"))
-	if err != nil {
+	if err := context.BuildPlan.Init(); err != nil {
 		return detect.FailStatusCode, err
-	} else if !exists {
-		return detect.FailStatusCode, errors.New("no requirements.txt found")
+	}
+
+	if willContribute, err := willContribute(context); err != nil {
+		return detect.FailStatusCode, err
+	} else if !willContribute {
+		return detect.FailStatusCode, nil
 	}
 
 	runtimePath := filepath.Join(context.Application.Root, "runtime.txt")
-	exists, err = helper.FileExists(runtimePath)
+	exists, err := helper.FileExists(runtimePath)
 	if err != nil {
 		return detect.FailStatusCode, err
 	}
@@ -86,4 +88,23 @@ func runDetect(context detect.Detect) (int, error) {
 			Metadata: buildplan.Metadata{"build": true, "launch": true},
 		},
 	})
+}
+
+// TODO: Refactor to a detector package
+func willContribute(context detect.Detect) (bool, error) {
+	_, ok := context.BuildPlan[python_packages.Dependency]
+
+	if ok {
+		context.Logger.Info("pip packages requested by previous buildpack")
+		return true, nil
+	}
+
+	if exists, err := helper.FileExists(filepath.Join(context.Application.Root, "requirements.txt")); err != nil {
+		return false, err
+	} else if !exists {
+		context.Logger.Info("no requirements.txt found")
+		return false, nil
+	}
+
+	return true, nil
 }

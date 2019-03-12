@@ -29,11 +29,36 @@ func testDetect(t *testing.T, when spec.G, it spec.S) {
 		factory = test.NewDetectFactory(t)
 	})
 
-	when("there is no requirements.txt", func() {
-		it("should fail", func() {
+	when("there is no requirements.txt and no buildplan", func() {
+		it("should fail detection", func() {
 			code, err := runDetect(factory.Detect)
-			Expect(err).To(HaveOccurred())
+			Expect(err).ToNot(HaveOccurred())
 			Expect(code).To(Equal(detect.FailStatusCode))
+		})
+	})
+
+	when("python packages are requested in the buildplan", func() {
+		it("passes", func() {
+			factory.AddBuildPlan(python_packages.Dependency, buildplan.Dependency{})
+			factory.AddBuildPlan(python.Dependency, buildplan.Dependency{
+				Version:  "",
+				Metadata: buildplan.Metadata{"build": true, "launch": true},
+			})
+
+			code, err := runDetect(factory.Detect)
+
+			Expect(err).ToNot(HaveOccurred())
+			Expect(code).To(Equal(detect.PassStatusCode))
+
+			Expect(factory.Output).To(Equal(buildplan.BuildPlan{
+				python.Dependency: buildplan.Dependency{
+					Version:  "",
+					Metadata: buildplan.Metadata{"build": true, "launch": true},
+				},
+				python_packages.Dependency: buildplan.Dependency{
+					Metadata: buildplan.Metadata{"build": true, "launch": true},
+				},
+			}))
 		})
 	})
 
