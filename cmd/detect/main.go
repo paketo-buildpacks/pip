@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"pip-cnb/python_packages"
@@ -11,7 +10,6 @@ import (
 	"github.com/cloudfoundry/libcfbuildpack/detect"
 	"github.com/cloudfoundry/libcfbuildpack/helper"
 	"github.com/cloudfoundry/python-cnb/python"
-	"gopkg.in/yaml.v2"
 )
 
 func main() {
@@ -40,44 +38,7 @@ func runDetect(context detect.Detect) (int, error) {
 		return detect.FailStatusCode, nil
 	}
 
-	runtimePath := filepath.Join(context.Application.Root, "runtime.txt")
-	exists, err := helper.FileExists(runtimePath)
-	if err != nil {
-		return detect.FailStatusCode, err
-	}
-
-	var version string
-	if exists {
-		buf, err := ioutil.ReadFile(runtimePath)
-		if err != nil {
-			return detect.FailStatusCode, err
-		}
-		version = string(buf)
-	}
-
-	buildpackYAMLPath := filepath.Join(context.Application.Root, "buildpack.yml")
-	exists, err = helper.FileExists(buildpackYAMLPath)
-	if err != nil {
-		return detect.FailStatusCode, err
-	}
-
-	if exists {
-		buf, err := ioutil.ReadFile(buildpackYAMLPath)
-		if err != nil {
-			return detect.FailStatusCode, err
-		}
-
-		config := struct {
-			Python struct {
-				Version string `yaml:"version"`
-			} `yaml:"python"`
-		}{}
-		if err := yaml.Unmarshal(buf, &config); err != nil {
-			return detect.FailStatusCode, err
-		}
-
-		version = config.Python.Version
-	}
+	version := context.BuildPlan["python"].Version
 
 	return context.Pass(buildplan.BuildPlan{
 		python.Dependency: buildplan.Dependency{
