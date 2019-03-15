@@ -2,7 +2,7 @@
 [buildpack]
 id = "org.cloudfoundry.buildpacks.pip"
 name = "PIP Buildpack"
-version = "0.0.1"
+version = "0.0.2"
 
 [[stacks]]
 id = "org.cloudfoundry.stacks.cflinuxfs2"
