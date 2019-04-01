@@ -15,8 +15,13 @@ import (
 func main() {
 	context, err := detect.DefaultDetect()
 	if err != nil {
-		_, _ = fmt.Fprintf(os.Stderr, "failed to create default detect context: %s", err)
+		_, _ = fmt.Fprintf(os.Stderr, "failed to create a default detection context: %s", err)
 		os.Exit(100)
+	}
+
+	if err := context.BuildPlan.Init(); err != nil {
+		_, _ = fmt.Fprintf(os.Stderr, "Failed to initialize Build Plan: %s\n", err)
+		os.Exit(101)
 	}
 
 	code, err := runDetect(context)
@@ -38,7 +43,7 @@ func runDetect(context detect.Detect) (int, error) {
 		return detect.FailStatusCode, nil
 	}
 
-	version := context.BuildPlan["python"].Version
+	version := context.BuildPlan[python.Dependency].Version
 
 	return context.Pass(buildplan.BuildPlan{
 		python.Dependency: buildplan.Dependency{
