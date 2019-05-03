@@ -23,12 +23,15 @@ func TestIntegration(t *testing.T) {
 	Expect := NewWithT(t).Expect
 	bpDir, err = dagger.FindBPRoot()
 	Expect(err).NotTo(HaveOccurred())
-	pythonURI, err = dagger.GetLatestBuildpack("python-cnb")
-	Expect(err).ToNot(HaveOccurred())
+
 	pipURI, err = dagger.PackageBuildpack(bpDir)
 	Expect(err).ToNot(HaveOccurred())
 	defer os.RemoveAll(pipURI)
 
+	pythonURI, err = dagger.GetLatestBuildpack("python-cnb")
+	Expect(err).ToNot(HaveOccurred())
+	defer os.RemoveAll(pythonURI)
+	
 	spec.Run(t, "Integration", testIntegration, spec.Report(report.Terminal{}))
 }
 
