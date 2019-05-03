@@ -80,7 +80,7 @@ func testPythonPackages(t *testing.T, when spec.G, it spec.S) {
 				})
 			})
 			it.After(func() {
-				os.Remove(vendorPackage)
+				os.RemoveAll(vendorPackage)
 				os.RemoveAll(vendorDir)
 			})
 			it("contributes for the build phase", func() {
@@ -112,7 +112,7 @@ func testPythonPackages(t *testing.T, when spec.G, it spec.S) {
 
 				Expect(contributor.Contribute()).To(Succeed())
 
-				Expect(factory.Build.Layers).To(test.HaveLaunchMetadata(layers.Metadata{Processes: []layers.Process{{"web", "gunicorn server:app"}}}))
+				Expect(factory.Build.Layers).To(test.HaveApplicationMetadata(layers.Metadata{Processes: []layers.Process{{"web", "gunicorn server:app"}}}))
 				packagesLayer := factory.Build.Layers.Layer(python_packages.Dependency)
 				Expect(packagesLayer).To(test.HaveLayerMetadata(false, true, true))
 				Expect(filepath.Join(packagesLayer.Root, "vendoredFile")).To(BeARegularFile())
@@ -164,7 +164,7 @@ func testPythonPackages(t *testing.T, when spec.G, it spec.S) {
 
 				Expect(contributor.Contribute()).To(Succeed())
 
-				Expect(factory.Build.Layers).To(test.HaveLaunchMetadata(layers.Metadata{Processes: []layers.Process{{"web", "gunicorn server:app"}}}))
+				Expect(factory.Build.Layers).To(test.HaveApplicationMetadata(layers.Metadata{Processes: []layers.Process{{"web", "gunicorn server:app"}}}))
 
 				packagesLayer := factory.Build.Layers.Layer(python_packages.Dependency)
 				cacheLayer := factory.Build.Layers.Layer(python_packages.Cache)
