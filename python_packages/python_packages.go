@@ -126,7 +126,7 @@ func (c Contributor) contributeStartCommand() error {
 		}
 
 		proc := regexp.MustCompile(`^\s*web\s*:\s*`).ReplaceAllString(string(buf), "")
-		return c.launchLayer.WriteMetadata(layers.Metadata{Processes: []layers.Process{{"web", proc}}})
+		return c.launchLayer.WriteApplicationMetadata(layers.Metadata{Processes: []layers.Process{{"web", proc}}})
 	}
 
 	return nil

@@ -14,39 +14,37 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+var (
+	bpDir, pythonURI, pipURI string
+)
+
 func TestIntegration(t *testing.T) {
+	var err error
+	Expect := NewWithT(t).Expect
+	bpDir, err = dagger.FindBPRoot()
+	Expect(err).NotTo(HaveOccurred())
+	pythonURI, err = dagger.GetLatestBuildpack("python-cnb")
+	Expect(err).ToNot(HaveOccurred())
+	pipURI, err = dagger.PackageBuildpack(bpDir)
+	Expect(err).ToNot(HaveOccurred())
+	defer os.RemoveAll(pipURI)
+
 	spec.Run(t, "Integration", testIntegration, spec.Report(report.Terminal{}))
 }
 
 func testIntegration(t *testing.T, when spec.G, it spec.S) {
-	var (
-		uri string
-		err error
-	)
-
+	var Expect func(interface{}, ...interface{}) GomegaAssertion
 	it.Before(func() {
-		RegisterTestingT(t)
-		uri, err = dagger.PackageBuildpack()
-		Expect(err).ToNot(HaveOccurred())
-	})
-
-	it.After(func() {
-		if uri != "" {
-			Expect(os.RemoveAll(uri)).To(Succeed())
-		}
+		Expect = NewWithT(t).Expect
 	})
 
 	when("building a simple app", func() {
-
 		it("runs a python app using pip", func() {
-			pythonCNBURI, err := dagger.GetLatestBuildpack("python-cnb")
+			app, err := dagger.PackBuild(filepath.Join("testdata", "simple_app"), pythonURI, pipURI)
 			Expect(err).ToNot(HaveOccurred())
-
-			app, err := dagger.PackBuild(filepath.Join("testdata", "simple_app"), pythonCNBURI, uri)
-			Expect(err).ToNot(HaveOccurred())
+			defer app.Destroy()
 
 			app.SetHealthCheck("", "3s", "1s")
-			app.Env["PORT"] = "8080"
 
 			err = app.Start()
 			if err != nil {
@@ -64,44 +62,34 @@ func testIntegration(t *testing.T, when spec.G, it spec.S) {
 			body, _, err := app.HTTPGet("/")
 			Expect(err).ToNot(HaveOccurred())
 			Expect(body).To(ContainSubstring("Hello, World!"))
-
-			Expect(app.Destroy()).To(Succeed())
 		})
 
 		it("caches reused modules for the same app, but downloads new modules ", func() {
-			pythonCNBURI, err := dagger.GetLatestBuildpack("python-cnb")
+			app, err := dagger.PackBuild(filepath.Join("testdata", "simple_app"), pythonURI, pipURI)
 			Expect(err).ToNot(HaveOccurred())
-
-			app, err := dagger.PackBuild(filepath.Join("testdata", "simple_app"), pythonCNBURI, uri)
-
-			Expect(err).ToNot(HaveOccurred())
+			defer app.Destroy()
 
 			app.SetHealthCheck("", "3s", "1s")
-			app.Env["PORT"] = "8080"
 			err = app.Start()
 			Expect(err).ToNot(HaveOccurred())
 
 			_, imgName, _, _ := app.Info()
 
-			rebuiltApp, err := dagger.PackBuildNamedImage(imgName, filepath.Join("testdata", "simple_app_more_packages"), pythonCNBURI, uri)
+			app, err = dagger.PackBuildNamedImage(imgName, filepath.Join("testdata", "simple_app_more_packages"), pythonURI, pipURI)
 			Expect(err).NotTo(HaveOccurred())
 
-			Expect(rebuiltApp.BuildLogs()).To(MatchRegexp("Using cached.*Flask"))
-			Expect(rebuiltApp.BuildLogs()).To(MatchRegexp("Downloading.*itsdangerous"))
-			Expect(rebuiltApp.Destroy()).To(Succeed())
+			Expect(app.BuildLogs()).To(MatchRegexp("Using cached.*Flask"))
+			Expect(app.BuildLogs()).To(MatchRegexp("Downloading.*itsdangerous"))
 		})
 	})
 
 	when("building a simple app that is vendored", func() {
 		it("runs a python app using pip", func() {
-			pythonCNBURI, err := dagger.GetLatestBuildpack("python-cnb")
+			app, err := dagger.PackBuild(filepath.Join("testdata", "simple_app"), pythonURI, pipURI)
 			Expect(err).ToNot(HaveOccurred())
-
-			app, err := dagger.PackBuild(filepath.Join("testdata", "simple_app"), pythonCNBURI, uri)
-			Expect(err).ToNot(HaveOccurred())
+			defer app.Destroy()
 
 			app.SetHealthCheck("", "3s", "1s")
-			app.Env["PORT"] = "8080"
 
 			err = app.Start()
 			if err != nil {
@@ -119,8 +107,6 @@ func testIntegration(t *testing.T, when spec.G, it spec.S) {
 			body, _, err := app.HTTPGet("/")
 			Expect(err).ToNot(HaveOccurred())
 			Expect(body).To(ContainSubstring("Hello, World!"))
-
-			Expect(app.Destroy()).To(Succeed())
 		})
 	})
 }
