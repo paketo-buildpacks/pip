@@ -3,8 +3,9 @@ package python_packages_test
 import (
 	"os"
 	"path/filepath"
-	"pip-cnb/python_packages"
 	"testing"
+
+	"github.com/cloudfoundry/pip-cnb/python_packages"
 
 	"github.com/buildpack/libbuildpack/buildplan"
 	"github.com/cloudfoundry/libcfbuildpack/helper"

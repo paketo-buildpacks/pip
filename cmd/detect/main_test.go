@@ -1,8 +1,9 @@
 package main
 
 import (
-	"pip-cnb/python_packages"
 	"testing"
+
+	"github.com/cloudfoundry/pip-cnb/python_packages"
 
 	"github.com/buildpack/libbuildpack/buildplan"
 	"github.com/cloudfoundry/python-cnb/python"

@@ -31,7 +31,7 @@ func TestIntegration(t *testing.T) {
 	pythonURI, err = dagger.GetLatestBuildpack("python-cnb")
 	Expect(err).ToNot(HaveOccurred())
 	defer os.RemoveAll(pythonURI)
-	
+
 	spec.Run(t, "Integration", testIntegration, spec.Report(report.Terminal{}))
 }
 

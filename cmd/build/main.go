@@ -3,8 +3,9 @@ package main
 import (
 	"fmt"
 	"os"
-	"pip-cnb/pip"
-	"pip-cnb/python_packages"
+
+	"github.com/cloudfoundry/pip-cnb/pip"
+	"github.com/cloudfoundry/pip-cnb/python_packages"
 
 	"github.com/buildpack/libbuildpack/buildplan"
 
