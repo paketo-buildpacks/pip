@@ -1,7 +1,8 @@
+
 [buildpack]
 id = "org.cloudfoundry.pip"
 name = "Pip Buildpack"
-version = "0.0.5"
+version = "0.0.6"
 
 [metadata]
 include_files = ["bin/build","bin/detect","buildpack.toml"]
