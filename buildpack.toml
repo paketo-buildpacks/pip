@@ -9,7 +9,4 @@ include_files = ["bin/build","bin/detect","buildpack.toml"]
 pre_package = "./scripts/build.sh"
 
 [[stacks]]
-id = "org.cloudfoundry.stacks.cflinuxfs2"
-
-[[stacks]]
 id = "org.cloudfoundry.stacks.cflinuxfs3"
