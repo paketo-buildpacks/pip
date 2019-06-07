@@ -5,7 +5,7 @@ go 1.12
 require (
 	github.com/buildpack/libbuildpack v1.18.0
 	github.com/cloudfoundry/dagger v0.0.0-20190531142541-7ffbc906bfb0
-	github.com/cloudfoundry/libcfbuildpack v1.60.1-0.20190606150141-ab3efe642a22
+	github.com/cloudfoundry/libcfbuildpack v1.61.0
 	github.com/cloudfoundry/python-cnb v0.0.4
 	github.com/fatih/color v1.7.0
 	github.com/golang/mock v1.3.0
