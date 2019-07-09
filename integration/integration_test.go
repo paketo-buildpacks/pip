@@ -26,11 +26,11 @@ func TestIntegration(t *testing.T) {
 
 	pipURI, err = dagger.PackageBuildpack(bpDir)
 	Expect(err).ToNot(HaveOccurred())
-	defer os.RemoveAll(pipURI)
+	defer dagger.DeleteBuildpack(pipURI)
 
 	pythonURI, err = dagger.GetLatestBuildpack("python-cnb")
 	Expect(err).ToNot(HaveOccurred())
-	defer os.RemoveAll(pythonURI)
+	defer dagger.DeleteBuildpack(pythonURI)
 
 	spec.Run(t, "Integration", testIntegration, spec.Report(report.Terminal{}))
 }

@@ -1,6 +1,7 @@
 .DS_Store
 .idea
-bin
 .bin
 pip-cnb.tgz
 pip-cnb_*
+/bin
+/buildpack.toml
