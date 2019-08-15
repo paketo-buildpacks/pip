@@ -3,9 +3,9 @@ module github.com/cloudfoundry/pip-cnb
 go 1.12
 
 require (
-	github.com/buildpack/libbuildpack v1.20.0
+	github.com/buildpack/libbuildpack v1.21.0
 	github.com/cloudfoundry/dagger v0.0.0-20190813205748-e53989179538
-	github.com/cloudfoundry/libcfbuildpack v1.79.1-0.20190802164909-f8808a55c67b
+	github.com/cloudfoundry/libcfbuildpack v1.82.1-0.20190815154108-ebdea9feb73d
 	github.com/cloudfoundry/python-cnb v0.0.4
 	github.com/fatih/color v1.7.0
 	github.com/golang/mock v1.3.0
