@@ -7,9 +7,8 @@ import (
 	"github.com/cloudfoundry/pip-cnb/pip"
 	"github.com/cloudfoundry/pip-cnb/python_packages"
 
-	"github.com/buildpack/libbuildpack/buildplan"
-
 	"github.com/cloudfoundry/libcfbuildpack/build"
+	"github.com/cloudfoundry/libcfbuildpack/buildpackplan"
 )
 
 func main() {
@@ -43,5 +42,5 @@ func runBuild(context build.Build) (int, error) {
 		}
 	}
 
-	return context.Success(buildplan.BuildPlan{})
+	return context.Success(buildpackplan.Plan{})
 }

@@ -7,7 +7,7 @@ import (
 
 	"github.com/cloudfoundry/pip-cnb/python_packages"
 
-	"github.com/buildpack/libbuildpack/buildplan"
+	"github.com/buildpack/libbuildpack/buildpackplan"
 	"github.com/cloudfoundry/libcfbuildpack/helper"
 	"github.com/cloudfoundry/libcfbuildpack/layers"
 	"github.com/cloudfoundry/libcfbuildpack/test"
@@ -31,9 +31,10 @@ func testPythonPackages(t *testing.T, when spec.G, it spec.S) {
 
 	when("modules.NewContributor", func() {
 		var (
-			mockCtrl       *gomock.Controller
-			mockPkgManager *MockPackageManager
-			factory        *test.BuildFactory
+			mockCtrl         *gomock.Controller
+			mockPkgManager   *MockPackageManager
+			factory          *test.BuildFactory
+			requirementsPath string
 		)
 
 		it.Before(func() {
@@ -41,6 +42,7 @@ func testPythonPackages(t *testing.T, when spec.G, it spec.S) {
 			mockPkgManager = NewMockPackageManager(mockCtrl)
 
 			factory = test.NewBuildFactory(t)
+			requirementsPath = filepath.Join(factory.Build.Application.Root, python_packages.RequirementsFile)
 		})
 
 		it.After(func() {
@@ -48,9 +50,10 @@ func testPythonPackages(t *testing.T, when spec.G, it spec.S) {
 		})
 
 		it("NewContributor returns willContribute true if a build plan exists with the dep", func() {
-			test.TouchFile(t, filepath.Join(factory.Build.Application.Root, "requirements.txt"))
+			test.TouchFile(t, requirementsPath)
 
-			factory.AddBuildPlan(python_packages.Dependency, buildplan.Dependency{})
+			factory.AddDependency(python_packages.Dependency, requirementsPath)
+			factory.AddPlan(buildpackplan.Plan{Name: python_packages.Dependency})
 
 			_, willContribute, err := python_packages.NewContributor(factory.Build, mockPkgManager)
 			Expect(err).NotTo(HaveOccurred())
@@ -65,8 +68,8 @@ func testPythonPackages(t *testing.T, when spec.G, it spec.S) {
 
 		when("the app is vendored", func() {
 			var vendorDir, vendorPackage string
+
 			it.Before(func() {
-				requirementsPath := filepath.Join(factory.Build.Application.Root, "requirements.txt")
 				test.TouchFile(t, requirementsPath)
 
 				vendorDir = filepath.Join(factory.Build.Application.Root, "vendor")
@@ -80,22 +83,27 @@ func testPythonPackages(t *testing.T, when spec.G, it spec.S) {
 					test.WriteFile(t, vendorPackage, "vendored package contents")
 				})
 			})
+
 			it.After(func() {
 				os.RemoveAll(vendorPackage)
 				os.RemoveAll(vendorDir)
 			})
-			it("contributes for the build phase", func() {
-				factory.AddBuildPlan(python_packages.Dependency, buildplan.Dependency{
-					Metadata: buildplan.Metadata{"build": true},
+
+			it("contributes for the build phase when set in the plan", func() {
+				factory.AddDependency(python_packages.Dependency, requirementsPath)
+				factory.AddPlan(buildpackplan.Plan{
+					Name:     python_packages.Dependency,
+					Metadata: buildpackplan.Metadata{"build": true},
 				})
 
-				contributor, _, err := python_packages.NewContributor(factory.Build, mockPkgManager)
+				contributor, ok, err := python_packages.NewContributor(factory.Build, mockPkgManager)
 				Expect(err).NotTo(HaveOccurred())
+				Expect(ok).To(BeTrue())
 
 				Expect(contributor.Contribute()).To(Succeed())
 
 				packagesLayer := factory.Build.Layers.Layer(python_packages.Dependency)
-				Expect(packagesLayer).To(test.HaveLayerMetadata(true, true, false))
+				Expect(packagesLayer).To(test.HaveLayerMetadata(true, false, false))
 
 				Expect(filepath.Join(packagesLayer.Root, "vendoredFile")).To(BeARegularFile())
 			})
@@ -104,8 +112,10 @@ func testPythonPackages(t *testing.T, when spec.G, it spec.S) {
 				procFileString := "web: gunicorn server:app"
 				Expect(helper.WriteFile(filepath.Join(factory.Build.Application.Root, "Procfile"), 0666, procFileString)).To(Succeed())
 
-				factory.AddBuildPlan(python_packages.Dependency, buildplan.Dependency{
-					Metadata: buildplan.Metadata{"launch": true},
+				factory.AddDependency(python_packages.Dependency, requirementsPath)
+				factory.AddPlan(buildpackplan.Plan{
+					Name:     python_packages.Dependency,
+					Metadata: buildpackplan.Metadata{"launch": true},
 				})
 
 				contributor, _, err := python_packages.NewContributor(factory.Build, mockPkgManager)
@@ -113,16 +123,15 @@ func testPythonPackages(t *testing.T, when spec.G, it spec.S) {
 
 				Expect(contributor.Contribute()).To(Succeed())
 
-				Expect(factory.Build.Layers).To(test.HaveApplicationMetadata(layers.Metadata{Processes: []layers.Process{{"web", "gunicorn server:app"}}}))
+				Expect(factory.Build.Layers).To(test.HaveApplicationMetadata(layers.Metadata{Processes: []layers.Process{{Type: "web", Command: "gunicorn server:app"}}}))
 				packagesLayer := factory.Build.Layers.Layer(python_packages.Dependency)
-				Expect(packagesLayer).To(test.HaveLayerMetadata(false, true, true))
+				Expect(packagesLayer).To(test.HaveLayerMetadata(false, false, true))
 				Expect(filepath.Join(packagesLayer.Root, "vendoredFile")).To(BeARegularFile())
 			})
 		})
 
 		when("the app is not vendored", func() {
 			it.Before(func() {
-				requirementsPath := filepath.Join(factory.Build.Application.Root, "requirements.txt")
 				test.TouchFile(t, requirementsPath)
 				packages := factory.Build.Layers.Layer(python_packages.Dependency).Root
 				cacheDir := factory.Build.Layers.Layer(python_packages.Cache).Root
@@ -135,9 +144,11 @@ func testPythonPackages(t *testing.T, when spec.G, it spec.S) {
 				})
 			})
 
-			it("contributes for the build phase", func() {
-				factory.AddBuildPlan(python_packages.Dependency, buildplan.Dependency{
-					Metadata: buildplan.Metadata{"build": true},
+			it("contributes for the build phase when set in the plan", func() {
+				factory.AddDependency(python_packages.Dependency, requirementsPath)
+				factory.AddPlan(buildpackplan.Plan{
+					Name:     python_packages.Dependency,
+					Metadata: buildpackplan.Metadata{"build": true},
 				})
 
 				contributor, _, err := python_packages.NewContributor(factory.Build, mockPkgManager)
@@ -147,7 +158,7 @@ func testPythonPackages(t *testing.T, when spec.G, it spec.S) {
 
 				packagesLayer := factory.Build.Layers.Layer(python_packages.Dependency)
 				cacheLayer := factory.Build.Layers.Layer(python_packages.Cache)
-				Expect(packagesLayer).To(test.HaveLayerMetadata(true, true, false))
+				Expect(packagesLayer).To(test.HaveLayerMetadata(true, false, false))
 				Expect(cacheLayer).To(test.HaveLayerMetadata(false, true, false))
 				Expect(filepath.Join(packagesLayer.Root, "package")).To(BeARegularFile())
 			})
@@ -156,8 +167,10 @@ func testPythonPackages(t *testing.T, when spec.G, it spec.S) {
 				procFileString := "web: gunicorn server:app"
 				Expect(helper.WriteFile(filepath.Join(factory.Build.Application.Root, "Procfile"), 0666, procFileString)).To(Succeed())
 
-				factory.AddBuildPlan(python_packages.Dependency, buildplan.Dependency{
-					Metadata: buildplan.Metadata{"launch": true},
+				factory.AddDependency(python_packages.Dependency, requirementsPath)
+				factory.AddPlan(buildpackplan.Plan{
+					Name:     python_packages.Dependency,
+					Metadata: buildpackplan.Metadata{"launch": true},
 				})
 
 				contributor, _, err := python_packages.NewContributor(factory.Build, mockPkgManager)
@@ -165,11 +178,11 @@ func testPythonPackages(t *testing.T, when spec.G, it spec.S) {
 
 				Expect(contributor.Contribute()).To(Succeed())
 
-				Expect(factory.Build.Layers).To(test.HaveApplicationMetadata(layers.Metadata{Processes: []layers.Process{{"web", "gunicorn server:app"}}}))
+				Expect(factory.Build.Layers).To(test.HaveApplicationMetadata(layers.Metadata{Processes: []layers.Process{{Type: "web", Command: "gunicorn server:app"}}}))
 
 				packagesLayer := factory.Build.Layers.Layer(python_packages.Dependency)
 				cacheLayer := factory.Build.Layers.Layer(python_packages.Cache)
-				Expect(packagesLayer).To(test.HaveLayerMetadata(false, true, true))
+				Expect(packagesLayer).To(test.HaveLayerMetadata(false, false, true))
 				Expect(cacheLayer).To(test.HaveLayerMetadata(false, true, false))
 				Expect(filepath.Join(packagesLayer.Root, "package")).To(BeARegularFile())
 			})

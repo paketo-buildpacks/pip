@@ -12,10 +12,11 @@ import (
 	"github.com/cloudfoundry/libcfbuildpack/build"
 	"github.com/cloudfoundry/libcfbuildpack/helper"
 	"github.com/cloudfoundry/libcfbuildpack/layers"
+	"github.com/cloudfoundry/libcfbuildpack/logger"
 )
 
 const (
-	Dependency       = "python_packages"
+	Dependency       = "requirements"
 	Cache            = "pip_cache"
 	RequirementsFile = "requirements.txt"
 )
@@ -25,23 +26,34 @@ type PackageManager interface {
 	InstallVendor(requirementsPath, location, vendorDir string) error
 }
 
+type Metadata struct {
+	Name string
+	Hash string
+}
+
+func (m Metadata) Identity() (name string, version string) {
+	return m.Name, m.Hash
+}
+
 type Contributor struct {
-	manager            PackageManager
-	app                application.Application
-	packagesLayer      layers.Layer
-	launchLayer        layers.Layers
-	cacheLayer         layers.Layer
-	buildContribution  bool
-	launchContribution bool
+	manager               PackageManager
+	app                   application.Application
+	packagesLayer         layers.Layer
+	packagesLayerMetadata logger.Identifiable
+	launchLayer           layers.Layers
+	cacheLayer            layers.Layer
+	cacheLayerMetadata    logger.Identifiable
+	buildContribution     bool
+	launchContribution    bool
 }
 
 func NewContributor(context build.Build, manager PackageManager) (Contributor, bool, error) {
-	dep, willContribute := context.BuildPlan[Dependency]
-	if !willContribute {
-		return Contributor{}, false, nil
+	plan, willContribute, err := context.Plans.GetShallowMerged(Dependency)
+	if err != nil || !willContribute {
+		return Contributor{}, false, err
 	}
 
-	requirementsFile := filepath.Join(context.Application.Root, "requirements.txt")
+	requirementsFile := filepath.Join(context.Application.Root, RequirementsFile)
 	if exists, err := helper.FileExists(requirementsFile); err != nil {
 		return Contributor{}, false, err
 	} else if !exists {
@@ -56,11 +68,11 @@ func NewContributor(context build.Build, manager PackageManager) (Contributor, b
 		launchLayer:   context.Layers,
 	}
 
-	if _, ok := dep.Metadata["build"]; ok {
+	if _, ok := plan.Metadata["build"]; ok {
 		contributor.buildContribution = true
 	}
 
-	if _, ok := dep.Metadata["launch"]; ok {
+	if _, ok := plan.Metadata["launch"]; ok {
 		contributor.launchContribution = true
 	}
 
@@ -126,7 +138,7 @@ func (c Contributor) contributeStartCommand() error {
 		}
 
 		proc := regexp.MustCompile(`^\s*web\s*:\s*`).ReplaceAllString(string(buf), "")
-		return c.launchLayer.WriteApplicationMetadata(layers.Metadata{Processes: []layers.Process{{"web", proc}}})
+		return c.launchLayer.WriteApplicationMetadata(layers.Metadata{Processes: []layers.Process{{Type: "web", Command: proc}}})
 	}
 
 	return nil
@@ -147,7 +159,7 @@ func (c Contributor) contributePipCache() error {
 }
 
 func (c Contributor) flags() []layers.Flag {
-	flags := []layers.Flag{layers.Cache}
+	flags := []layers.Flag{}
 
 	if c.buildContribution {
 		flags = append(flags, layers.Build)

@@ -27,37 +27,45 @@ func testDetect(t *testing.T, when spec.G, it spec.S) {
 		factory = test.NewDetectFactory(t)
 	})
 
-	when("there is no requirements.txt and no buildplan", func() {
-		it("should fail detection", func() {
+	when("there is no requirements.txt", func() {
+		it("passes and requires that dependency", func() {
 			code, err := runDetect(factory.Detect)
+
 			Expect(err).ToNot(HaveOccurred())
-			Expect(code).To(Equal(detect.FailStatusCode))
+			Expect(code).To(Equal(detect.PassStatusCode))
+			Expect(factory.Plans.Plan).To(Equal(getStandardBuildplan([]buildplan.Provided{})))
 		})
 	})
 
-	when("python packages are requested in the buildplan", func() {
-		it("passes", func() {
-			factory.AddBuildPlan(python_packages.Dependency, buildplan.Dependency{})
-			factory.AddBuildPlan(python.Dependency, buildplan.Dependency{
-				Version:  "",
-				Metadata: buildplan.Metadata{"build": true, "launch": true},
-			})
-
+	when("the app has a requirements.txt", func() {
+		it("requires and provides that dependency", func() {
+			test.TouchFile(t, factory.Detect.Application.Root, "requirements.txt")
 			code, err := runDetect(factory.Detect)
 
 			Expect(err).ToNot(HaveOccurred())
 			Expect(code).To(Equal(detect.PassStatusCode))
 
-			Expect(factory.Output).To(Equal(buildplan.BuildPlan{
-				python.Dependency: buildplan.Dependency{
-					Version:  "",
-					Metadata: buildplan.Metadata{"build": true, "launch": true},
-				},
-				python_packages.Dependency: buildplan.Dependency{
-					Metadata: buildplan.Metadata{"build": true, "launch": true},
-				},
-			}))
+			Expect(factory.Plans.Plan).To(Equal(getStandardBuildplan([]buildplan.Provided{{Name: python_packages.Dependency}})))
 		})
 	})
 
+}
+
+func getStandardBuildplan(provides []buildplan.Provided) buildplan.Plan {
+	return buildplan.Plan{
+		Provides: provides,
+		Requires: []buildplan.Required{
+			{
+				Name: python.Dependency,
+				Metadata: buildplan.Metadata{
+					"build":  true,
+					"launch": true,
+				},
+			},
+			{
+				Name:     python_packages.Dependency,
+				Metadata: buildplan.Metadata{"launch": true},
+			},
+		},
+	}
 }
