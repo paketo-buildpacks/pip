@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	Dependency       = "requirements"
+	Dependency       = "python_packages"
 	Cache            = "pip_cache"
 	RequirementsFile = "requirements.txt"
 )
