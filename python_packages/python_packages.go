@@ -3,6 +3,7 @@ package python_packages
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"path/filepath"
 	"regexp"
 
@@ -17,6 +18,7 @@ import (
 
 const (
 	Dependency       = "python_packages"
+	Requirements     = "requirements"
 	Cache            = "pip_cache"
 	RequirementsFile = "requirements.txt"
 )
@@ -49,15 +51,18 @@ type Contributor struct {
 
 func NewContributor(context build.Build, manager PackageManager) (Contributor, bool, error) {
 	plan, willContribute, err := context.Plans.GetShallowMerged(Dependency)
+	if err != nil {
+		log.Fatal(err)
+	}
 	if err != nil || !willContribute {
 		return Contributor{}, false, err
 	}
 
-	requirementsFile := filepath.Join(context.Application.Root, RequirementsFile)
-	if exists, err := helper.FileExists(requirementsFile); err != nil {
+	requirementsPath := filepath.Join(context.Application.Root, RequirementsFile)
+	if exists, err := helper.FileExists(requirementsPath); err != nil {
 		return Contributor{}, false, err
 	} else if !exists {
-		return Contributor{}, false, fmt.Errorf(`unable to find "requirements.txt"`)
+		return Contributor{}, false, fmt.Errorf(`unable to find "%s"`, RequirementsFile)
 	}
 
 	contributor := Contributor{

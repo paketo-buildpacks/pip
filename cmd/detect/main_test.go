@@ -33,7 +33,27 @@ func testDetect(t *testing.T, when spec.G, it spec.S) {
 
 			Expect(err).ToNot(HaveOccurred())
 			Expect(code).To(Equal(detect.PassStatusCode))
-			Expect(factory.Plans.Plan).To(Equal(getStandardBuildplan([]buildplan.Provided{})))
+			Expect(factory.Plans.Plan).To(Equal(buildplan.Plan{
+				Requires: []buildplan.Required{
+					{
+						Name: python.Dependency,
+						Metadata: buildplan.Metadata{"build": true, "launch":true},
+					},
+					{
+						Name: python_packages.Dependency,
+						Metadata: buildplan.Metadata{"launch": true},
+					},
+					{
+						Name: python_packages.Requirements,
+						Metadata: buildplan.Metadata{"build": true},
+					},
+				},
+				Provides: []buildplan.Provided{
+					{
+						Name: python_packages.Dependency,
+					},
+				},
+			}))
 		})
 	})
 
@@ -44,28 +64,31 @@ func testDetect(t *testing.T, when spec.G, it spec.S) {
 
 			Expect(err).ToNot(HaveOccurred())
 			Expect(code).To(Equal(detect.PassStatusCode))
-
-			Expect(factory.Plans.Plan).To(Equal(getStandardBuildplan([]buildplan.Provided{{Name: python_packages.Dependency}})))
+			Expect(factory.Plans.Plan).To(Equal(buildplan.Plan{
+				Requires: []buildplan.Required{
+					{
+						Name: python.Dependency,
+						Metadata: buildplan.Metadata{"build": true, "launch":true},
+					},
+					{
+						Name: python_packages.Dependency,
+						Metadata: buildplan.Metadata{"launch": true},
+					},
+					{
+						Name: python_packages.Requirements,
+						Metadata: buildplan.Metadata{"build": true},
+					},
+				},
+				Provides: []buildplan.Provided{
+					{
+						Name: python_packages.Dependency,
+					},
+					{
+						Name: python_packages.Requirements,
+					},
+				},
+			}))
 		})
 	})
 
-}
-
-func getStandardBuildplan(provides []buildplan.Provided) buildplan.Plan {
-	return buildplan.Plan{
-		Provides: provides,
-		Requires: []buildplan.Required{
-			{
-				Name: python.Dependency,
-				Metadata: buildplan.Metadata{
-					"build":  true,
-					"launch": true,
-				},
-			},
-			{
-				Name:     python_packages.Dependency,
-				Metadata: buildplan.Metadata{"launch": true},
-			},
-		},
-	}
 }

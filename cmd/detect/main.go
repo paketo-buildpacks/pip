@@ -29,27 +29,34 @@ func main() {
 }
 
 func runDetect(context detect.Detect) (int, error) {
+	provided := []buildplan.Provided{
+		{Name: python_packages.Dependency},
+	}
+
 	exists, err := helper.FileExists(filepath.Join(context.Application.Root, "requirements.txt"))
 	if err != nil {
 		return detect.FailStatusCode, err
+	} else if exists {
+		provided = append(provided, buildplan.Provided{Name:python_packages.Requirements})
 	}
 
-	provided := []buildplan.Provided{}
-	if exists {
-		provided = append(provided, buildplan.Provided{Name: python_packages.Dependency})
+	requires := []buildplan.Required{
+		{
+			Name:     python.Dependency,
+			Metadata: buildplan.Metadata{"build": true, "launch": true},
+		},
+		{
+			Name:     python_packages.Dependency,
+			Metadata: buildplan.Metadata{"launch": true},
+		},
+		{
+			Name: python_packages.Requirements,
+			Metadata: buildplan.Metadata{"build": true},
+		},
 	}
 
 	return context.Pass(buildplan.Plan{
 		Provides: provided,
-		Requires: []buildplan.Required{
-			{
-				Name:     python.Dependency,
-				Metadata: buildplan.Metadata{"build": true, "launch": true},
-			},
-			{
-				Name:     python_packages.Dependency,
-				Metadata: buildplan.Metadata{"launch": true},
-			},
-		},
+		Requires: requires,
 	})
 }
