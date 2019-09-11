@@ -29,8 +29,8 @@ github.com/cloudfoundry/libcfbuildpack/runner
 github.com/cloudfoundry/libcfbuildpack/services
 github.com/cloudfoundry/libcfbuildpack/test
 github.com/cloudfoundry/libcfbuildpack/internal
-# github.com/cloudfoundry/python-cnb v0.0.16
-github.com/cloudfoundry/python-cnb/python
+# github.com/cloudfoundry/python-runtime-cnb v0.0.24
+github.com/cloudfoundry/python-runtime-cnb/python
 # github.com/fatih/color v1.7.0
 github.com/fatih/color
 # github.com/golang/mock v1.3.1

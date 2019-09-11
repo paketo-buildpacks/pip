@@ -10,7 +10,7 @@ import (
 	"github.com/buildpack/libbuildpack/buildplan"
 	"github.com/cloudfoundry/libcfbuildpack/detect"
 	"github.com/cloudfoundry/libcfbuildpack/helper"
-	"github.com/cloudfoundry/python-cnb/python"
+	"github.com/cloudfoundry/python-runtime-cnb/python"
 )
 
 func main() {
