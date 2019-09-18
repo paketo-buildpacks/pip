@@ -15,8 +15,8 @@ github.com/cloudfoundry/dagger v0.0.0-20190910211006-e7385ebe12c4/go.mod h1:vbei
 github.com/cloudfoundry/libcfbuildpack v1.76.0/go.mod h1:QGm+nzixn579dvQNlS7ZQET541y2hEpZ0/5uNxkQ04Y=
 github.com/cloudfoundry/libcfbuildpack v1.85.0 h1:7ncRWtaz2zltkaKx4lrzj1xZihEu6UM7uven/Ip1wAo=
 github.com/cloudfoundry/libcfbuildpack v1.85.0/go.mod h1:SU8UqWgq0UMx6FegsTxny8LPFQBC/AcLBlbc/H760Ag=
-github.com/cloudfoundry/libcfbuildpack v1.85.4 h1:wh+woyzp2UTIHeiPJdeOmshNioROSBMEUXdIyExxn7g=
-github.com/cloudfoundry/libcfbuildpack v1.85.4/go.mod h1:oPScuxhq4GUuWRpDmbc/M4qK9ta9bLc5egQFlNdYjUg=
+github.com/cloudfoundry/libcfbuildpack v1.86.0 h1:ES6fD7hNKL5Kz0SaTnpqzfK3jNrJUd3HmBCQfpdzLtw=
+github.com/cloudfoundry/libcfbuildpack v1.86.0/go.mod h1:oPScuxhq4GUuWRpDmbc/M4qK9ta9bLc5egQFlNdYjUg=
 github.com/cloudfoundry/python-runtime-cnb v0.0.24 h1:gEtRvDN2xGgESqeg1s6Xlj4f/Ns89RxF4ETSG1gMaek=
 github.com/cloudfoundry/python-runtime-cnb v0.0.24/go.mod h1:30q5ldSfVTc1IM3AF6D0e+n4Zwcpd0U5OPoNswFgYgE=
 github.com/fatih/color v1.7.0 h1:DkWD4oS2D8LGGgTQ6IvwJJXSL5Vp2ffcQg58nFV38Ys=
