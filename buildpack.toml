@@ -26,5 +26,14 @@ api = "0.2"
     uri = "https://buildpacks.cloudfoundry.org/dependencies/pip/pip-9.0.3-7bf48f9a.tar.gz"
     version = "9.0.3"
 
+  [[metadata.dependencies]]
+    id = "pip"
+    sha256 = "1370566059b921584f4597c2765a7c91ed3ab52820b8aeb08f3f9197135ea29f"
+    source = "https://files.pythonhosted.org/packages/ce/ea/9b445176a65ae4ba22dce1d93e4b5fe182f953df71a145f557cffaffc1bf/pip-19.3.1.tar.gz"
+    source_sha256 = "21207d76c1031e517668898a6b46a9fb1501c7a4710ef5dfd6a40ad9e6757ea7"
+    stacks = ["io.buildpacks.stacks.bionic", "org.cloudfoundry.stacks.cflinuxfs3"]
+    uri = "https://buildpacks.cloudfoundry.org/dependencies/pip/pip-19.3.1-any-stack-13705660.tgz"
+    version = "19.3.1"
+
 [[stacks]]
   id = "org.cloudfoundry.stacks.cflinuxfs3"
