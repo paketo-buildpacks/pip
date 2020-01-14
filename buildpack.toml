@@ -20,14 +20,6 @@ api = "0.2"
 
   [[metadata.dependencies]]
     id = "pip"
-    sha256 = "7bf48f9a693be1d58f49f7af7e0ae9fe29fd671cde8a55e6edca3581c4ef5796"
-    source = "https://files.pythonhosted.org/packages/c4/44/e6b8056b6c8f2bfd1445cc9990f478930d8e3459e9dbf5b8e2d2922d64d3/pip-9.0.3.tar.gz"
-    stacks = ["org.cloudfoundry.stacks.cflinuxfs2"]
-    uri = "https://buildpacks.cloudfoundry.org/dependencies/pip/pip-9.0.3-7bf48f9a.tar.gz"
-    version = "9.0.3"
-
-  [[metadata.dependencies]]
-    id = "pip"
     sha256 = "1370566059b921584f4597c2765a7c91ed3ab52820b8aeb08f3f9197135ea29f"
     source = "https://files.pythonhosted.org/packages/ce/ea/9b445176a65ae4ba22dce1d93e4b5fe182f953df71a145f557cffaffc1bf/pip-19.3.1.tar.gz"
     source_sha256 = "21207d76c1031e517668898a6b46a9fb1501c7a4710ef5dfd6a40ad9e6757ea7"
