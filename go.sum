@@ -37,8 +37,8 @@ github.com/chzyer/test v0.0.0-20180213035817-a1ea475d72b1/go.mod h1:Q3SI9o4m/ZMn
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=
 github.com/cloudfoundry/dagger v0.0.0-20190910211006-e7385ebe12c4 h1:YntXPlrEIZ9/glePgiY0HTecy1EsNhdDz8zFa79tQ6o=
 github.com/cloudfoundry/dagger v0.0.0-20190910211006-e7385ebe12c4/go.mod h1:vbeid+MuoJPZXM8fGvJy87lDLvu/q0Rs1NN4M6lFFg4=
-github.com/cloudfoundry/dagger v0.0.0-20200114192520-43fb0b3ec98f h1:FGZ3xUDBwRwgzrzKBUE7OcZJvpz+V/8BI9STVROI61g=
-github.com/cloudfoundry/dagger v0.0.0-20200114192520-43fb0b3ec98f/go.mod h1:PiNRNPj6nYimhASeft5kCrRhXzyKeqfkP9Wg+/7NivA=
+github.com/cloudfoundry/dagger v0.0.0-20200115142400-b69a9b4eabf4 h1:bE5Oe75iiYgFOcrvH9FUGLK8KfYyrA+QGvl2RlFH0lA=
+github.com/cloudfoundry/dagger v0.0.0-20200115142400-b69a9b4eabf4/go.mod h1:PiNRNPj6nYimhASeft5kCrRhXzyKeqfkP9Wg+/7NivA=
 github.com/cloudfoundry/libcfbuildpack v1.76.0/go.mod h1:QGm+nzixn579dvQNlS7ZQET541y2hEpZ0/5uNxkQ04Y=
 github.com/cloudfoundry/libcfbuildpack v1.85.0 h1:7ncRWtaz2zltkaKx4lrzj1xZihEu6UM7uven/Ip1wAo=
 github.com/cloudfoundry/libcfbuildpack v1.85.0/go.mod h1:SU8UqWgq0UMx6FegsTxny8LPFQBC/AcLBlbc/H760Ag=
