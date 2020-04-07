@@ -9,6 +9,6 @@ require (
 	github.com/cloudfoundry/python-runtime-cnb v0.0.24
 	github.com/fatih/color v1.9.0
 	github.com/golang/mock v1.4.3
-	github.com/onsi/gomega v1.8.1
+	github.com/onsi/gomega v1.9.0
 	github.com/sclevine/spec v1.4.0
 )
