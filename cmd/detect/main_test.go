@@ -3,16 +3,14 @@ package main
 import (
 	"testing"
 
-	"github.com/cloudfoundry/pip-cnb/python_packages"
-
 	"github.com/buildpack/libbuildpack/buildplan"
-	"github.com/cloudfoundry/python-runtime-cnb/python"
-
 	"github.com/cloudfoundry/libcfbuildpack/detect"
 	"github.com/cloudfoundry/libcfbuildpack/test"
-	. "github.com/onsi/gomega"
+	"github.com/cloudfoundry/pip-cnb/python_packages"
 	"github.com/sclevine/spec"
 	"github.com/sclevine/spec/report"
+
+	. "github.com/onsi/gomega"
 )
 
 func TestUnitDetect(t *testing.T) {
@@ -36,15 +34,15 @@ func testDetect(t *testing.T, when spec.G, it spec.S) {
 			Expect(factory.Plans.Plan).To(Equal(buildplan.Plan{
 				Requires: []buildplan.Required{
 					{
-						Name: python.Dependency,
-						Metadata: buildplan.Metadata{"build": true, "launch":true},
+						Name:     "python",
+						Metadata: buildplan.Metadata{"build": true, "launch": true},
 					},
 					{
-						Name: python_packages.Dependency,
+						Name:     python_packages.Dependency,
 						Metadata: buildplan.Metadata{"launch": true},
 					},
 					{
-						Name: python_packages.Requirements,
+						Name:     python_packages.Requirements,
 						Metadata: buildplan.Metadata{"build": true},
 					},
 				},
@@ -67,15 +65,15 @@ func testDetect(t *testing.T, when spec.G, it spec.S) {
 			Expect(factory.Plans.Plan).To(Equal(buildplan.Plan{
 				Requires: []buildplan.Required{
 					{
-						Name: python.Dependency,
-						Metadata: buildplan.Metadata{"build": true, "launch":true},
+						Name:     "python",
+						Metadata: buildplan.Metadata{"build": true, "launch": true},
 					},
 					{
-						Name: python_packages.Dependency,
+						Name:     python_packages.Dependency,
 						Metadata: buildplan.Metadata{"launch": true},
 					},
 					{
-						Name: python_packages.Requirements,
+						Name:     python_packages.Requirements,
 						Metadata: buildplan.Metadata{"build": true},
 					},
 				},

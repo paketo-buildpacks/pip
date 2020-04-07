@@ -10,8 +10,9 @@ import (
 	"github.com/buildpack/libbuildpack/buildplan"
 	"github.com/cloudfoundry/libcfbuildpack/detect"
 	"github.com/cloudfoundry/libcfbuildpack/helper"
-	"github.com/cloudfoundry/python-runtime-cnb/python"
 )
+
+const PythonDependency = "python"
 
 func main() {
 	context, err := detect.DefaultDetect()
@@ -37,12 +38,12 @@ func runDetect(context detect.Detect) (int, error) {
 	if err != nil {
 		return detect.FailStatusCode, err
 	} else if exists {
-		provided = append(provided, buildplan.Provided{Name:python_packages.Requirements})
+		provided = append(provided, buildplan.Provided{Name: python_packages.Requirements})
 	}
 
 	requires := []buildplan.Required{
 		{
-			Name:     python.Dependency,
+			Name:     PythonDependency,
 			Metadata: buildplan.Metadata{"build": true, "launch": true},
 		},
 		{
@@ -50,7 +51,7 @@ func runDetect(context detect.Detect) (int, error) {
 			Metadata: buildplan.Metadata{"launch": true},
 		},
 		{
-			Name: python_packages.Requirements,
+			Name:     python_packages.Requirements,
 			Metadata: buildplan.Metadata{"build": true},
 		},
 	}

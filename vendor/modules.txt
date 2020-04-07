@@ -36,11 +36,9 @@ github.com/cloudfoundry/libcfbuildpack/services
 github.com/cloudfoundry/libcfbuildpack/test
 # github.com/cloudfoundry/packit v0.0.0-20191202164725-43d6fa19d96c
 github.com/cloudfoundry/packit/pexec
-# github.com/cloudfoundry/python-runtime-cnb v0.0.24
-github.com/cloudfoundry/python-runtime-cnb/python
 # github.com/fatih/color v1.9.0
 github.com/fatih/color
-# github.com/golang/mock v1.3.1
+# github.com/golang/mock v1.4.3
 github.com/golang/mock/gomock
 # github.com/golang/protobuf v1.3.2
 github.com/golang/protobuf/proto
@@ -54,7 +52,7 @@ github.com/mattn/go-colorable
 github.com/mattn/go-isatty
 # github.com/mitchellh/mapstructure v1.1.2
 github.com/mitchellh/mapstructure
-# github.com/onsi/gomega v1.8.1
+# github.com/onsi/gomega v1.9.0
 github.com/onsi/gomega
 github.com/onsi/gomega/format
 github.com/onsi/gomega/internal/assertion
