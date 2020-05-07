@@ -8,6 +8,6 @@ require (
 	github.com/cloudfoundry/libcfbuildpack v1.91.23
 	github.com/fatih/color v1.9.0
 	github.com/golang/mock v1.4.3
-	github.com/onsi/gomega v1.9.0
+	github.com/onsi/gomega v1.10.0
 	github.com/sclevine/spec v1.4.0
 )
