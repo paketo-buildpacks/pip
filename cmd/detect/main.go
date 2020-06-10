@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/cloudfoundry/pip-cnb/python_packages"
+	"github.com/paketo-community/pip/python_packages"
 
 	"github.com/buildpack/libbuildpack/buildplan"
 	"github.com/cloudfoundry/libcfbuildpack/detect"

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/cloudfoundry/pip-cnb/pip"
-	"github.com/cloudfoundry/pip-cnb/python_packages"
+	"github.com/paketo-community/pip/pip"
+	"github.com/paketo-community/pip/python_packages"
 
 	"github.com/cloudfoundry/libcfbuildpack/build"
 	"github.com/cloudfoundry/libcfbuildpack/buildpackplan"

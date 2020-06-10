@@ -6,7 +6,7 @@ import (
 	"github.com/buildpack/libbuildpack/buildplan"
 	"github.com/cloudfoundry/libcfbuildpack/detect"
 	"github.com/cloudfoundry/libcfbuildpack/test"
-	"github.com/cloudfoundry/pip-cnb/python_packages"
+	"github.com/paketo-community/pip/python_packages"
 	"github.com/sclevine/spec"
 	"github.com/sclevine/spec/report"
 
