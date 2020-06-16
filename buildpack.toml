@@ -1,7 +1,7 @@
 api = "0.2"
 
 [buildpack]
-  id = "org.cloudfoundry.pip"
+  id = "paketo-community/pip"
   name = "Pip Buildpack"
   version = "{{ .Version }}"
 
