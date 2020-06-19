@@ -13,7 +13,6 @@ import (
 	"github.com/cloudfoundry/libcfbuildpack/build"
 	"github.com/cloudfoundry/libcfbuildpack/helper"
 	"github.com/cloudfoundry/libcfbuildpack/layers"
-	"github.com/cloudfoundry/libcfbuildpack/logger"
 )
 
 const (
@@ -38,15 +37,13 @@ func (m Metadata) Identity() (name string, version string) {
 }
 
 type Contributor struct {
-	manager               PackageManager
-	app                   application.Application
-	packagesLayer         layers.Layer
-	packagesLayerMetadata logger.Identifiable
-	launchLayer           layers.Layers
-	cacheLayer            layers.Layer
-	cacheLayerMetadata    logger.Identifiable
-	buildContribution     bool
-	launchContribution    bool
+	manager            PackageManager
+	app                application.Application
+	packagesLayer      layers.Layer
+	launchLayer        layers.Layers
+	cacheLayer         layers.Layer
+	buildContribution  bool
+	launchContribution bool
 }
 
 func NewContributor(context build.Build, manager PackageManager) (Contributor, bool, error) {
@@ -122,7 +119,7 @@ func (c Contributor) contributePythonModules() error {
 		}
 	}
 
-	if err := c.packagesLayer.AppendPathSharedEnv("PYTHONUSERBASE", c.packagesLayer.Root); err != nil {
+	if err := c.packagesLayer.PrependPathSharedEnv("PYTHONUSERBASE", c.packagesLayer.Root); err != nil {
 		return err
 	}
 
