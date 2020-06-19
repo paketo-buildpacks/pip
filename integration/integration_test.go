@@ -26,32 +26,45 @@ func TestIntegration(t *testing.T) {
 
 	pipURI, err = dagger.PackageBuildpack(bpDir)
 	Expect(err).ToNot(HaveOccurred())
-	defer dagger.DeleteBuildpack(pipURI)
 
 	pythonURI, err = dagger.GetLatestCommunityBuildpack("paketo-community", "python-runtime")
 	Expect(err).ToNot(HaveOccurred())
-	defer dagger.DeleteBuildpack(pythonURI)
 
+	defer AfterSuite(t)
 	spec.Run(t, "Integration", testIntegration, spec.Report(report.Terminal{}))
 }
 
+func AfterSuite(t *testing.T) {
+	var Expect = NewWithT(t).Expect
+
+	Expect(dagger.DeleteBuildpack(pipURI)).To(Succeed())
+	Expect(dagger.DeleteBuildpack(pythonURI)).To(Succeed())
+}
+
 func testIntegration(t *testing.T, when spec.G, it spec.S) {
-	var Expect func(interface{}, ...interface{}) GomegaAssertion
-	it.Before(func() {
+	var (
 		Expect = NewWithT(t).Expect
+
+		app *dagger.App
+	)
+
+	it.After(func() {
+		Expect(app.Destroy()).To(Succeed())
 	})
 
 	when("building a simple app", func() {
 		it("runs a python app using pip", func() {
-			app, err := dagger.PackBuild(filepath.Join("testdata", "simple_app"), pythonURI, pipURI)
+			var err error
+			app, err = dagger.PackBuild(filepath.Join("testdata", "simple_app"), pythonURI, pipURI)
 			Expect(err).ToNot(HaveOccurred())
-			defer app.Destroy()
 
 			app.SetHealthCheck("", "3s", "1s")
 
 			err = app.Start()
 			if err != nil {
 				_, err = fmt.Fprintf(os.Stderr, "App failed to start: %v\n", err)
+				Expect(err).NotTo(HaveOccurred())
+
 				containerID, imageName, volumeIDs, err := app.Info()
 				Expect(err).NotTo(HaveOccurred())
 				fmt.Printf("ContainerID: %s\nImage Name: %s\nAll leftover cached volumes: %v\n", containerID, imageName, volumeIDs)
@@ -68,9 +81,9 @@ func testIntegration(t *testing.T, when spec.G, it spec.S) {
 		})
 
 		it("caches reused modules for the same app, but downloads new modules ", func() {
-			app, err := dagger.PackBuild(filepath.Join("testdata", "simple_app"), pythonURI, pipURI)
+			var err error
+			app, err = dagger.PackBuild(filepath.Join("testdata", "simple_app"), pythonURI, pipURI)
 			Expect(err).ToNot(HaveOccurred())
-			defer app.Destroy()
 
 			app.SetHealthCheck("", "3s", "1s")
 			err = app.Start()
@@ -88,15 +101,17 @@ func testIntegration(t *testing.T, when spec.G, it spec.S) {
 
 	when("building a simple app that is vendored", func() {
 		it("runs a python app using pip", func() {
-			app, err := dagger.PackBuild(filepath.Join("testdata", "simple_app"), pythonURI, pipURI)
+			var err error
+			app, err = dagger.PackBuild(filepath.Join("testdata", "simple_app"), pythonURI, pipURI)
 			Expect(err).ToNot(HaveOccurred())
-			defer app.Destroy()
 
 			app.SetHealthCheck("", "3s", "1s")
 
 			err = app.Start()
 			if err != nil {
 				_, err = fmt.Fprintf(os.Stderr, "App failed to start: %v\n", err)
+				Expect(err).NotTo(HaveOccurred())
+
 				containerID, imageName, volumeIDs, err := app.Info()
 				Expect(err).NotTo(HaveOccurred())
 				fmt.Printf("ContainerID: %s\nImage Name: %s\nAll leftover cached volumes: %v\n", containerID, imageName, volumeIDs)
