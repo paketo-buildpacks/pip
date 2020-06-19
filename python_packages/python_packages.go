@@ -7,8 +7,6 @@ import (
 	"path/filepath"
 	"regexp"
 
-	"github.com/fatih/color"
-
 	"github.com/buildpack/libbuildpack/application"
 	"github.com/cloudfoundry/libcfbuildpack/build"
 	"github.com/cloudfoundry/libcfbuildpack/helper"
@@ -96,8 +94,7 @@ func (c Contributor) Contribute() error {
 func (c Contributor) contributePythonModules() error {
 	c.packagesLayer.Touch()
 
-	c.packagesLayer.Logger.FirstLine("%s: %s to layer",
-		c.packagesLayer.Logger.PrettyIdentity(pythonPackagesID{}), color.YellowString("Contributing"))
+	c.packagesLayer.Logger.Title(pythonPackagesID{})
 
 	requirements := filepath.Join(c.app.Root, RequirementsFile)
 	vendorDir := filepath.Join(c.app.Root, "vendor")
@@ -152,8 +149,7 @@ func (c Contributor) contributePipCache() error {
 	} else if cacheExists {
 		c.cacheLayer.Touch()
 
-		c.cacheLayer.Logger.FirstLine("%s: %s to layer",
-			c.cacheLayer.Logger.PrettyIdentity(pipCacheID{}), color.YellowString("Contributing"))
+		c.cacheLayer.Logger.Title(pipCacheID{})
 
 		return c.cacheLayer.WriteMetadata(nil, layers.Cache)
 	}
