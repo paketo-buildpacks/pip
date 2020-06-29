@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/cloudfoundry/pip-cnb/pip"
-	"github.com/cloudfoundry/pip-cnb/python_packages"
+	"github.com/paketo-community/pip/pip"
+	"github.com/paketo-community/pip/python_packages"
 
 	"github.com/cloudfoundry/libcfbuildpack/build"
 	"github.com/cloudfoundry/libcfbuildpack/buildpackplan"
@@ -27,7 +27,7 @@ func main() {
 }
 
 func runBuild(context build.Build) (int, error) {
-	context.Logger.FirstLine(context.Logger.PrettyIdentity(context.Buildpack))
+	context.Logger.Title(context.Buildpack)
 
 	pipPackageManager := pip.PIP{Logger: context.Logger}
 

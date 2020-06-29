@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/cloudfoundry/pip-cnb/python_packages"
+	"github.com/paketo-community/pip/python_packages"
 
 	"github.com/buildpack/libbuildpack/buildpackplan"
 	"github.com/cloudfoundry/libcfbuildpack/helper"
@@ -73,7 +73,7 @@ func testPythonPackages(t *testing.T, when spec.G, it spec.S) {
 				test.TouchFile(t, requirementsPath)
 
 				vendorDir = filepath.Join(factory.Build.Application.Root, "vendor")
-				os.MkdirAll(vendorDir, 0777)
+				Expect(os.MkdirAll(vendorDir, 0777)).To(Succeed())
 
 				packages := factory.Build.Layers.Layer(python_packages.Dependency).Root
 				vendorPackage = filepath.Join(packages, "vendoredFile")

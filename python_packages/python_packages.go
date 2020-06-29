@@ -7,13 +7,10 @@ import (
 	"path/filepath"
 	"regexp"
 
-	"github.com/fatih/color"
-
 	"github.com/buildpack/libbuildpack/application"
 	"github.com/cloudfoundry/libcfbuildpack/build"
 	"github.com/cloudfoundry/libcfbuildpack/helper"
 	"github.com/cloudfoundry/libcfbuildpack/layers"
-	"github.com/cloudfoundry/libcfbuildpack/logger"
 )
 
 const (
@@ -38,15 +35,13 @@ func (m Metadata) Identity() (name string, version string) {
 }
 
 type Contributor struct {
-	manager               PackageManager
-	app                   application.Application
-	packagesLayer         layers.Layer
-	packagesLayerMetadata logger.Identifiable
-	launchLayer           layers.Layers
-	cacheLayer            layers.Layer
-	cacheLayerMetadata    logger.Identifiable
-	buildContribution     bool
-	launchContribution    bool
+	manager            PackageManager
+	app                application.Application
+	packagesLayer      layers.Layer
+	launchLayer        layers.Layers
+	cacheLayer         layers.Layer
+	buildContribution  bool
+	launchContribution bool
 }
 
 func NewContributor(context build.Build, manager PackageManager) (Contributor, bool, error) {
@@ -99,8 +94,7 @@ func (c Contributor) Contribute() error {
 func (c Contributor) contributePythonModules() error {
 	c.packagesLayer.Touch()
 
-	c.packagesLayer.Logger.FirstLine("%s: %s to layer",
-		c.packagesLayer.Logger.PrettyIdentity(pythonPackagesID{}), color.YellowString("Contributing"))
+	c.packagesLayer.Logger.Title(pythonPackagesID{})
 
 	requirements := filepath.Join(c.app.Root, RequirementsFile)
 	vendorDir := filepath.Join(c.app.Root, "vendor")
@@ -122,7 +116,7 @@ func (c Contributor) contributePythonModules() error {
 		}
 	}
 
-	if err := c.packagesLayer.AppendPathSharedEnv("PYTHONUSERBASE", c.packagesLayer.Root); err != nil {
+	if err := c.packagesLayer.PrependPathSharedEnv("PYTHONUSERBASE", c.packagesLayer.Root); err != nil {
 		return err
 	}
 
@@ -155,8 +149,7 @@ func (c Contributor) contributePipCache() error {
 	} else if cacheExists {
 		c.cacheLayer.Touch()
 
-		c.cacheLayer.Logger.FirstLine("%s: %s to layer",
-			c.cacheLayer.Logger.PrettyIdentity(pipCacheID{}), color.YellowString("Contributing"))
+		c.cacheLayer.Logger.Title(pipCacheID{})
 
 		return c.cacheLayer.WriteMetadata(nil, layers.Cache)
 	}
