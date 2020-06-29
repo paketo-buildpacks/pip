@@ -9,8 +9,6 @@ require (
 	github.com/cloudfoundry/libcfbuildpack v1.91.23
 	github.com/fatih/color v1.9.0
 	github.com/golang/mock v1.4.3
-	github.com/mattn/go-colorable v0.1.6 // indirect
-	github.com/mitchellh/mapstructure v1.3.2 // indirect
 	github.com/onsi/gomega v1.10.1
 	github.com/sclevine/spec v1.4.0
 	golang.org/x/net v0.0.0-20200602114024-627f9648deb9 // indirect
