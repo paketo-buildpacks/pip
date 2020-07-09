@@ -3,6 +3,7 @@ package integration_test
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"testing"
 
@@ -19,12 +20,13 @@ var (
 )
 
 func TestIntegration(t *testing.T) {
-	var err error
 	Expect := NewWithT(t).Expect
-	bpDir, err = dagger.FindBPRoot()
+
+	var err error
+	bpDir, err = filepath.Abs("./..")
 	Expect(err).NotTo(HaveOccurred())
 
-	pipURI, err = dagger.PackageBuildpack(bpDir)
+	pipURI, err = Package(bpDir, "1.2.3", false)
 	Expect(err).ToNot(HaveOccurred())
 
 	pythonURI, err = dagger.GetLatestCommunityBuildpack("paketo-community", "python-runtime")
@@ -32,6 +34,29 @@ func TestIntegration(t *testing.T) {
 
 	defer AfterSuite(t)
 	spec.Run(t, "Integration", testIntegration, spec.Report(report.Terminal{}))
+}
+
+func Package(root, version string, cached bool) (string, error) {
+	var cmd *exec.Cmd
+
+	bpPath := filepath.Join(root, "artifact")
+	if cached {
+		cmd = exec.Command(".bin/packager", "--archive", "--version", version, fmt.Sprintf("%s-cached", bpPath))
+	} else {
+		cmd = exec.Command(".bin/packager", "--archive", "--uncached", "--version", version, bpPath)
+	}
+
+	cmd.Env = append(os.Environ(), fmt.Sprintf("PACKAGE_DIR=%s", bpPath))
+	cmd.Dir = root
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	err := cmd.Run()
+
+	if cached {
+		return fmt.Sprintf("%s-cached.tgz", bpPath), err
+	}
+
+	return fmt.Sprintf("%s.tgz", bpPath), err
 }
 
 func AfterSuite(t *testing.T) {
