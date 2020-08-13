@@ -2,7 +2,7 @@ api = "0.2"
 
 [buildpack]
   id = "paketo-community/pip"
-  name = "Pip Buildpack"
+  name = "Paketo Pip Buildpack"
   version = "{{ .Version }}"
 
 [metadata]
