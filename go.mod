@@ -10,6 +10,6 @@ require (
 	github.com/golang/mock v1.4.4
 	github.com/mattn/go-colorable v0.1.7 // indirect
 	github.com/mitchellh/mapstructure v1.3.2 // indirect
-	github.com/onsi/gomega v1.10.3
+	github.com/onsi/gomega v1.10.4
 	github.com/sclevine/spec v1.4.0
 )
