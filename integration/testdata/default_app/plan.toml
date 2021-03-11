@@ -1,0 +1,12 @@
+[[requires]]
+name = "pip"
+
+[requires.metadata]
+build = true
+launch = true
+
+[[requires]]
+name = "cpython"
+
+[requires.metadata]
+launch = true

@@ -1,13 +1,12 @@
-api = "0.2"
+api = "0.4"
 
 [buildpack]
   id = "paketo-community/pip"
   name = "Paketo Pip Buildpack"
-  version = "{{ .Version }}"
 
 [metadata]
-  include_files = ["bin/build", "bin/detect", "buildpack.toml"]
-  pre_package = "./scripts/build.sh"
+  include-files = ["bin/run", "bin/build", "bin/detect", "buildpack.toml"]
+  pre-package = "./scripts/build.sh"
 
   [[metadata.dependencies]]
     id = "pip"
