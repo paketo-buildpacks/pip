@@ -39,3 +39,14 @@ The final `provides`/`requires` contract will be:
 * `pip`
   * provides: `pip`
   * requires: `cpython` during `build`
+
+(EDIT: 03/16/2021)
+## Bikeshedding & Alternatives
+
+- We know that pip is installed with the python binaries that we support and
+  that any `pip`-specific functionality could be utilized by calling `python -m
+  pip <args>`.
+  - Against:
+    - Users may want to request a specific version of pip without being bound
+      to the relevant Python version.
+      ([issue](https://github.com/paketo-community/pip/issues/2#issuecomment-552357187))
