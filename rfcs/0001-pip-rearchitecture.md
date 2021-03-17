@@ -40,13 +40,25 @@ The final `provides`/`requires` contract will be:
   * provides: `pip`
   * requires: `cpython` during `build`
 
-(EDIT: 03/16/2021)
-## Bikeshedding & Alternatives
+### Configuration
 
-- We know that pip is installed with the python binaries that we support and
-  that any `pip`-specific functionality could be utilized by calling `python -m
-  pip <args>`.
-  - Against:
-    - Users may want to request a specific version of pip without being bound
-      to the relevant Python version.
-      ([issue](https://github.com/paketo-community/pip/issues/2#issuecomment-552357187))
+Users may specify a Pip version through the `BP_PIP_VERSION` environment
+variable. This can be set explicitly at build time (e.g. `pack --env`) or through
+`project.toml`.
+
+### Dependency Installation
+
+`Pip` installation involves a few steps:
+
+The buildpack runs `PYTHONUSERBASE=<path/to/pip/layer> python -m pip
+install <path/to/tgz> --user` to install the requested version. Setting the
+`PYTHONUSERBASE` variable ensures that pip is installed to the newly created
+layer.
+
+The pip installation is then added to the `PATH` variable so that it may be
+invoked without the `python -m` prefix.
+
+The final step is exporting `PYTHONPATH=<path-to-pip-layer>` so that Python
+looks for `pip` in the pip layer, instead of the default location.
+
+(EDIT: 03/17/2021 Added Configuration and Dependency Installation sections)
