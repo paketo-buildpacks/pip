@@ -58,7 +58,7 @@ layer.
 The pip installation is then added to the `PATH` variable so that it may be
 invoked without the `python -m` prefix.
 
-The final step is exporting `PYTHONPATH=<path-to-pip-layer>` so that Python
+The final step is exporting `PYTHONPATH=<path-to-pip-layer>/lib/python/site-packages` so that Python
 looks for `pip` in the pip layer, instead of the default location.
 
 (EDIT: 03/17/2021 Added Configuration and Dependency Installation sections)
