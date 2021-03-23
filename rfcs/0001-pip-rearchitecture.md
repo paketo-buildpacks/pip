@@ -50,8 +50,11 @@ variable. This can be set explicitly at build time (e.g. `pack --env`) or throug
 
 `Pip` installation involves a few steps:
 
+Download the pip dependency and untar it to a temporary layer (we refer to this
+as `<path/to/pip/dependency>` in this RFC).
+
 The buildpack runs `PYTHONUSERBASE=<path/to/pip/layer> python -m pip
-install <path/to/tgz> --user` to install the requested version. Setting the
+install <path/to/pip/dependency> --user` to install the requested version. Setting the
 `PYTHONUSERBASE` variable ensures that pip is installed to the newly created
 layer.
 
@@ -64,3 +67,4 @@ is necessary so Python looks for `pip` in the pip layer, instead of the default
 location.
 
 (EDIT: 03/17/2021 Added Configuration and Dependency Installation sections)
+(EDIT: 03/23/2021 The pip source is not a .tgz, update Dependency Installation section)
