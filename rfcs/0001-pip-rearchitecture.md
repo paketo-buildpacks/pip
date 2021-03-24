@@ -50,7 +50,7 @@ variable. This can be set explicitly at build time (e.g. `pack --env`) or throug
 
 `Pip` installation involves a few steps:
 
-Download the pip dependency and untar it to a temporary layer (we refer to this
+Download the pip dependency and untar it to a temporary directory (we refer to this
 as `<path/to/pip/dependency>` in this RFC).
 
 The buildpack runs `PYTHONUSERBASE=<path/to/pip/layer> python -m pip
