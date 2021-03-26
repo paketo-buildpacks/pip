@@ -52,12 +52,6 @@ func Detect() packit.DetectFunc {
 				},
 			},
 			{
-				Name: Dependency,
-				Metadata: BuildPlanMetadata{
-					Launch: true,
-				},
-			},
-			{
 				Name: Requirements,
 				Metadata: BuildPlanMetadata{
 					Build: true,

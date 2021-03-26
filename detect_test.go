@@ -54,12 +54,6 @@ func testDetect(t *testing.T, context spec.G, it spec.S) {
 								},
 							},
 							{
-								Name: pip.Dependency,
-								Metadata: pip.BuildPlanMetadata{
-									Launch: true,
-								},
-							},
-							{
 								Name: pip.Requirements,
 								Metadata: pip.BuildPlanMetadata{
 									Build: true,
@@ -115,12 +109,6 @@ func testDetect(t *testing.T, context spec.G, it spec.S) {
 									Name: pip.Python,
 									Metadata: pip.BuildPlanMetadata{
 										Build:  true,
-										Launch: true,
-									},
-								},
-								{
-									Name: pip.Dependency,
-									Metadata: pip.BuildPlanMetadata{
 										Launch: true,
 									},
 								},

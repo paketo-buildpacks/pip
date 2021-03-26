@@ -9,9 +9,6 @@ const CPython = "cpython"
 // Python is the name of the legacy python runtime dependency.
 const Python = "python"
 
-// Dependency is the name of the legacy python packages dependency.
-const Dependency = "python_packages"
-
 // Requirement is the name of the legacy requirements dependency.
 const Requirements = "requirements"
 
