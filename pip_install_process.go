@@ -32,7 +32,9 @@ func (p PipInstallProcess) Execute(srcPath, targetLayerPath string) error {
 	buffer := bytes.NewBuffer(nil)
 
 	err := p.executable.Execute(pexec.Execution{
-		Args:   []string{"-m", "pip", "install", srcPath, "--user"},
+		// Install pip from source with the pip that comes pre-installed with cpython
+		Args: []string{"-m", "pip", "install", srcPath, "--user"},
+		// Set the PYTHONUSERBASE to ensure that pip is installed to the newly created target layer.
 		Env:    append(os.Environ(), fmt.Sprintf("PYTHONUSERBASE=%s", targetLayerPath)),
 		Stdout: buffer,
 		Stderr: buffer,

@@ -93,6 +93,9 @@ func Build(installProcess InstallProcess, entries EntryResolver, dependencies De
 		pipLayer.Launch, pipLayer.Build = entries.MergeLayerTypes(Pip, context.Plan.Entries)
 		pipLayer.Cache = pipLayer.Build
 
+		// Install the pip source to a temporary dir, since we only need access to
+		// it as an intermediate step when installing pip.
+		// It doesn't need to go into a layer, since we won't need it in future builds.
 		pipSrcDir, err := ioutil.TempDir("", "pip-source")
 		if err != nil {
 			return packit.BuildResult{}, fmt.Errorf("failed to create temp pip-source dir: %w", err)
