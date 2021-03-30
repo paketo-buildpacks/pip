@@ -25,16 +25,17 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 	var (
 		Expect = NewWithT(t).Expect
 
-		layersDir         string
-		cnbDir            string
-		entryResolver     *fakes.EntryResolver
-		dependencyManager *fakes.DependencyManager
-		clock             chronos.Clock
-		timeStamp         time.Time
-		planRefinery      *fakes.BuildPlanRefinery
-		installProcess    *fakes.InstallProcess
-		buffer            *bytes.Buffer
-		logEmitter        scribe.Emitter
+		layersDir          string
+		cnbDir             string
+		entryResolver      *fakes.EntryResolver
+		dependencyManager  *fakes.DependencyManager
+		clock              chronos.Clock
+		timeStamp          time.Time
+		planRefinery       *fakes.BuildPlanRefinery
+		installProcess     *fakes.InstallProcess
+		sitePackageProcess *fakes.SitePackageProcess
+		buffer             *bytes.Buffer
+		logEmitter         scribe.Emitter
 
 		build packit.BuildFunc
 	)
@@ -106,6 +107,9 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 			return nil
 		}
 
+		sitePackageProcess = &fakes.SitePackageProcess{}
+		sitePackageProcess.ExecuteCall.Returns.String = filepath.Join(layersDir, "pip", "lib", "python1.23", "site-packages")
+
 		buffer = bytes.NewBuffer(nil)
 		logEmitter = scribe.NewEmitter(buffer)
 
@@ -114,7 +118,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 			return timeStamp
 		})
 
-		build = pip.Build(installProcess, entryResolver, dependencyManager, planRefinery, logEmitter, clock)
+		build = pip.Build(installProcess, entryResolver, dependencyManager, planRefinery, logEmitter, clock, sitePackageProcess)
 	})
 
 	it.After(func() {
@@ -583,15 +587,35 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 			})
 		})
 
+		context("when the site packages cannot be found", func() {
+			it.Before(func() {
+				sitePackageProcess.ExecuteCall.Returns.Error = errors.New("failed to find site-packages dir")
+			})
+
+			it("returns an error", func() {
+				_, err := build(packit.BuildContext{
+					BuildpackInfo: packit.BuildpackInfo{
+						Name:    "Some Buildpack",
+						Version: "some-version",
+					},
+					CNBPath: cnbDir,
+					Plan: packit.BuildpackPlan{
+						Entries: []packit.BuildpackPlanEntry{
+							{
+								Name: "pip",
+							},
+						},
+					},
+					Layers: packit.Layers{Path: layersDir},
+					Stack:  "some-stack",
+				})
+				Expect(err).To(MatchError(ContainSubstring("failed to find site-packages dir")))
+			})
+		})
+
 		context("when the layer does not have a site-packages directory", func() {
 			it.Before(func() {
-				installProcess.ExecuteCall.Stub = func(srcPath, targetLayerPath string) error {
-					err := os.MkdirAll(filepath.Join(layersDir, "pip", "lib", "python1.23"), os.ModePerm)
-					if err != nil {
-						return fmt.Errorf("issue with stub call: %s", err)
-					}
-					return nil
-				}
+				sitePackageProcess.ExecuteCall.Returns.String = ""
 			})
 
 			it("returns an error", func() {

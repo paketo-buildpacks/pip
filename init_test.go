@@ -13,5 +13,6 @@ func TestUnitPip(t *testing.T) {
 	suite("Build", testBuild)
 	suite("PlanRefinery", testPlanRefinery)
 	suite("InstallProcess", testPipInstallProcess)
+	suite("SiteProcess", testSiteProcess)
 	suite.Run(t)
 }

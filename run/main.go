@@ -19,9 +19,10 @@ func main() {
 	planRefinery := pip.NewPlanRefinery()
 	logs := scribe.NewEmitter(os.Stdout)
 	installProcess := pip.NewPipInstallProcess(pexec.NewExecutable("python"))
+	siteProcess := pip.NewSiteProcess(pexec.NewExecutable("python"))
 
 	packit.Run(
 		pip.Detect(),
-		pip.Build(installProcess, entries, dependencies, planRefinery, logs, chronos.DefaultClock),
+		pip.Build(installProcess, entries, dependencies, planRefinery, logs, chronos.DefaultClock, siteProcess),
 	)
 }

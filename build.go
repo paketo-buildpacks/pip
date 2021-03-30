@@ -3,8 +3,8 @@ package pip
 import (
 	"fmt"
 	"io/ioutil"
-	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/paketo-buildpacks/packit"
@@ -17,6 +17,7 @@ import (
 //go:generate faux --interface DependencyManager --output fakes/dependency_manager.go
 //go:generate faux --interface BuildPlanRefinery --output fakes/build_plan_refinery.go
 //go:generate faux --interface InstallProcess --output fakes/install_process.go
+//go:generate faux --interface SitePackageProcess --output fakes/site_package_process.go
 
 // EntryResolver defines the interface for picking the most relevant entry from
 // the Buildpack Plan entries.
@@ -43,13 +44,18 @@ type InstallProcess interface {
 	Execute(srcPath, targetLayerPath string) error
 }
 
+// SitePackageProcess defines the interface for looking site packages within a layer.
+type SitePackageProcess interface {
+	Execute(targetLayerPath string) (string, error)
+}
+
 // Build will return a packit.BuildFunc that will be invoked during the build
 // phase of the buildpack lifecycle.
 //
 // Build will find the right pip dependency to install, install it in a
 // layer, and generate Bill-of-Materials. It also makes use of the checksum of
 // the dependency to reuse the layer when possible.
-func Build(installProcess InstallProcess, entries EntryResolver, dependencies DependencyManager, planRefinery BuildPlanRefinery, logs scribe.Emitter, clock chronos.Clock) packit.BuildFunc {
+func Build(installProcess InstallProcess, entries EntryResolver, dependencies DependencyManager, planRefinery BuildPlanRefinery, logs scribe.Emitter, clock chronos.Clock, siteProcess SitePackageProcess) packit.BuildFunc {
 	return func(context packit.BuildContext) (packit.BuildResult, error) {
 		logs.Title("%s %s", context.BuildpackInfo.Name, context.BuildpackInfo.Version)
 
@@ -118,35 +124,17 @@ func Build(installProcess InstallProcess, entries EntryResolver, dependencies De
 		logs.Action("Completed in %s", duration.Round(time.Millisecond))
 		logs.Break()
 
-		var sitePackagesPath string
-		err = filepath.Walk(pipLayer.Path, func(path string, info os.FileInfo, err error) error {
-			if err != nil {
-				return err
-			}
-
-			if info.IsDir() {
-				match, err := filepath.Match("site-packages", info.Name())
-				if err != nil {
-					return err
-				}
-
-				if match {
-					sitePackagesPath = path
-					return nil
-				}
-			}
-			return nil
-		})
-
+		// Look up the site packages path and prepend it onto $PYTHONPATH
+		sitePackagesPath, err := siteProcess.Execute(pipLayer.Path)
 		if err != nil {
 			return packit.BuildResult{}, fmt.Errorf("failed to locate site packages in pip layer: %w", err)
 		}
-
 		if sitePackagesPath == "" {
 			return packit.BuildResult{}, fmt.Errorf("pip installation failed: site packages are missing from the pip layer")
 		}
 
-		pipLayer.SharedEnv.Prepend("PYTHONPATH", sitePackagesPath, ":")
+		pipLayer.SharedEnv.Prepend("PYTHONPATH", strings.TrimRight(sitePackagesPath, "\n"), ":")
+
 		logs.Process("Configuring environment")
 		logs.Subprocess("%s", scribe.NewFormattedMapFromEnvironment(pipLayer.SharedEnv))
 		logs.Break()
