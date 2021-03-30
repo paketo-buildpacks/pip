@@ -70,10 +70,7 @@ $ ./scripts/package.sh --version x.x.x
 ```
 This will create a `buildpackage.cnb` file under the build directory which you
 can use to build your app as follows: `pack build <app-name> -p <path-to-app> -b
-build/buildpackage.cnb -b <other-buildpacks..>`. This builds the buildpack's Go
-source using GOOS=linux by default. You can supply another value as the first
-argument to package.sh.
-
+build/buildpackage.cnb -b <other-buildpacks..>`.
 
 To run the unit and integration tests for this buildpack:
 ```
