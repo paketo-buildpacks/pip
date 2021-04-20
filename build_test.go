@@ -348,63 +348,6 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		})
 	})
 
-	context("when build plan entries require pip at build/launch", func() {
-		it.Before(func() {
-			entryResolver.MergeLayerTypesCall.Returns.Build = true
-			entryResolver.MergeLayerTypesCall.Returns.Launch = true
-		})
-
-		it("makes the layer available at the right times", func() {
-			result, err := build(packit.BuildContext{
-				BuildpackInfo: packit.BuildpackInfo{
-					Name:    "Some Buildpack",
-					Version: "some-version",
-				},
-				CNBPath: cnbDir,
-				Plan: packit.BuildpackPlan{
-					Entries: []packit.BuildpackPlanEntry{
-						{
-							Name: "pip",
-							Metadata: map[string]interface{}{
-								"build": true,
-							},
-						},
-						{
-							Name: "pip",
-							Metadata: map[string]interface{}{
-								"launch": true,
-							},
-						},
-					},
-				},
-				Layers: packit.Layers{Path: layersDir},
-				Stack:  "some-stack",
-			})
-			Expect(err).NotTo(HaveOccurred())
-
-			Expect(result.Layers).To(Equal([]packit.Layer{
-				{
-					Name: "pip",
-					Path: filepath.Join(layersDir, "pip"),
-					SharedEnv: packit.Environment{
-						"PYTHONPATH.delim":   ":",
-						"PYTHONPATH.prepend": filepath.Join(layersDir, "pip", "lib/python1.23/site-packages"),
-					},
-					BuildEnv:         packit.Environment{},
-					LaunchEnv:        packit.Environment{},
-					Build:            true,
-					Launch:           true,
-					Cache:            true,
-					ProcessLaunchEnv: map[string]packit.Environment{},
-					Metadata: map[string]interface{}{
-						pip.DependencySHAKey: "some-sha",
-						"built_at":           timeStamp.Format(time.RFC3339Nano),
-					},
-				},
-			}))
-		})
-	})
-
 	context("when rebuilding a layer", func() {
 		it.Before(func() {
 			err := ioutil.WriteFile(filepath.Join(layersDir, fmt.Sprintf("%s.toml", pip.Pip)), []byte(fmt.Sprintf(`[metadata]
