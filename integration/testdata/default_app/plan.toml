@@ -2,7 +2,6 @@
 name = "pip"
 
 [requires.metadata]
-build = true
 launch = true
 
 [[requires]]
