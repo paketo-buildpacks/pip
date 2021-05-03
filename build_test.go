@@ -31,7 +31,6 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		dependencyManager  *fakes.DependencyManager
 		clock              chronos.Clock
 		timeStamp          time.Time
-		planRefinery       *fakes.BuildPlanRefinery
 		installProcess     *fakes.InstallProcess
 		sitePackageProcess *fakes.SitePackageProcess
 		buffer             *bytes.Buffer
@@ -80,20 +79,15 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 			URI:     "some-uri",
 			Version: "21.0",
 		}
-
-		planRefinery = &fakes.BuildPlanRefinery{}
-
-		planRefinery.BillOfMaterialCall.Returns.BuildpackPlan = packit.BuildpackPlan{
-			Entries: []packit.BuildpackPlanEntry{
-				{
-					Name: "pip",
-					Metadata: map[string]interface{}{
-						"name":    "Pip",
-						"sha256":  "some-sha",
-						"stacks":  []string{"some-stack"},
-						"uri":     "some-uri",
-						"version": "21.0",
-					},
+		dependencyManager.GenerateBillOfMaterialsCall.Returns.BOMEntrySlice = []packit.BOMEntry{
+			{
+				Name: "pip",
+				Metadata: map[string]interface{}{
+					"name":    "pip",
+					"sha256":  "pip-dependency-sha",
+					"stacks":  []string{"some-stack"},
+					"uri":     "pip-dependency-uri",
+					"version": "pip-dependency-version",
 				},
 			},
 		}
@@ -118,7 +112,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 			return timeStamp
 		})
 
-		build = pip.Build(installProcess, entryResolver, dependencyManager, planRefinery, logEmitter, clock, sitePackageProcess)
+		build = pip.Build(installProcess, entryResolver, dependencyManager, logEmitter, clock, sitePackageProcess)
 	})
 
 	it.After(func() {
@@ -146,20 +140,6 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		Expect(err).NotTo(HaveOccurred())
 
 		Expect(result).To(Equal(packit.BuildResult{
-			Plan: packit.BuildpackPlan{
-				Entries: []packit.BuildpackPlanEntry{
-					{
-						Name: "pip",
-						Metadata: map[string]interface{}{
-							"name":    "Pip",
-							"sha256":  "some-sha",
-							"stacks":  []string{"some-stack"},
-							"uri":     "some-uri",
-							"version": "21.0",
-						},
-					},
-				},
-			},
 			Layers: []packit.Layer{
 				{
 					Name: "pip",
@@ -204,15 +184,6 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		Expect(dependencyManager.ResolveCall.Receives.Id).To(Equal("pip"))
 		Expect(dependencyManager.ResolveCall.Receives.Version).To(Equal(""))
 		Expect(dependencyManager.ResolveCall.Receives.Stack).To(Equal("some-stack"))
-
-		Expect(planRefinery.BillOfMaterialCall.Receives.Dependency).To(Equal(postal.Dependency{
-			ID:      "pip",
-			Name:    "Pip",
-			SHA256:  "some-sha",
-			Stacks:  []string{"some-stack"},
-			URI:     "some-uri",
-			Version: "21.0",
-		}))
 
 		Expect(dependencyManager.InstallCall.Receives.Dependency).To(Equal(postal.Dependency{
 			ID:      "pip",
@@ -269,23 +240,53 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 			})
 			Expect(err).NotTo(HaveOccurred())
 
-			Expect(result.Layers).To(Equal([]packit.Layer{
-				{
-					Name: "pip",
-					Path: filepath.Join(layersDir, "pip"),
-					SharedEnv: packit.Environment{
-						"PYTHONPATH.delim":   ":",
-						"PYTHONPATH.prepend": filepath.Join(layersDir, "pip", "lib/python1.23/site-packages"),
+			Expect(result).To(Equal(packit.BuildResult{
+				Layers: []packit.Layer{
+					{
+						Name: "pip",
+						Path: filepath.Join(layersDir, "pip"),
+						SharedEnv: packit.Environment{
+							"PYTHONPATH.delim":   ":",
+							"PYTHONPATH.prepend": filepath.Join(layersDir, "pip", "lib/python1.23/site-packages"),
+						},
+						BuildEnv:         packit.Environment{},
+						LaunchEnv:        packit.Environment{},
+						Build:            true,
+						Launch:           true,
+						Cache:            true,
+						ProcessLaunchEnv: map[string]packit.Environment{},
+						Metadata: map[string]interface{}{
+							pip.DependencySHAKey: "some-sha",
+							"built_at":           timeStamp.Format(time.RFC3339Nano),
+						},
 					},
-					BuildEnv:         packit.Environment{},
-					LaunchEnv:        packit.Environment{},
-					Build:            true,
-					Launch:           true,
-					Cache:            true,
-					ProcessLaunchEnv: map[string]packit.Environment{},
-					Metadata: map[string]interface{}{
-						pip.DependencySHAKey: "some-sha",
-						"built_at":           timeStamp.Format(time.RFC3339Nano),
+				},
+				Build: packit.BuildMetadata{
+					BOM: []packit.BOMEntry{
+						{
+							Name: "pip",
+							Metadata: map[string]interface{}{
+								"name":    "pip",
+								"sha256":  "pip-dependency-sha",
+								"stacks":  []string{"some-stack"},
+								"uri":     "pip-dependency-uri",
+								"version": "pip-dependency-version",
+							},
+						},
+					},
+				},
+				Launch: packit.LaunchMetadata{
+					BOM: []packit.BOMEntry{
+						{
+							Name: "pip",
+							Metadata: map[string]interface{}{
+								"name":    "pip",
+								"sha256":  "pip-dependency-sha",
+								"stacks":  []string{"some-stack"},
+								"uri":     "pip-dependency-uri",
+								"version": "pip-dependency-version",
+							},
+						},
 					},
 				},
 			}))

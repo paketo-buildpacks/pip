@@ -15,7 +15,6 @@ import (
 
 //go:generate faux --interface EntryResolver --output fakes/entry_resolver.go
 //go:generate faux --interface DependencyManager --output fakes/dependency_manager.go
-//go:generate faux --interface BuildPlanRefinery --output fakes/build_plan_refinery.go
 //go:generate faux --interface InstallProcess --output fakes/install_process.go
 //go:generate faux --interface SitePackageProcess --output fakes/site_package_process.go
 
@@ -31,12 +30,7 @@ type EntryResolver interface {
 type DependencyManager interface {
 	Resolve(path, id, version, stack string) (postal.Dependency, error)
 	Install(dependency postal.Dependency, cnbPath, destPath string) error
-}
-
-// BuildPlanRefinery defines the interface for generating a BuildpackPlan Entry
-// containing the Bill-of-Materials of a given dependency.
-type BuildPlanRefinery interface {
-	BillOfMaterial(dependency postal.Dependency) packit.BuildpackPlan
+	GenerateBillOfMaterials(dependencies ...postal.Dependency) []packit.BOMEntry
 }
 
 // InstallProcess defines the interface for installing the pip dependency into a layer.
@@ -55,7 +49,7 @@ type SitePackageProcess interface {
 // Build will find the right pip dependency to install, install it in a
 // layer, and generate Bill-of-Materials. It also makes use of the checksum of
 // the dependency to reuse the layer when possible.
-func Build(installProcess InstallProcess, entries EntryResolver, dependencies DependencyManager, planRefinery BuildPlanRefinery, logs scribe.Emitter, clock chronos.Clock, siteProcess SitePackageProcess) packit.BuildFunc {
+func Build(installProcess InstallProcess, entries EntryResolver, dependencies DependencyManager, logs scribe.Emitter, clock chronos.Clock, siteProcess SitePackageProcess) packit.BuildFunc {
 	return func(context packit.BuildContext) (packit.BuildResult, error) {
 		logs.Title("%s %s", context.BuildpackInfo.Name, context.BuildpackInfo.Version)
 
@@ -75,7 +69,7 @@ func Build(installProcess InstallProcess, entries EntryResolver, dependencies De
 		dependency.Name = "Pip"
 		logs.SelectedDependency(entry, dependency, clock.Now())
 
-		bom := planRefinery.BillOfMaterial(dependency)
+		boms := dependencies.GenerateBillOfMaterials(dependency)
 
 		pipLayer, err := context.Layers.Get(Pip)
 		if err != nil {
@@ -85,10 +79,19 @@ func Build(installProcess InstallProcess, entries EntryResolver, dependencies De
 		cachedSHA, ok := pipLayer.Metadata[DependencySHAKey].(string)
 		if ok && cachedSHA == dependency.SHA256 {
 			logs.Process("Reusing cached layer %s", pipLayer.Path)
-			return packit.BuildResult{
-				Plan:   bom,
+			result := packit.BuildResult{
 				Layers: []packit.Layer{pipLayer},
-			}, nil
+			}
+
+			if pipLayer.Build {
+				result.Build = packit.BuildMetadata{BOM: boms}
+			}
+
+			if pipLayer.Launch {
+				result.Launch = packit.LaunchMetadata{BOM: boms}
+			}
+
+			return result, nil
 		}
 
 		pipLayer, err = pipLayer.Reset()
@@ -144,9 +147,18 @@ func Build(installProcess InstallProcess, entries EntryResolver, dependencies De
 			"built_at":       clock.Now().Format(time.RFC3339Nano),
 		}
 
-		return packit.BuildResult{
-			Plan:   bom,
+		result := packit.BuildResult{
 			Layers: []packit.Layer{pipLayer},
-		}, nil
+		}
+
+		if pipLayer.Build {
+			result.Build = packit.BuildMetadata{BOM: boms}
+		}
+
+		if pipLayer.Launch {
+			result.Launch = packit.LaunchMetadata{BOM: boms}
+		}
+
+		return result, nil
 	}
 }
