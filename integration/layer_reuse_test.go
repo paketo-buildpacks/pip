@@ -147,12 +147,7 @@ func testLayerReuse(t *testing.T, context spec.G, it spec.S) {
 					settings.Buildpacks.Pip.Online,
 					settings.Buildpacks.BuildPlan.Online,
 				).
-				WithEnv(map[string]string{"BP_PIP_VERSION": "21.0.0"}).
-				// Note: Hard-coded pip version will cause this test to fail once pip 21.0 is
-				// dropped from the buildpack. Hardcoded here to prevent buildpack from selecting
-				// latest patch of 21.0 since dependency version has no patch in buildpack.toml.
-				// Replace WithEnv() above with the one below once pip 21.0 is dropped.
-				// WithEnv(map[string]string{"BP_PIP_VERSION": buildpackInfo.Metadata.Dependencies[1].Version}).
+				WithEnv(map[string]string{"BP_PIP_VERSION": buildpackInfo.Metadata.Dependencies[0].Version}).
 				Execute(name, filepath.Join("testdata", "default_app"))
 			Expect(err).ToNot(HaveOccurred(), logs.String)
 
