@@ -10,11 +10,11 @@ api = "0.5"
 
   [[metadata.dependencies]]
     id = "pip"
-    sha256 = "120355ab3197f76c8811ce40537a5446ba107eaccd8efe18369e03698eb595f0"
+    sha256 = "6abc89d656d68218a1248e954b2f6ef47005f266f14d94117475f7eec4d16ffb"
     source = "https://files.pythonhosted.org/packages/b7/2d/ad02de84a4c9fd3b1958dc9fb72764de1aa2605a9d7e943837be6ad82337/pip-21.0.1.tar.gz"
     source_sha256 = "99bbde183ec5ec037318e774b0d8ae0a64352fe53b2c7fd630be1d07e94f41e5"
     stacks = ["io.buildpacks.stacks.bionic", "org.cloudfoundry.stacks.cflinuxfs3"]
-    uri = "https://buildpacks.cloudfoundry.org/dependencies/pip/pip_21.0.1_linux_noarch_any-stack_120355ab.tgz"
+    uri = "https://buildpacks.cloudfoundry.org/dependencies/pip/pip_21.0.1_linux_noarch_any-stack_6abc89d6.tgz"
     version = "21.0.1"
 
   [[metadata.dependencies]]
