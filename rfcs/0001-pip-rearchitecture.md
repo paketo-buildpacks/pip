@@ -54,7 +54,7 @@ Download the pip dependency and untar it to a temporary directory (we refer to t
 as `<path/to/pip/dependency>` in this RFC).
 
 The buildpack runs `PYTHONUSERBASE=<path/to/pip/layer> python -m pip
-install <path/to/pip/dependency> --user` to install the requested version. Setting the
+install <path/to/pip/dependency> --user --find-links=<path/to/wheel/and/setuptools>` to install the requested version. Setting the
 `PYTHONUSERBASE` variable ensures that pip is installed to the newly created
 layer.
 
