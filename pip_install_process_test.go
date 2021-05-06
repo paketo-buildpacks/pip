@@ -46,7 +46,7 @@ func testPipInstallProcess(t *testing.T, context spec.G, it spec.S) {
 				Expect(err).NotTo(HaveOccurred())
 
 				Expect(executable.ExecuteCall.Receives.Execution.Env).To(Equal(append(os.Environ(), fmt.Sprintf("PYTHONUSERBASE=%s", targetLayerPath))))
-				Expect(executable.ExecuteCall.Receives.Execution.Args).To(Equal([]string{"-m", "pip", "install", srcLayerPath, "--user"}))
+				Expect(executable.ExecuteCall.Receives.Execution.Args).To(Equal([]string{"-m", "pip", "install", srcLayerPath, "--user", fmt.Sprintf("--find-links=%s", srcLayerPath)}))
 			})
 		})
 
