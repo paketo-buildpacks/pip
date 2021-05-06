@@ -3,9 +3,8 @@ package pip
 import (
 	"bytes"
 	"fmt"
-	"os"
-
 	"github.com/paketo-buildpacks/packit/pexec"
+	"os"
 )
 
 //go:generate faux --interface Executable --output fakes/executable.go
@@ -33,15 +32,15 @@ func (p PipInstallProcess) Execute(srcPath, targetLayerPath string) error {
 
 	err := p.executable.Execute(pexec.Execution{
 		// Install pip from source with the pip that comes pre-installed with cpython
-		Args: []string{"-m", "pip", "install", srcPath, "--user"},
+		Args: []string{"-m", "pip", "install", srcPath, "--user", fmt.Sprintf("--find-links=%s", srcPath)},
 		// Set the PYTHONUSERBASE to ensure that pip is installed to the newly created target layer.
 		Env:    append(os.Environ(), fmt.Sprintf("PYTHONUSERBASE=%s", targetLayerPath)),
 		Stdout: buffer,
 		Stderr: buffer,
 	})
-
 	if err != nil {
 		return fmt.Errorf("failed to configure pip:\n%s\nerror: %w", buffer.String(), err)
 	}
+
 	return nil
 }

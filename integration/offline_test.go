@@ -26,10 +26,7 @@ func testOffline(t *testing.T, context spec.G, it spec.S) {
 		docker = occam.NewDocker()
 	})
 
-	// We intend to support offline builds but doesn't currently work because the
-	// pip installation process reaches out to the internet to install additional
-	// dependencies
-	context.Pend("when the buildpack is run with pack build in offline mode", func() {
+	context("when the buildpack is run with pack build in offline mode", func() {
 		var (
 			image     occam.Image
 			container occam.Container
