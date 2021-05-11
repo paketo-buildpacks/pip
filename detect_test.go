@@ -40,28 +40,6 @@ func testDetect(t *testing.T, context spec.G, it spec.S) {
 						},
 					},
 				},
-				Or: []packit.BuildPlan{
-					{
-						Provides: []packit.BuildPlanProvision{
-							{Name: pip.Pip},
-						},
-						Requires: []packit.BuildPlanRequirement{
-							{
-								Name: pip.Python,
-								Metadata: pip.BuildPlanMetadata{
-									Build:  true,
-									Launch: true,
-								},
-							},
-							{
-								Name: pip.Requirements,
-								Metadata: pip.BuildPlanMetadata{
-									Build: true,
-								},
-							},
-						},
-					},
-				},
 			}))
 		})
 
@@ -96,35 +74,6 @@ func testDetect(t *testing.T, context spec.G, it spec.S) {
 							Metadata: pip.BuildPlanMetadata{
 								Version:       "some-version",
 								VersionSource: "BP_PIP_VERSION",
-							},
-						},
-					},
-					Or: []packit.BuildPlan{
-						{
-							Provides: []packit.BuildPlanProvision{
-								{Name: pip.Pip},
-							},
-							Requires: []packit.BuildPlanRequirement{
-								{
-									Name: pip.Python,
-									Metadata: pip.BuildPlanMetadata{
-										Build:  true,
-										Launch: true,
-									},
-								},
-								{
-									Name: pip.Requirements,
-									Metadata: pip.BuildPlanMetadata{
-										Build: true,
-									},
-								},
-								{
-									Name: pip.Pip,
-									Metadata: pip.BuildPlanMetadata{
-										Version:       "some-version",
-										VersionSource: "BP_PIP_VERSION",
-									},
-								},
 							},
 						},
 					},

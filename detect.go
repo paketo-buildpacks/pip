@@ -42,36 +42,10 @@ func Detect() packit.DetectFunc {
 			},
 		}
 
-		// TODO: remove this when removing legacy API
-		requirementsLegacy := []packit.BuildPlanRequirement{
-			{
-				Name: Python,
-				Metadata: BuildPlanMetadata{
-					Build:  true,
-					Launch: true,
-				},
-			},
-			{
-				Name: Requirements,
-				Metadata: BuildPlanMetadata{
-					Build: true,
-				},
-			},
-		}
-
 		pipVersion := os.Getenv("BP_PIP_VERSION")
 
 		if pipVersion != "" {
 			requirements = append(requirements, packit.BuildPlanRequirement{
-				Name: Pip,
-				Metadata: BuildPlanMetadata{
-					VersionSource: "BP_PIP_VERSION",
-					Version:       pipVersion,
-				},
-			})
-
-			// TODO: remove this when removing legacy API
-			requirementsLegacy = append(requirementsLegacy, packit.BuildPlanRequirement{
 				Name: Pip,
 				Metadata: BuildPlanMetadata{
 					VersionSource: "BP_PIP_VERSION",
@@ -86,14 +60,6 @@ func Detect() packit.DetectFunc {
 					{Name: Pip},
 				},
 				Requires: requirements,
-				Or: []packit.BuildPlan{
-					{
-						Provides: []packit.BuildPlanProvision{
-							{Name: Pip},
-						},
-						Requires: requirementsLegacy,
-					},
-				},
 			},
 		}, nil
 	}
