@@ -10,21 +10,21 @@ api = "0.5"
 
   [[metadata.dependencies]]
     id = "pip"
-    sha256 = "6abc89d656d68218a1248e954b2f6ef47005f266f14d94117475f7eec4d16ffb"
-    source = "https://files.pythonhosted.org/packages/b7/2d/ad02de84a4c9fd3b1958dc9fb72764de1aa2605a9d7e943837be6ad82337/pip-21.0.1.tar.gz"
-    source_sha256 = "99bbde183ec5ec037318e774b0d8ae0a64352fe53b2c7fd630be1d07e94f41e5"
-    stacks = ["io.buildpacks.stacks.bionic", "org.cloudfoundry.stacks.cflinuxfs3"]
-    uri = "https://buildpacks.cloudfoundry.org/dependencies/pip/pip_21.0.1_linux_noarch_any-stack_6abc89d6.tgz"
-    version = "21.0.1"
-
-  [[metadata.dependencies]]
-    id = "pip"
     sha256 = "a021a6983d2c08b90b2166a75310119d39607eb52ce458664d993a572d75c103"
     source = "https://files.pythonhosted.org/packages/94/b0/e10bdc8809c81796c80aa3644a8e3dc16594fb1bd68f5996929f26cad980/pip-21.1.1.tar.gz"
     source_sha256 = "51ad01ddcd8de923533b01a870e7b987c2eb4d83b50b89e1bf102723ff9fed8b"
     stacks = ["io.buildpacks.stacks.bionic", "org.cloudfoundry.stacks.cflinuxfs3"]
     uri = "https://buildpacks.cloudfoundry.org/dependencies/pip/pip_21.1.1_linux_noarch_any-stack_a021a698.tgz"
     version = "21.1.1"
+
+  [[metadata.dependencies]]
+    id = "pip"
+    sha256 = "4780d550d36604b779d17b60655d03c07427eb9499cb7b9da15802bc36fe01e4"
+    source = "https://files.pythonhosted.org/packages/b1/44/6e26d5296b83c6aac166e48470d57a00d3ed1f642e89adc4a4e412a01643/pip-21.1.2.tar.gz"
+    source_sha256 = "eb5df6b9ab0af50fe1098a52fd439b04730b6e066887ff7497357b9ebd19f79b"
+    stacks = ["io.buildpacks.stacks.bionic", "org.cloudfoundry.stacks.cflinuxfs3"]
+    uri = "https://buildpacks.cloudfoundry.org/dependencies/pip/pip_21.1.2_linux_noarch_any-stack_4780d550.tgz"
+    version = "21.1.2"
 
 [[stacks]]
   id = "io.buildpacks.stacks.bionic"
