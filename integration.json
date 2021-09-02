@@ -1,4 +1,4 @@
 {
-  "cpython":"github.com/paketo-community/cpython",
+  "cpython":"github.com/paketo-buildpacks/cpython",
   "build-plan":"github.com/paketo-community/build-plan"
 }

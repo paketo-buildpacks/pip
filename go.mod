@@ -1,4 +1,4 @@
-module github.com/paketo-community/pip
+module github.com/paketo-buildpacks/pip
 
 go 1.15
 

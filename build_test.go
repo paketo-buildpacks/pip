@@ -14,8 +14,8 @@ import (
 	"github.com/paketo-buildpacks/packit/chronos"
 	"github.com/paketo-buildpacks/packit/postal"
 	"github.com/paketo-buildpacks/packit/scribe"
-	pip "github.com/paketo-community/pip"
-	"github.com/paketo-community/pip/fakes"
+	pip "github.com/paketo-buildpacks/pip"
+	"github.com/paketo-buildpacks/pip/fakes"
 	"github.com/sclevine/spec"
 
 	. "github.com/onsi/gomega"
