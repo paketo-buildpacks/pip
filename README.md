@@ -2,8 +2,8 @@
 The Paketo Pip Buildpack is a Cloud Native Buildpack that installs pip into a
 layer and places it on the `PATH`.
 
-The buildpack is published for consumption at `gcr.io/paketo-community/pip` and
-`paketocommunity/pip`.
+The buildpack is published for consumption at `gcr.io/paketo-buildpacks/pip` and
+`paketobuildpacks/pip`.
 
 ## Behavior
 This buildpack always participates.
@@ -19,7 +19,7 @@ The buildpack will do the following:
 ## Configuration
 | Environment Variable | Description
 | -------------------- | -----------
-| `$BP_PIP_VERSION` | Configure the version of pip to install. Buildpack releases (and the pip versions for each release) can be found [here](https://github.com/paketo-community/pip/releases).
+| `$BP_PIP_VERSION` | Configure the version of pip to install. Buildpack releases (and the pip versions for each release) can be found [here](https://github.com/paketo-buildpacks/pip/releases).
 
 ## Integration
 

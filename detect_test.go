@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/paketo-buildpacks/packit"
-	"github.com/paketo-community/pip"
+	"github.com/paketo-buildpacks/pip"
 	"github.com/sclevine/spec"
 
 	. "github.com/onsi/gomega"

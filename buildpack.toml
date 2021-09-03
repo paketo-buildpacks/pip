@@ -1,7 +1,7 @@
 api = "0.5"
 
 [buildpack]
-  id = "paketo-community/pip"
+  id = "paketo-buildpacks/pip"
   name = "Paketo Pip Buildpack"
 
 [metadata]
