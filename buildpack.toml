@@ -9,22 +9,33 @@ api = "0.5"
   pre-package = "./scripts/build.sh"
 
   [[metadata.dependencies]]
+    cpe = "cpe:2.3:a:pypa:pip:21.2.3:*:*:*:*:python:*:*"
     id = "pip"
-    sha256 = "dcb21234d7819409e36ce71753fc83c48487aeafe2bc9dfe675c677f71d4bf77"
+    licenses = ["MIT", "MIT-0"]
+    purl = "pkg:generic/pip@21.2.3?checksum=91e66f2a2702e7d2dcc092ed8c5ebe923e69b9997ea28ba25823943bcd3bf820&download_url=https://files.pythonhosted.org/packages/e1/63/7c0e553ae0513ebf1858f08030158ff5998324013e0ba4c2e1c00b85df79/pip-21.2.3.tar.gz"
+    sha256 = "dc140f396bd30d9c626b8df7b5f083b982e807c71f61c477889d08a78ef612a1"
     source = "https://files.pythonhosted.org/packages/e1/63/7c0e553ae0513ebf1858f08030158ff5998324013e0ba4c2e1c00b85df79/pip-21.2.3.tar.gz"
     source_sha256 = "91e66f2a2702e7d2dcc092ed8c5ebe923e69b9997ea28ba25823943bcd3bf820"
-    stacks = ["io.buildpacks.stacks.bionic", "org.cloudfoundry.stacks.cflinuxfs3"]
-    uri = "https://buildpacks.cloudfoundry.org/dependencies/pip/pip_21.2.3_linux_noarch_any-stack_dcb21234.tgz"
+    stacks = ["io.buildpacks.stacks.bionic"]
+    uri = "https://deps.paketo.io/pip/pip_21.2.3_linux_noarch_bionic_dc140f39.tgz"
     version = "21.2.3"
 
   [[metadata.dependencies]]
+    cpe = "cpe:2.3:a:pypa:pip:21.2.4:*:*:*:*:python:*:*"
     id = "pip"
-    sha256 = "a833b01608f276cd9a5cefe29a90429d0a00e63dc97d303615fc3b846ee79523"
+    licenses = ["MIT", "MIT-0"]
+    purl = "pkg:generic/pip@21.2.4?checksum=0eb8a1516c3d138ae8689c0c1a60fde7143310832f9dc77e11d8a4bc62de193b&download_url=https://files.pythonhosted.org/packages/52/e1/06c018197d8151383f66ebf6979d951995cf495629fc54149491f5d157d0/pip-21.2.4.tar.gz"
+    sha256 = "f25cac497002210abde94f7a01a00445c19781e29a99180a761d7dcd0b8cff4b"
     source = "https://files.pythonhosted.org/packages/52/e1/06c018197d8151383f66ebf6979d951995cf495629fc54149491f5d157d0/pip-21.2.4.tar.gz"
     source_sha256 = "0eb8a1516c3d138ae8689c0c1a60fde7143310832f9dc77e11d8a4bc62de193b"
-    stacks = ["io.buildpacks.stacks.bionic", "org.cloudfoundry.stacks.cflinuxfs3"]
-    uri = "https://buildpacks.cloudfoundry.org/dependencies/pip/pip_21.2.4_linux_noarch_any-stack_a833b016.tgz"
+    stacks = ["io.buildpacks.stacks.bionic"]
+    uri = "https://deps.paketo.io/pip/pip_21.2.4_linux_noarch_bionic_f25cac49.tgz"
     version = "21.2.4"
+
+  [[metadata.dependency-constraints]]
+    constraint = "*"
+    id = "pip"
+    patches = 2
 
 [[stacks]]
   id = "io.buildpacks.stacks.bionic"
