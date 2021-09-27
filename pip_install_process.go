@@ -35,7 +35,7 @@ func (p PipInstallProcess) Execute(srcPath, targetLayerPath string) error {
 		Args: []string{"-m", "pip", "install", srcPath, "--user", "--no-index", fmt.Sprintf("--find-links=%s", srcPath)},
 		// Set the PYTHONUSERBASE to ensure that pip is installed to the newly created target layer.
 		Env:    append(os.Environ(), fmt.Sprintf("PYTHONUSERBASE=%s", targetLayerPath)),
-		Stdout: buffer,
+		Stdout: os.Stdout,
 		Stderr: buffer,
 	})
 	if err != nil {
