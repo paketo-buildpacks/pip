@@ -120,7 +120,7 @@ func testLayerReuse(t *testing.T, context spec.G, it spec.S) {
 				cLogs, err := docker.Container.Logs.Execute(secondContainer.ID)
 				Expect(err).NotTo(HaveOccurred())
 				return cLogs.String()
-			}).Should(MatchRegexp(fmt.Sprintf(`pip \d+\.\d+\.\d+ from /layers/%s/pip/lib/python\d+.\d+/site-packages/pip`, strings.ReplaceAll(buildpackInfo.Buildpack.ID, "/", "_"))))
+			}).Should(MatchRegexp(fmt.Sprintf(`pip \d+\.\d+(\.\d+)? from /layers/%s/pip/lib/python\d+.\d+/site-packages/pip`, strings.ReplaceAll(buildpackInfo.Buildpack.ID, "/", "_"))))
 
 			Expect(secondImage.Buildpacks[1].Key).To(Equal(buildpackInfo.Buildpack.ID))
 			Expect(secondImage.Buildpacks[1].Layers["pip"].Metadata["built_at"]).To(Equal(firstImage.Buildpacks[1].Layers["pip"].Metadata["built_at"]))
@@ -200,7 +200,7 @@ func testLayerReuse(t *testing.T, context spec.G, it spec.S) {
 				cLogs, err := docker.Container.Logs.Execute(secondContainer.ID)
 				Expect(err).NotTo(HaveOccurred())
 				return cLogs.String()
-			}).Should(MatchRegexp(fmt.Sprintf(`pip %s from /layers/%s/pip/lib/python\d+.\d+/site-packages/pip`, buildpackInfo.Metadata.Dependencies[1].Version, strings.ReplaceAll(buildpackInfo.Buildpack.ID, "/", "_"))))
+			}).Should(MatchRegexp(fmt.Sprintf(`pip %s from /layers/%s/pip/lib/python\d+.\d+/site-packages/pip`, strings.Replace(buildpackInfo.Metadata.Dependencies[1].Version, ".0", `(\.\d+)?`, 1), strings.ReplaceAll(buildpackInfo.Buildpack.ID, "/", "_"))))
 
 			Expect(secondImage.Buildpacks[1].Key).To(Equal(buildpackInfo.Buildpack.ID))
 			Expect(secondImage.Buildpacks[1].Layers["pip"].Metadata["built_at"]).ToNot(Equal(firstImage.Buildpacks[1].Layers["pip"].Metadata["built_at"]))
