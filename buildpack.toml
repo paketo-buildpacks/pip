@@ -9,18 +9,6 @@ api = "0.5"
   pre-package = "./scripts/build.sh"
 
   [[metadata.dependencies]]
-    cpe = "cpe:2.3:a:pypa:pip:21.2.4:*:*:*:*:python:*:*"
-    id = "pip"
-    licenses = ["MIT", "MIT-0"]
-    purl = "pkg:generic/pip@21.2.4?checksum=0eb8a1516c3d138ae8689c0c1a60fde7143310832f9dc77e11d8a4bc62de193b&download_url=https://files.pythonhosted.org/packages/52/e1/06c018197d8151383f66ebf6979d951995cf495629fc54149491f5d157d0/pip-21.2.4.tar.gz"
-    sha256 = "f25cac497002210abde94f7a01a00445c19781e29a99180a761d7dcd0b8cff4b"
-    source = "https://files.pythonhosted.org/packages/52/e1/06c018197d8151383f66ebf6979d951995cf495629fc54149491f5d157d0/pip-21.2.4.tar.gz"
-    source_sha256 = "0eb8a1516c3d138ae8689c0c1a60fde7143310832f9dc77e11d8a4bc62de193b"
-    stacks = ["io.buildpacks.stacks.bionic"]
-    uri = "https://deps.paketo.io/pip/pip_21.2.4_linux_noarch_bionic_f25cac49.tgz"
-    version = "21.2.4"
-
-  [[metadata.dependencies]]
     cpe = "cpe:2.3:a:pypa:pip:21.3:*:*:*:*:python:*:*"
     id = "pip"
     licenses = ["MIT", "MIT-0"]
@@ -31,6 +19,18 @@ api = "0.5"
     stacks = ["io.buildpacks.stacks.bionic"]
     uri = "https://deps.paketo.io/pip/pip_21.3_linux_noarch_bionic_d201b6eb.tgz"
     version = "21.3.0"
+
+  [[metadata.dependencies]]
+    cpe = "cpe:2.3:a:pypa:pip:21.3.1:*:*:*:*:python:*:*"
+    id = "pip"
+    licenses = ["MIT", "MIT-0"]
+    purl = "pkg:generic/pip@21.3.1?checksum=fd11ba3d0fdb4c07fbc5ecbba0b1b719809420f25038f8ee3cd913d3faa3033a&download_url=https://files.pythonhosted.org/packages/da/f6/c83229dcc3635cdeb51874184241a9508ada15d8baa337a41093fab58011/pip-21.3.1.tar.gz"
+    sha256 = "f7b0f07ab9fbcd646fb98f7497d424fdd5e37f33454d4fb745dfee98421491c3"
+    source = "https://files.pythonhosted.org/packages/da/f6/c83229dcc3635cdeb51874184241a9508ada15d8baa337a41093fab58011/pip-21.3.1.tar.gz"
+    source_sha256 = "fd11ba3d0fdb4c07fbc5ecbba0b1b719809420f25038f8ee3cd913d3faa3033a"
+    stacks = ["io.buildpacks.stacks.bionic"]
+    uri = "https://deps.paketo.io/pip/pip_21.3.1_linux_noarch_bionic_f7b0f07a.tgz"
+    version = "21.3.1"
 
   [[metadata.dependency-constraints]]
     constraint = "*"
