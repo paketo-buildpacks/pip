@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -41,13 +40,13 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 
 	it.Before(func() {
 		var err error
-		layersDir, err = ioutil.TempDir("", "layers")
+		layersDir, err = os.MkdirTemp("", "layers")
 		Expect(err).NotTo(HaveOccurred())
 
-		cnbDir, err = ioutil.TempDir("", "cnb")
+		cnbDir, err = os.MkdirTemp("", "cnb")
 		Expect(err).NotTo(HaveOccurred())
 
-		err = ioutil.WriteFile(filepath.Join(cnbDir, "buildpack.toml"), []byte(`api = "0.2"
+		err = os.WriteFile(filepath.Join(cnbDir, "buildpack.toml"), []byte(`api = "0.2"
 [buildpack]
   id = "org.some-org.some-buildpack"
   name = "Some Buildpack"
@@ -69,6 +68,8 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		entryResolver.ResolveCall.Returns.BuildpackPlanEntry = packit.BuildpackPlanEntry{
 			Name: "pip",
 		}
+		entryResolver.MergeLayerTypesCall.Returns.Build = true
+		entryResolver.MergeLayerTypesCall.Returns.Launch = true
 
 		dependencyManager = &fakes.DependencyManager{}
 		dependencyManager.ResolveCall.Returns.Dependency = postal.Dependency{
@@ -151,13 +152,43 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 					},
 					BuildEnv:         packit.Environment{},
 					LaunchEnv:        packit.Environment{},
-					Build:            false,
-					Launch:           false,
-					Cache:            false,
+					Build:            true,
+					Launch:           true,
+					Cache:            true,
 					ProcessLaunchEnv: map[string]packit.Environment{},
 					Metadata: map[string]interface{}{
 						pip.DependencySHAKey: "some-sha",
 						"built_at":           timeStamp.Format(time.RFC3339Nano),
+					},
+				},
+			},
+			Build: packit.BuildMetadata{
+				BOM: []packit.BOMEntry{
+					{
+						Name: "pip",
+						Metadata: packit.BOMMetadata{
+							Checksum: packit.BOMChecksum{
+								Algorithm: packit.SHA256,
+								Hash:      "pip-dependency-sha",
+							},
+							URI:     "pip-dependency-uri",
+							Version: "pip-dependency-version",
+						},
+					},
+				},
+			},
+			Launch: packit.LaunchMetadata{
+				BOM: []packit.BOMEntry{
+					{
+						Name: "pip",
+						Metadata: packit.BOMMetadata{
+							Checksum: packit.BOMChecksum{
+								Algorithm: packit.SHA256,
+								Hash:      "pip-dependency-sha",
+							},
+							URI:     "pip-dependency-uri",
+							Version: "pip-dependency-version",
+						},
 					},
 				},
 			},
@@ -208,11 +239,6 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 	})
 
 	context("when there's an entry with version source BP_PIP_VERSION", func() {
-		it.Before(func() {
-			entryResolver.MergeLayerTypesCall.Returns.Build = true
-			entryResolver.MergeLayerTypesCall.Returns.Launch = true
-		})
-
 		it("the BP_PIP_VERSION version takes precedence", func() {
 			result, err := build(packit.BuildContext{
 				BuildpackInfo: packit.BuildpackInfo{
@@ -295,12 +321,8 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 			}))
 		})
 	})
-	context("when build plan entries require pip at build/launch", func() {
-		it.Before(func() {
-			entryResolver.MergeLayerTypesCall.Returns.Build = true
-			entryResolver.MergeLayerTypesCall.Returns.Launch = true
-		})
 
+	context("when build plan entries require pip at build/launch", func() {
 		it("makes the layer available at the right times", func() {
 			result, err := build(packit.BuildContext{
 				BuildpackInfo: packit.BuildpackInfo{
@@ -354,7 +376,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 
 	context("when rebuilding a layer", func() {
 		it.Before(func() {
-			err := ioutil.WriteFile(filepath.Join(layersDir, fmt.Sprintf("%s.toml", pip.Pip)), []byte(fmt.Sprintf(`[metadata]
+			err := os.WriteFile(filepath.Join(layersDir, fmt.Sprintf("%s.toml", pip.Pip)), []byte(fmt.Sprintf(`[metadata]
 			%s = "some-sha"
 			built_at = "some-build-time"
 			`, pip.DependencySHAKey)), os.ModePerm)
@@ -363,11 +385,14 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 			err = os.MkdirAll(filepath.Join(layersDir, "pip", "env"), os.ModePerm)
 			Expect(err).NotTo(HaveOccurred())
 
-			err = ioutil.WriteFile(filepath.Join(layersDir, "pip", "env", "PYTHONPATH.prepend"), []byte(fmt.Sprintf("%s/pip/lib/python1.23/site-packages", layersDir)), os.ModePerm)
+			err = os.WriteFile(filepath.Join(layersDir, "pip", "env", "PYTHONPATH.prepend"), []byte(fmt.Sprintf("%s/pip/lib/python1.23/site-packages", layersDir)), os.ModePerm)
 			Expect(err).NotTo(HaveOccurred())
 
-			err = ioutil.WriteFile(filepath.Join(layersDir, "pip", "env", "PYTHONPATH.delim"), []byte(":"), os.ModePerm)
+			err = os.WriteFile(filepath.Join(layersDir, "pip", "env", "PYTHONPATH.delim"), []byte(":"), os.ModePerm)
 			Expect(err).NotTo(HaveOccurred())
+
+			entryResolver.MergeLayerTypesCall.Returns.Build = true
+			entryResolver.MergeLayerTypesCall.Returns.Launch = false
 		})
 
 		it("skips the build process if the cached dependency sha matches the selected dependency sha", func() {
@@ -388,30 +413,46 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 				Stack:  "some-stack",
 			})
 			Expect(err).NotTo(HaveOccurred())
-
-			Expect(buffer.String()).ToNot(ContainSubstring("Executing build process"))
-			Expect(buffer.String()).To(ContainSubstring("Reusing cached layer"))
-
-			Expect(result.Layers).To(Equal([]packit.Layer{
-				{
-					Name: "pip",
-					Path: filepath.Join(layersDir, "pip"),
-					SharedEnv: packit.Environment{
-						"PYTHONPATH.delim":   ":",
-						"PYTHONPATH.prepend": filepath.Join(layersDir, "pip", "lib/python1.23/site-packages"),
+			Expect(result).To(Equal(packit.BuildResult{
+				Layers: []packit.Layer{
+					{
+						Name: "pip",
+						Path: filepath.Join(layersDir, "pip"),
+						SharedEnv: packit.Environment{
+							"PYTHONPATH.delim":   ":",
+							"PYTHONPATH.prepend": filepath.Join(layersDir, "pip", "lib/python1.23/site-packages"),
+						},
+						BuildEnv:         packit.Environment{},
+						LaunchEnv:        packit.Environment{},
+						Build:            true,
+						Launch:           false,
+						Cache:            true,
+						ProcessLaunchEnv: map[string]packit.Environment{},
+						Metadata: map[string]interface{}{
+							pip.DependencySHAKey: "some-sha",
+							"built_at":           "some-build-time",
+						},
 					},
-					BuildEnv:         packit.Environment{},
-					LaunchEnv:        packit.Environment{},
-					Build:            false,
-					Launch:           false,
-					Cache:            false,
-					ProcessLaunchEnv: map[string]packit.Environment{},
-					Metadata: map[string]interface{}{
-						pip.DependencySHAKey: "some-sha",
-						"built_at":           "some-build-time",
+				},
+				Build: packit.BuildMetadata{
+					BOM: []packit.BOMEntry{
+						{
+							Name: "pip",
+							Metadata: packit.BOMMetadata{
+								Checksum: packit.BOMChecksum{
+									Algorithm: packit.SHA256,
+									Hash:      "pip-dependency-sha",
+								},
+								URI:     "pip-dependency-uri",
+								Version: "pip-dependency-version",
+							},
+						},
 					},
 				},
 			}))
+
+			Expect(buffer.String()).ToNot(ContainSubstring("Executing build process"))
+			Expect(buffer.String()).To(ContainSubstring("Reusing cached layer"))
 
 			Expect(dependencyManager.InstallCall.CallCount).To(Equal(0))
 			Expect(installProcess.ExecuteCall.CallCount).To(Equal(0))
