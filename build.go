@@ -2,7 +2,7 @@ package pip
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -69,7 +69,18 @@ func Build(installProcess InstallProcess, entries EntryResolver, dependencies De
 		dependency.Name = "Pip"
 		logs.SelectedDependency(entry, dependency, clock.Now())
 
-		boms := dependencies.GenerateBillOfMaterials(dependency)
+		bom := dependencies.GenerateBillOfMaterials(dependency)
+		launch, build := entries.MergeLayerTypes(Pip, context.Plan.Entries)
+
+		var launchMetadata packit.LaunchMetadata
+		if launch {
+			launchMetadata.BOM = bom
+		}
+
+		var buildMetadata packit.BuildMetadata
+		if build {
+			buildMetadata.BOM = bom
+		}
 
 		pipLayer, err := context.Layers.Get(Pip)
 		if err != nil {
@@ -79,19 +90,13 @@ func Build(installProcess InstallProcess, entries EntryResolver, dependencies De
 		cachedSHA, ok := pipLayer.Metadata[DependencySHAKey].(string)
 		if ok && cachedSHA == dependency.SHA256 {
 			logs.Process("Reusing cached layer %s", pipLayer.Path)
-			result := packit.BuildResult{
+			pipLayer.Launch, pipLayer.Build, pipLayer.Cache = launch, build, build
+
+			return packit.BuildResult{
 				Layers: []packit.Layer{pipLayer},
-			}
-
-			if pipLayer.Build {
-				result.Build = packit.BuildMetadata{BOM: boms}
-			}
-
-			if pipLayer.Launch {
-				result.Launch = packit.LaunchMetadata{BOM: boms}
-			}
-
-			return result, nil
+				Build:  buildMetadata,
+				Launch: launchMetadata,
+			}, nil
 		}
 
 		pipLayer, err = pipLayer.Reset()
@@ -99,13 +104,12 @@ func Build(installProcess InstallProcess, entries EntryResolver, dependencies De
 			return packit.BuildResult{}, err
 		}
 
-		pipLayer.Launch, pipLayer.Build = entries.MergeLayerTypes(Pip, context.Plan.Entries)
-		pipLayer.Cache = pipLayer.Build
+		pipLayer.Launch, pipLayer.Build, pipLayer.Cache = launch, build, build
 
 		// Install the pip source to a temporary dir, since we only need access to
 		// it as an intermediate step when installing pip.
 		// It doesn't need to go into a layer, since we won't need it in future builds.
-		pipSrcDir, err := ioutil.TempDir("", "pip-source")
+		pipSrcDir, err := os.MkdirTemp("", "pip-source")
 		if err != nil {
 			return packit.BuildResult{}, fmt.Errorf("failed to create temp pip-source dir: %w", err)
 		}
@@ -147,18 +151,10 @@ func Build(installProcess InstallProcess, entries EntryResolver, dependencies De
 			"built_at":       clock.Now().Format(time.RFC3339Nano),
 		}
 
-		result := packit.BuildResult{
+		return packit.BuildResult{
 			Layers: []packit.Layer{pipLayer},
-		}
-
-		if pipLayer.Build {
-			result.Build = packit.BuildMetadata{BOM: boms}
-		}
-
-		if pipLayer.Launch {
-			result.Launch = packit.LaunchMetadata{BOM: boms}
-		}
-
-		return result, nil
+			Build:  buildMetadata,
+			Launch: launchMetadata,
+		}, nil
 	}
 }
