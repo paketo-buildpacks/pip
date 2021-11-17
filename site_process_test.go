@@ -3,7 +3,6 @@ package pip_test
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -28,7 +27,7 @@ func testSiteProcess(t *testing.T, context spec.G, it spec.S) {
 
 	it.Before(func() {
 		var err error
-		targetLayerPath, err = ioutil.TempDir("", "pip")
+		targetLayerPath, err = os.MkdirTemp("", "pip")
 		Expect(err).NotTo(HaveOccurred())
 
 		executable = &fakes.Executable{}
