@@ -13,28 +13,28 @@ api = "0.6"
   pre-package = "./scripts/build.sh"
 
   [[metadata.dependencies]]
-    cpe = "cpe:2.3:a:pypa:pip:21.3:*:*:*:*:python:*:*"
+    cpe = "cpe:2.3:a:pypa:pip:22.0.2:*:*:*:*:python:*:*"
     id = "pip"
     licenses = ["MIT", "MIT-0"]
-    purl = "pkg:generic/pip@21.3?checksum=741a61baab1dbce2d8ca415effa48a2b6a964564f81a9f4f1fce4c433346c034&download_url=https://files.pythonhosted.org/packages/00/5f/d6959d6f25f202e3e68e3a53b815af42d770c829c19382d0acbf2c3e2112/pip-21.3.tar.gz"
-    sha256 = "d201b6ebbb300a343019df83d486c383f0b9be25e1f31097f7bd8b524ba78819"
-    source = "https://files.pythonhosted.org/packages/00/5f/d6959d6f25f202e3e68e3a53b815af42d770c829c19382d0acbf2c3e2112/pip-21.3.tar.gz"
-    source_sha256 = "741a61baab1dbce2d8ca415effa48a2b6a964564f81a9f4f1fce4c433346c034"
+    purl = "pkg:generic/pip@22.0.2?checksum=27b4b70c34ec35f77947f777070d8331adbb1e444842e98e7150c288dc0caea4&download_url=https://files.pythonhosted.org/packages/d9/c1/146b24a7648fdf3f8b4dc6521ab0b26ac151ef903bac0b63a4e1450cb4d1/pip-22.0.2.tar.gz"
+    sha256 = "2c15b9ee8fcac2b245159dcff2688074a75b9a7ac545b30693ae9a5e85623c0f"
+    source = "https://files.pythonhosted.org/packages/d9/c1/146b24a7648fdf3f8b4dc6521ab0b26ac151ef903bac0b63a4e1450cb4d1/pip-22.0.2.tar.gz"
+    source_sha256 = "27b4b70c34ec35f77947f777070d8331adbb1e444842e98e7150c288dc0caea4"
     stacks = ["io.buildpacks.stacks.bionic"]
-    uri = "https://deps.paketo.io/pip/pip_21.3_linux_noarch_bionic_d201b6eb.tgz"
-    version = "21.3.0"
+    uri = "https://deps.paketo.io/pip/pip_22.0.2_linux_noarch_bionic_2c15b9ee.tgz"
+    version = "22.0.2"
 
   [[metadata.dependencies]]
-    cpe = "cpe:2.3:a:pypa:pip:21.3.1:*:*:*:*:python:*:*"
+    cpe = "cpe:2.3:a:pypa:pip:22.0.3:*:*:*:*:python:*:*"
     id = "pip"
     licenses = ["MIT", "MIT-0"]
-    purl = "pkg:generic/pip@21.3.1?checksum=fd11ba3d0fdb4c07fbc5ecbba0b1b719809420f25038f8ee3cd913d3faa3033a&download_url=https://files.pythonhosted.org/packages/da/f6/c83229dcc3635cdeb51874184241a9508ada15d8baa337a41093fab58011/pip-21.3.1.tar.gz"
-    sha256 = "f7b0f07ab9fbcd646fb98f7497d424fdd5e37f33454d4fb745dfee98421491c3"
-    source = "https://files.pythonhosted.org/packages/da/f6/c83229dcc3635cdeb51874184241a9508ada15d8baa337a41093fab58011/pip-21.3.1.tar.gz"
-    source_sha256 = "fd11ba3d0fdb4c07fbc5ecbba0b1b719809420f25038f8ee3cd913d3faa3033a"
+    purl = "pkg:generic/pip@22.0.3?checksum=f29d589df8c8ab99c060e68ad294c4a9ed896624f6368c5349d70aa581b333d0&download_url=https://files.pythonhosted.org/packages/88/d9/761f0b1e0551a3559afe4d34bd9bf68fc8de3292363b3775dda39b62ce84/pip-22.0.3.tar.gz"
+    sha256 = "3e3974adf0929c75a23d04dd3d7c47364904bc1a84a922f53ae699953b3c8653"
+    source = "https://files.pythonhosted.org/packages/88/d9/761f0b1e0551a3559afe4d34bd9bf68fc8de3292363b3775dda39b62ce84/pip-22.0.3.tar.gz"
+    source_sha256 = "f29d589df8c8ab99c060e68ad294c4a9ed896624f6368c5349d70aa581b333d0"
     stacks = ["io.buildpacks.stacks.bionic"]
-    uri = "https://deps.paketo.io/pip/pip_21.3.1_linux_noarch_bionic_f7b0f07a.tgz"
-    version = "21.3.1"
+    uri = "https://deps.paketo.io/pip/pip_22.0.3_linux_noarch_bionic_3e3974ad.tgz"
+    version = "22.0.3"
 
   [[metadata.dependency-constraints]]
     constraint = "*"
