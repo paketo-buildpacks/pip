@@ -13,18 +13,6 @@ api = "0.6"
   pre-package = "./scripts/build.sh"
 
   [[metadata.dependencies]]
-    cpe = "cpe:2.3:a:pypa:pip:22.0.2:*:*:*:*:python:*:*"
-    id = "pip"
-    licenses = ["MIT", "MIT-0"]
-    purl = "pkg:generic/pip@22.0.2?checksum=27b4b70c34ec35f77947f777070d8331adbb1e444842e98e7150c288dc0caea4&download_url=https://files.pythonhosted.org/packages/d9/c1/146b24a7648fdf3f8b4dc6521ab0b26ac151ef903bac0b63a4e1450cb4d1/pip-22.0.2.tar.gz"
-    sha256 = "2c15b9ee8fcac2b245159dcff2688074a75b9a7ac545b30693ae9a5e85623c0f"
-    source = "https://files.pythonhosted.org/packages/d9/c1/146b24a7648fdf3f8b4dc6521ab0b26ac151ef903bac0b63a4e1450cb4d1/pip-22.0.2.tar.gz"
-    source_sha256 = "27b4b70c34ec35f77947f777070d8331adbb1e444842e98e7150c288dc0caea4"
-    stacks = ["io.buildpacks.stacks.bionic"]
-    uri = "https://deps.paketo.io/pip/pip_22.0.2_linux_noarch_bionic_2c15b9ee.tgz"
-    version = "22.0.2"
-
-  [[metadata.dependencies]]
     cpe = "cpe:2.3:a:pypa:pip:22.0.3:*:*:*:*:python:*:*"
     id = "pip"
     licenses = ["MIT", "MIT-0"]
@@ -35,6 +23,18 @@ api = "0.6"
     stacks = ["io.buildpacks.stacks.bionic"]
     uri = "https://deps.paketo.io/pip/pip_22.0.3_linux_noarch_bionic_3e3974ad.tgz"
     version = "22.0.3"
+
+  [[metadata.dependencies]]
+    cpe = "cpe:2.3:a:pypa:pip:22.0.4:*:*:*:*:python:*:*"
+    id = "pip"
+    licenses = ["MIT", "MIT-0"]
+    purl = "pkg:generic/pip@22.0.4?checksum=b3a9de2c6ef801e9247d1527a4b16f92f2cc141cd1489f3fffaf6a9e96729764&download_url=https://files.pythonhosted.org/packages/33/c9/e2164122d365d8f823213a53970fa3005eb16218edcfc56ca24cb6deba2b/pip-22.0.4.tar.gz"
+    sha256 = "3a40b4c8383f09e61933b5b85956ddd411608e3ea89732ed1fb424d5b8ec8eb8"
+    source = "https://files.pythonhosted.org/packages/33/c9/e2164122d365d8f823213a53970fa3005eb16218edcfc56ca24cb6deba2b/pip-22.0.4.tar.gz"
+    source_sha256 = "b3a9de2c6ef801e9247d1527a4b16f92f2cc141cd1489f3fffaf6a9e96729764"
+    stacks = ["io.buildpacks.stacks.bionic"]
+    uri = "https://deps.paketo.io/pip/pip_22.0.4_linux_noarch_bionic_3a40b4c8.tgz"
+    version = "22.0.4"
 
   [[metadata.dependency-constraints]]
     constraint = "*"
