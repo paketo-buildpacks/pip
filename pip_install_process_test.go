@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/paketo-buildpacks/packit/pexec"
+	"github.com/paketo-buildpacks/packit/v2/pexec"
 	pip "github.com/paketo-buildpacks/pip"
 	"github.com/paketo-buildpacks/pip/fakes"
 	"github.com/sclevine/spec"
