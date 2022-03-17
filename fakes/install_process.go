@@ -4,7 +4,7 @@ import "sync"
 
 type InstallProcess struct {
 	ExecuteCall struct {
-		sync.Mutex
+		mutex     sync.Mutex
 		CallCount int
 		Receives  struct {
 			SrcPath         string
@@ -18,8 +18,8 @@ type InstallProcess struct {
 }
 
 func (f *InstallProcess) Execute(param1 string, param2 string) error {
-	f.ExecuteCall.Lock()
-	defer f.ExecuteCall.Unlock()
+	f.ExecuteCall.mutex.Lock()
+	defer f.ExecuteCall.mutex.Unlock()
 	f.ExecuteCall.CallCount++
 	f.ExecuteCall.Receives.SrcPath = param1
 	f.ExecuteCall.Receives.TargetLayerPath = param2

@@ -9,10 +9,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/paketo-buildpacks/packit"
-	"github.com/paketo-buildpacks/packit/chronos"
-	"github.com/paketo-buildpacks/packit/postal"
-	"github.com/paketo-buildpacks/packit/scribe"
+	"github.com/paketo-buildpacks/packit/v2"
+	"github.com/paketo-buildpacks/packit/v2/chronos"
+
+	//nolint Ignore SA1019, informed usage of deprecated package
+	"github.com/paketo-buildpacks/packit/v2/paketosbom"
+	"github.com/paketo-buildpacks/packit/v2/postal"
+	"github.com/paketo-buildpacks/packit/v2/scribe"
 	pip "github.com/paketo-buildpacks/pip"
 	"github.com/paketo-buildpacks/pip/fakes"
 	"github.com/sclevine/spec"
@@ -83,9 +86,9 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		dependencyManager.GenerateBillOfMaterialsCall.Returns.BOMEntrySlice = []packit.BOMEntry{
 			{
 				Name: "pip",
-				Metadata: packit.BOMMetadata{
-					Checksum: packit.BOMChecksum{
-						Algorithm: packit.SHA256,
+				Metadata: paketosbom.BOMMetadata{
+					Checksum: paketosbom.BOMChecksum{
+						Algorithm: paketosbom.SHA256,
 						Hash:      "pip-dependency-sha",
 					},
 					URI:     "pip-dependency-uri",
@@ -136,8 +139,9 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 					},
 				},
 			},
-			Layers: packit.Layers{Path: layersDir},
-			Stack:  "some-stack",
+			Platform: packit.Platform{Path: "platform"},
+			Layers:   packit.Layers{Path: layersDir},
+			Stack:    "some-stack",
 		})
 		Expect(err).NotTo(HaveOccurred())
 
@@ -166,9 +170,9 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 				BOM: []packit.BOMEntry{
 					{
 						Name: "pip",
-						Metadata: packit.BOMMetadata{
-							Checksum: packit.BOMChecksum{
-								Algorithm: packit.SHA256,
+						Metadata: paketosbom.BOMMetadata{
+							Checksum: paketosbom.BOMChecksum{
+								Algorithm: paketosbom.SHA256,
 								Hash:      "pip-dependency-sha",
 							},
 							URI:     "pip-dependency-uri",
@@ -181,9 +185,9 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 				BOM: []packit.BOMEntry{
 					{
 						Name: "pip",
-						Metadata: packit.BOMMetadata{
-							Checksum: packit.BOMChecksum{
-								Algorithm: packit.SHA256,
+						Metadata: paketosbom.BOMMetadata{
+							Checksum: paketosbom.BOMChecksum{
+								Algorithm: paketosbom.SHA256,
 								Hash:      "pip-dependency-sha",
 							},
 							URI:     "pip-dependency-uri",
@@ -217,7 +221,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		Expect(dependencyManager.ResolveCall.Receives.Version).To(Equal(""))
 		Expect(dependencyManager.ResolveCall.Receives.Stack).To(Equal("some-stack"))
 
-		Expect(dependencyManager.InstallCall.Receives.Dependency).To(Equal(postal.Dependency{
+		Expect(dependencyManager.DeliverCall.Receives.Dependency).To(Equal(postal.Dependency{
 			ID:      "pip",
 			Name:    "Pip",
 			SHA256:  "some-sha",
@@ -226,10 +230,11 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 			Version: "21.0",
 		}))
 
-		Expect(dependencyManager.InstallCall.Receives.CnbPath).To(Equal(cnbDir))
-		Expect(dependencyManager.InstallCall.Receives.DestPath).To(ContainSubstring("pip-source"))
+		Expect(dependencyManager.DeliverCall.Receives.CnbPath).To(Equal(cnbDir))
+		Expect(dependencyManager.DeliverCall.Receives.DestinationPath).To(ContainSubstring("pip-source"))
+		Expect(dependencyManager.DeliverCall.Receives.PlatformPath).To(Equal("platform"))
 
-		Expect(installProcess.ExecuteCall.Receives.SrcPath).To(Equal(dependencyManager.InstallCall.Receives.DestPath))
+		Expect(installProcess.ExecuteCall.Receives.SrcPath).To(Equal(dependencyManager.DeliverCall.Receives.DestinationPath))
 		Expect(installProcess.ExecuteCall.Receives.TargetLayerPath).To(Equal(filepath.Join(layersDir, "pip")))
 
 		Expect(buffer.String()).To(ContainSubstring("Some Buildpack some-version"))
@@ -262,8 +267,9 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 						},
 					},
 				},
-				Layers: packit.Layers{Path: layersDir},
-				Stack:  "some-stack",
+				Platform: packit.Platform{Path: "platform"},
+				Layers:   packit.Layers{Path: layersDir},
+				Stack:    "some-stack",
 			})
 			Expect(err).NotTo(HaveOccurred())
 
@@ -292,9 +298,9 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 					BOM: []packit.BOMEntry{
 						{
 							Name: "pip",
-							Metadata: packit.BOMMetadata{
-								Checksum: packit.BOMChecksum{
-									Algorithm: packit.SHA256,
+							Metadata: paketosbom.BOMMetadata{
+								Checksum: paketosbom.BOMChecksum{
+									Algorithm: paketosbom.SHA256,
 									Hash:      "pip-dependency-sha",
 								},
 								URI:     "pip-dependency-uri",
@@ -307,9 +313,9 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 					BOM: []packit.BOMEntry{
 						{
 							Name: "pip",
-							Metadata: packit.BOMMetadata{
-								Checksum: packit.BOMChecksum{
-									Algorithm: packit.SHA256,
+							Metadata: paketosbom.BOMMetadata{
+								Checksum: paketosbom.BOMChecksum{
+									Algorithm: paketosbom.SHA256,
 									Hash:      "pip-dependency-sha",
 								},
 								URI:     "pip-dependency-uri",
@@ -438,9 +444,9 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 					BOM: []packit.BOMEntry{
 						{
 							Name: "pip",
-							Metadata: packit.BOMMetadata{
-								Checksum: packit.BOMChecksum{
-									Algorithm: packit.SHA256,
+							Metadata: paketosbom.BOMMetadata{
+								Checksum: paketosbom.BOMChecksum{
+									Algorithm: paketosbom.SHA256,
 									Hash:      "pip-dependency-sha",
 								},
 								URI:     "pip-dependency-uri",
@@ -454,7 +460,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 			Expect(buffer.String()).ToNot(ContainSubstring("Executing build process"))
 			Expect(buffer.String()).To(ContainSubstring("Reusing cached layer"))
 
-			Expect(dependencyManager.InstallCall.CallCount).To(Equal(0))
+			Expect(dependencyManager.DeliverCall.CallCount).To(Equal(0))
 			Expect(installProcess.ExecuteCall.CallCount).To(Equal(0))
 		})
 	})
@@ -551,7 +557,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 
 		context("when dependency cannot be installed", func() {
 			it.Before(func() {
-				dependencyManager.InstallCall.Returns.Error = errors.New("failed to install dependency")
+				dependencyManager.DeliverCall.Returns.Error = errors.New("failed to install dependency")
 			})
 			it("returns an error", func() {
 				_, err := build(packit.BuildContext{

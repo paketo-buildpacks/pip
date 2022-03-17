@@ -7,10 +7,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/paketo-buildpacks/packit"
-	"github.com/paketo-buildpacks/packit/chronos"
-	"github.com/paketo-buildpacks/packit/postal"
-	"github.com/paketo-buildpacks/packit/scribe"
+	"github.com/paketo-buildpacks/packit/v2"
+	"github.com/paketo-buildpacks/packit/v2/chronos"
+	"github.com/paketo-buildpacks/packit/v2/postal"
+	"github.com/paketo-buildpacks/packit/v2/scribe"
 )
 
 //go:generate faux --interface EntryResolver --output fakes/entry_resolver.go
@@ -29,7 +29,7 @@ type EntryResolver interface {
 // dependency and installing it.
 type DependencyManager interface {
 	Resolve(path, id, version, stack string) (postal.Dependency, error)
-	Install(dependency postal.Dependency, cnbPath, destPath string) error
+	Deliver(dependency postal.Dependency, cnbPath, destinationPath, platformPath string) error
 	GenerateBillOfMaterials(dependencies ...postal.Dependency) []packit.BOMEntry
 }
 
@@ -118,7 +118,7 @@ func Build(installProcess InstallProcess, entries EntryResolver, dependencies De
 		logs.Subprocess(fmt.Sprintf("Installing Pip %s", dependency.Version))
 
 		duration, err := clock.Measure(func() error {
-			err = dependencies.Install(dependency, context.CNBPath, pipSrcDir)
+			err = dependencies.Deliver(dependency, context.CNBPath, pipSrcDir, context.Platform.Path)
 			if err != nil {
 				return err
 			}
