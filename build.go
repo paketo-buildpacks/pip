@@ -10,6 +10,7 @@ import (
 	"github.com/paketo-buildpacks/packit/v2"
 	"github.com/paketo-buildpacks/packit/v2/chronos"
 	"github.com/paketo-buildpacks/packit/v2/postal"
+	"github.com/paketo-buildpacks/packit/v2/sbom"
 	"github.com/paketo-buildpacks/packit/v2/scribe"
 )
 
@@ -17,6 +18,7 @@ import (
 //go:generate faux --interface DependencyManager --output fakes/dependency_manager.go
 //go:generate faux --interface InstallProcess --output fakes/install_process.go
 //go:generate faux --interface SitePackageProcess --output fakes/site_package_process.go
+//go:generate faux --interface SBOMGenerator --output fakes/sbom_generator.go
 
 // EntryResolver defines the interface for picking the most relevant entry from
 // the Buildpack Plan entries.
@@ -43,21 +45,31 @@ type SitePackageProcess interface {
 	Execute(targetLayerPath string) (string, error)
 }
 
+type SBOMGenerator interface {
+	GenerateFromDependency(dependency postal.Dependency, dir string) (sbom.SBOM, error)
+}
+
 // Build will return a packit.BuildFunc that will be invoked during the build
 // phase of the buildpack lifecycle.
 //
 // Build will find the right pip dependency to install, install it in a
 // layer, and generate Bill-of-Materials. It also makes use of the checksum of
 // the dependency to reuse the layer when possible.
-func Build(installProcess InstallProcess, entries EntryResolver, dependencies DependencyManager, logs scribe.Emitter, clock chronos.Clock, siteProcess SitePackageProcess) packit.BuildFunc {
+func Build(
+	entries EntryResolver,
+	dependencies DependencyManager,
+	installProcess InstallProcess,
+	siteProcess SitePackageProcess,
+	sbomGenerator SBOMGenerator,
+	logger scribe.Emitter,
+	clock chronos.Clock,
+) packit.BuildFunc {
 	return func(context packit.BuildContext) (packit.BuildResult, error) {
-		logs.Title("%s %s", context.BuildpackInfo.Name, context.BuildpackInfo.Version)
+		logger.Title("%s %s", context.BuildpackInfo.Name, context.BuildpackInfo.Version)
 
-		logs.Process("Resolving Pip version")
-
+		logger.Process("Resolving Pip version")
 		entry, sortedEntries := entries.Resolve(Pip, context.Plan.Entries, Priorities)
-
-		logs.Candidates(sortedEntries)
+		logger.Candidates(sortedEntries)
 
 		version, _ := entry.Metadata["version"].(string)
 
@@ -67,19 +79,19 @@ func Build(installProcess InstallProcess, entries EntryResolver, dependencies De
 		}
 
 		dependency.Name = "Pip"
-		logs.SelectedDependency(entry, dependency, clock.Now())
+		logger.SelectedDependency(entry, dependency, clock.Now())
 
-		bom := dependencies.GenerateBillOfMaterials(dependency)
+		legacySBOM := dependencies.GenerateBillOfMaterials(dependency)
 		launch, build := entries.MergeLayerTypes(Pip, context.Plan.Entries)
 
 		var launchMetadata packit.LaunchMetadata
 		if launch {
-			launchMetadata.BOM = bom
+			launchMetadata.BOM = legacySBOM
 		}
 
 		var buildMetadata packit.BuildMetadata
 		if build {
-			buildMetadata.BOM = bom
+			buildMetadata.BOM = legacySBOM
 		}
 
 		pipLayer, err := context.Layers.Get(Pip)
@@ -89,7 +101,7 @@ func Build(installProcess InstallProcess, entries EntryResolver, dependencies De
 
 		cachedSHA, ok := pipLayer.Metadata[DependencySHAKey].(string)
 		if ok && cachedSHA == dependency.SHA256 {
-			logs.Process("Reusing cached layer %s", pipLayer.Path)
+			logger.Process("Reusing cached layer %s", pipLayer.Path)
 			pipLayer.Launch, pipLayer.Build, pipLayer.Cache = launch, build, build
 
 			return packit.BuildResult{
@@ -114,8 +126,8 @@ func Build(installProcess InstallProcess, entries EntryResolver, dependencies De
 			return packit.BuildResult{}, fmt.Errorf("failed to create temp pip-source dir: %w", err)
 		}
 
-		logs.Process("Executing build process")
-		logs.Subprocess(fmt.Sprintf("Installing Pip %s", dependency.Version))
+		logger.Process("Executing build process")
+		logger.Subprocess(fmt.Sprintf("Installing Pip %s", dependency.Version))
 
 		duration, err := clock.Measure(func() error {
 			err = dependencies.Deliver(dependency, context.CNBPath, pipSrcDir, context.Platform.Path)
@@ -128,8 +140,27 @@ func Build(installProcess InstallProcess, entries EntryResolver, dependencies De
 			return packit.BuildResult{}, err
 		}
 
-		logs.Action("Completed in %s", duration.Round(time.Millisecond))
-		logs.Break()
+		logger.Action("Completed in %s", duration.Round(time.Millisecond))
+		logger.Break()
+
+		logger.GeneratingSBOM(pipLayer.Path)
+		var sbomContent sbom.SBOM
+		duration, err = clock.Measure(func() error {
+			sbomContent, err = sbomGenerator.GenerateFromDependency(dependency, pipLayer.Path)
+			return err
+		})
+		if err != nil {
+			return packit.BuildResult{}, err
+		}
+
+		logger.Action("Completed in %s", duration.Round(time.Millisecond))
+		logger.Break()
+
+		logger.FormattingSBOM(context.BuildpackInfo.SBOMFormats...)
+		pipLayer.SBOM, err = sbomContent.InFormats(context.BuildpackInfo.SBOMFormats...)
+		if err != nil {
+			return packit.BuildResult{}, err
+		}
 
 		// Look up the site packages path and prepend it onto $PYTHONPATH
 		sitePackagesPath, err := siteProcess.Execute(pipLayer.Path)
@@ -139,12 +170,11 @@ func Build(installProcess InstallProcess, entries EntryResolver, dependencies De
 		if sitePackagesPath == "" {
 			return packit.BuildResult{}, fmt.Errorf("pip installation failed: site packages are missing from the pip layer")
 		}
-
 		pipLayer.SharedEnv.Prepend("PYTHONPATH", strings.TrimRight(sitePackagesPath, "\n"), ":")
 
-		logs.Process("Configuring environment")
-		logs.Subprocess("%s", scribe.NewFormattedMapFromEnvironment(pipLayer.SharedEnv))
-		logs.Break()
+		logger.Process("Configuring environment")
+		logger.Subprocess("%s", scribe.NewFormattedMapFromEnvironment(pipLayer.SharedEnv))
+		logger.Break()
 
 		pipLayer.Metadata = map[string]interface{}{
 			DependencySHAKey: dependency.SHA256,
