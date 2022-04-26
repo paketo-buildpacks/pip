@@ -9,19 +9,30 @@ import (
 	"github.com/paketo-buildpacks/packit/v2/draft"
 	"github.com/paketo-buildpacks/packit/v2/pexec"
 	"github.com/paketo-buildpacks/packit/v2/postal"
+	"github.com/paketo-buildpacks/packit/v2/sbom"
 	"github.com/paketo-buildpacks/packit/v2/scribe"
 	"github.com/paketo-buildpacks/pip"
 )
 
+type Generator struct{}
+
+func (f Generator) GenerateFromDependency(dependency postal.Dependency, path string) (sbom.SBOM, error) {
+	return sbom.GenerateFromDependency(dependency, path)
+}
+
 func main() {
-	entries := draft.NewPlanner()
-	dependencies := postal.NewService(cargo.NewTransport())
-	logs := scribe.NewEmitter(os.Stdout)
-	installProcess := pip.NewPipInstallProcess(pexec.NewExecutable("python"))
-	siteProcess := pip.NewSiteProcess(pexec.NewExecutable("python"))
+	logger := scribe.NewEmitter(os.Stdout).WithLevel(os.Getenv("BP_LOG_LEVEL"))
 
 	packit.Run(
 		pip.Detect(),
-		pip.Build(installProcess, entries, dependencies, logs, chronos.DefaultClock, siteProcess),
+		pip.Build(
+			draft.NewPlanner(),
+			postal.NewService(cargo.NewTransport()),
+			pip.NewPipInstallProcess(pexec.NewExecutable("python")),
+			pip.NewSiteProcess(pexec.NewExecutable("python")),
+			Generator{},
+			logger,
+			chronos.DefaultClock,
+		),
 	)
 }

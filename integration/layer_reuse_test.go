@@ -103,9 +103,11 @@ func testLayerReuse(t *testing.T, context spec.G, it spec.S) {
 				"  Resolving Pip version",
 				"    Candidate version sources (in priority order):",
 				"      <unknown> -> \"\"",
-				"",
+			))
+			Expect(logs).To(ContainLines(
 				MatchRegexp(`    Selected Pip version \(using <unknown>\): \d+\.\d+\.\d+`),
-				"",
+			))
+			Expect(logs).To(ContainLines(
 				fmt.Sprintf("  Reusing cached layer /layers/%s/pip", strings.ReplaceAll(buildpackInfo.Buildpack.ID, "/", "_")),
 			))
 
@@ -178,13 +180,16 @@ func testLayerReuse(t *testing.T, context spec.G, it spec.S) {
 				"    Candidate version sources (in priority order):",
 				MatchRegexp(`      BP_PIP_VERSION -> "\d+\.\d+\.\d+"`),
 				"      <unknown>      -> \"\"",
-				"",
+			))
+			Expect(logs).To(ContainLines(
 				MatchRegexp(`    Selected Pip version \(using BP_PIP_VERSION\): \d+\.\d+\.\d+`),
-				"",
+			))
+			Expect(logs).To(ContainLines(
 				"  Executing build process",
 				MatchRegexp(`    Installing Pip \d+\.\d+\.\d+`),
 				MatchRegexp(`      Completed in \d+\.\d+`),
-				"",
+			))
+			Expect(logs).To(ContainLines(
 				"  Configuring environment",
 				MatchRegexp(fmt.Sprintf(`    PYTHONPATH -> "\/layers\/%s\/pip\/lib\/python\d+\.\d+\/site-packages:\$PYTHONPATH"`, strings.ReplaceAll(buildpackInfo.Buildpack.ID, "/", "_"))),
 			))
