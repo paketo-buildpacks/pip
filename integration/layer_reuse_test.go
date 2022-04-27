@@ -125,7 +125,7 @@ func testLayerReuse(t *testing.T, context spec.G, it spec.S) {
 			}).Should(MatchRegexp(fmt.Sprintf(`pip \d+\.\d+(\.\d+)? from /layers/%s/pip/lib/python\d+.\d+/site-packages/pip`, strings.ReplaceAll(buildpackInfo.Buildpack.ID, "/", "_"))))
 
 			Expect(secondImage.Buildpacks[1].Key).To(Equal(buildpackInfo.Buildpack.ID))
-			Expect(secondImage.Buildpacks[1].Layers["pip"].Metadata["built_at"]).To(Equal(firstImage.Buildpacks[1].Layers["pip"].Metadata["built_at"]))
+			Expect(secondImage.Buildpacks[1].Layers["pip"].SHA).To(Equal(firstImage.Buildpacks[1].Layers["pip"].SHA))
 		})
 	})
 
@@ -208,7 +208,7 @@ func testLayerReuse(t *testing.T, context spec.G, it spec.S) {
 			}).Should(MatchRegexp(fmt.Sprintf(`pip %s from /layers/%s/pip/lib/python\d+.\d+/site-packages/pip`, strings.Replace(buildpackInfo.Metadata.Dependencies[1].Version, ".0", `(\.\d+)?`, 1), strings.ReplaceAll(buildpackInfo.Buildpack.ID, "/", "_"))))
 
 			Expect(secondImage.Buildpacks[1].Key).To(Equal(buildpackInfo.Buildpack.ID))
-			Expect(secondImage.Buildpacks[1].Layers["pip"].Metadata["built_at"]).ToNot(Equal(firstImage.Buildpacks[1].Layers["pip"].Metadata["built_at"]))
+			Expect(secondImage.Buildpacks[1].Layers["pip"].SHA).ToNot(Equal(firstImage.Buildpacks[1].Layers["pip"].SHA))
 		})
 	})
 }

@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-	"time"
 
 	"github.com/paketo-buildpacks/packit/v2"
 	"github.com/paketo-buildpacks/packit/v2/chronos"
@@ -37,8 +36,6 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		sitePackageProcess *fakes.SitePackageProcess
 		sbomGenerator      *fakes.SBOMGenerator
 
-		clock      chronos.Clock
-		timeStamp  time.Time
 		logEmitter scribe.Emitter
 
 		buffer *bytes.Buffer
@@ -104,11 +101,6 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		buffer = bytes.NewBuffer(nil)
 		logEmitter = scribe.NewEmitter(buffer)
 
-		timeStamp = time.Now()
-		clock = chronos.NewClock(func() time.Time {
-			return timeStamp
-		})
-
 		build = pip.Build(
 			entryResolver,
 			dependencyManager,
@@ -116,7 +108,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 			sitePackageProcess,
 			sbomGenerator,
 			logEmitter,
-			clock,
+			chronos.DefaultClock,
 		)
 
 		buildContext = packit.BuildContext{
@@ -167,9 +159,8 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		Expect(layer.Launch).To(BeFalse())
 		Expect(layer.Cache).To(BeFalse())
 
-		Expect(layer.Metadata).To(HaveLen(2))
+		Expect(layer.Metadata).To(HaveLen(1))
 		Expect(layer.Metadata["dependency_sha"]).To(Equal("some-sha"))
-		Expect(layer.Metadata["built_at"]).To(Equal(timeStamp.Format(time.RFC3339Nano)))
 
 		Expect(layer.SBOM.Formats()).To(Equal([]packit.SBOMFormat{
 			{
