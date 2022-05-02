@@ -9,23 +9,16 @@ import (
 
 	"github.com/paketo-buildpacks/packit/v2"
 	"github.com/paketo-buildpacks/packit/v2/chronos"
+	"github.com/paketo-buildpacks/packit/v2/draft"
 	"github.com/paketo-buildpacks/packit/v2/postal"
 	"github.com/paketo-buildpacks/packit/v2/sbom"
 	"github.com/paketo-buildpacks/packit/v2/scribe"
 )
 
-//go:generate faux --interface EntryResolver --output fakes/entry_resolver.go
 //go:generate faux --interface DependencyManager --output fakes/dependency_manager.go
 //go:generate faux --interface InstallProcess --output fakes/install_process.go
 //go:generate faux --interface SitePackageProcess --output fakes/site_package_process.go
 //go:generate faux --interface SBOMGenerator --output fakes/sbom_generator.go
-
-// EntryResolver defines the interface for picking the most relevant entry from
-// the Buildpack Plan entries.
-type EntryResolver interface {
-	Resolve(string, []packit.BuildpackPlanEntry, []interface{}) (packit.BuildpackPlanEntry, []packit.BuildpackPlanEntry)
-	MergeLayerTypes(string, []packit.BuildpackPlanEntry) (launch, build bool)
-}
 
 // DependencyManager defines the interface for picking the best matching
 // dependency and installing it.
@@ -56,7 +49,6 @@ type SBOMGenerator interface {
 // layer, and generate Bill-of-Materials. It also makes use of the checksum of
 // the dependency to reuse the layer when possible.
 func Build(
-	entries EntryResolver,
 	dependencies DependencyManager,
 	installProcess InstallProcess,
 	siteProcess SitePackageProcess,
@@ -67,8 +59,10 @@ func Build(
 	return func(context packit.BuildContext) (packit.BuildResult, error) {
 		logger.Title("%s %s", context.BuildpackInfo.Name, context.BuildpackInfo.Version)
 
+		planner := draft.NewPlanner()
+
 		logger.Process("Resolving Pip version")
-		entry, sortedEntries := entries.Resolve(Pip, context.Plan.Entries, Priorities)
+		entry, sortedEntries := planner.Resolve(Pip, context.Plan.Entries, Priorities)
 		logger.Candidates(sortedEntries)
 
 		version, _ := entry.Metadata["version"].(string)
@@ -82,7 +76,7 @@ func Build(
 		logger.SelectedDependency(entry, dependency, clock.Now())
 
 		legacySBOM := dependencies.GenerateBillOfMaterials(dependency)
-		launch, build := entries.MergeLayerTypes(Pip, context.Plan.Entries)
+		launch, build := planner.MergeLayerTypes(Pip, context.Plan.Entries)
 
 		var launchMetadata packit.LaunchMetadata
 		if launch {
