@@ -16,7 +16,7 @@ import (
 	"github.com/paketo-buildpacks/packit/v2/postal"
 	"github.com/paketo-buildpacks/packit/v2/sbom"
 	"github.com/paketo-buildpacks/packit/v2/scribe"
-	pip "github.com/paketo-buildpacks/pip"
+	"github.com/paketo-buildpacks/pip"
 	"github.com/paketo-buildpacks/pip/fakes"
 	"github.com/sclevine/spec"
 
@@ -30,7 +30,6 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		layersDir string
 		cnbDir    string
 
-		entryResolver      *fakes.EntryResolver
 		dependencyManager  *fakes.DependencyManager
 		installProcess     *fakes.InstallProcess
 		sitePackageProcess *fakes.SitePackageProcess
@@ -51,11 +50,6 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 
 		cnbDir, err = os.MkdirTemp("", "cnb")
 		Expect(err).NotTo(HaveOccurred())
-
-		entryResolver = &fakes.EntryResolver{}
-		entryResolver.ResolveCall.Returns.BuildpackPlanEntry = packit.BuildpackPlanEntry{
-			Name: "pip",
-		}
 
 		dependencyManager = &fakes.DependencyManager{}
 		dependencyManager.ResolveCall.Returns.Dependency = postal.Dependency{
@@ -102,7 +96,6 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		logEmitter = scribe.NewEmitter(buffer)
 
 		build = pip.Build(
-			entryResolver,
 			dependencyManager,
 			installProcess,
 			sitePackageProcess,
@@ -173,24 +166,6 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 			},
 		}))
 
-		Expect(entryResolver.ResolveCall.Receives.String).To(Equal("pip"))
-		Expect(entryResolver.ResolveCall.Receives.BuildpackPlanEntrySlice).To(Equal([]packit.BuildpackPlanEntry{
-			{
-				Name: "pip",
-			},
-		}))
-
-		Expect(entryResolver.ResolveCall.Receives.InterfaceSlice).To(Equal([]interface{}{"BP_PIP_VERSION"}))
-
-		Expect(entryResolver.MergeLayerTypesCall.Receives.String).To(Equal("pip"))
-		Expect(entryResolver.MergeLayerTypesCall.Receives.BuildpackPlanEntrySlice).To(Equal(
-			[]packit.BuildpackPlanEntry{
-				{
-					Name: "pip",
-				},
-			},
-		))
-
 		Expect(dependencyManager.ResolveCall.Receives.Path).To(Equal(filepath.Join(cnbDir, "buildpack.toml")))
 		Expect(dependencyManager.ResolveCall.Receives.Id).To(Equal("pip"))
 		Expect(dependencyManager.ResolveCall.Receives.Version).To(Equal(""))
@@ -222,8 +197,9 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 
 	context("when build plan entries require pip at build/launch", func() {
 		it.Before(func() {
-			entryResolver.MergeLayerTypesCall.Returns.Build = true
-			entryResolver.MergeLayerTypesCall.Returns.Launch = true
+			buildContext.Plan.Entries[0].Metadata = make(map[string]interface{})
+			buildContext.Plan.Entries[0].Metadata["build"] = true
+			buildContext.Plan.Entries[0].Metadata["launch"] = true
 		})
 
 		it("makes the layer available at the right times", func() {
@@ -281,8 +257,9 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 			`, pip.DependencySHAKey)), os.ModePerm)
 			Expect(err).NotTo(HaveOccurred())
 
-			entryResolver.MergeLayerTypesCall.Returns.Build = true
-			entryResolver.MergeLayerTypesCall.Returns.Launch = false
+			buildContext.Plan.Entries[0].Metadata = make(map[string]interface{})
+			buildContext.Plan.Entries[0].Metadata["build"] = true
+			buildContext.Plan.Entries[0].Metadata["launch"] = false
 		})
 
 		it("skips the build process if the cached dependency sha matches the selected dependency sha", func() {
