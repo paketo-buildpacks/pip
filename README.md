@@ -21,6 +21,11 @@ The buildpack will do the following:
 | -------------------- | -----------
 | `$BP_PIP_VERSION` | Configure the version of pip to install. Buildpack releases (and the pip versions for each release) can be found [here](https://github.com/paketo-buildpacks/pip/releases).
 
+Note that Pip releases are of the form `X.Y` instead of `X.Y.0`, so providing
+`X.Y` will attempt to match that exact version. Providing `X.Y.Z` will select
+the exact patch version, and providing `X.Y.*` or `~X.Y` will select the latest
+patch version.
+
 ## Integration
 
 The Pip CNB provides pip as a dependency. Downstream buildpacks can require the pip
