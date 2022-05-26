@@ -192,7 +192,6 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		Expect(buffer.String()).To(ContainSubstring("Some Buildpack some-version"))
 		Expect(buffer.String()).To(ContainSubstring("Executing build process"))
 		Expect(buffer.String()).To(ContainSubstring("Installing Pip"))
-		Expect(buffer.String()).To(ContainSubstring("Configuring environment"))
 	})
 
 	context("when build plan entries require pip at build/launch", func() {

@@ -166,9 +166,7 @@ func Build(
 		}
 		pipLayer.SharedEnv.Prepend("PYTHONPATH", strings.TrimRight(sitePackagesPath, "\n"), ":")
 
-		logger.Process("Configuring environment")
-		logger.Subprocess("%s", scribe.NewFormattedMapFromEnvironment(pipLayer.SharedEnv))
-		logger.Break()
+		logger.EnvironmentVariables(pipLayer)
 
 		pipLayer.Metadata = map[string]interface{}{
 			DependencySHAKey: dependency.SHA256,
