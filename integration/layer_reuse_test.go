@@ -190,7 +190,10 @@ func testLayerReuse(t *testing.T, context spec.G, it spec.S) {
 				MatchRegexp(`      Completed in \d+\.\d+`),
 			))
 			Expect(logs).To(ContainLines(
-				"  Configuring environment",
+				"  Configuring build environment",
+				MatchRegexp(fmt.Sprintf(`    PYTHONPATH -> "\/layers\/%s\/pip\/lib\/python\d+\.\d+\/site-packages:\$PYTHONPATH"`, strings.ReplaceAll(buildpackInfo.Buildpack.ID, "/", "_"))),
+				"",
+				"  Configuring launch environment",
 				MatchRegexp(fmt.Sprintf(`    PYTHONPATH -> "\/layers\/%s\/pip\/lib\/python\d+\.\d+\/site-packages:\$PYTHONPATH"`, strings.ReplaceAll(buildpackInfo.Buildpack.ID, "/", "_"))),
 			))
 
