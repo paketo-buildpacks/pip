@@ -21,7 +21,7 @@ api = "0.7"
     sha256 = "5fc019c24bd7b49b5d47e0cecd118b32508e0a0430df3ceb6ac15b7e0092c172"
     source = "https://files.pythonhosted.org/packages/3e/0a/6125e67aa4d3245faeed476e4e26f190b5209f84f01efd733ac6372eb247/pip-22.1.1.tar.gz"
     source_sha256 = "8dfb15d8a1c3d3085a4cbe11f29e19527dfaf2ba99354326fd62cec013eaee81"
-    stacks = ["io.buildpacks.stacks.bionic"]
+    stacks = ["io.buildpacks.stacks.bionic", "io.buildpacks.stacks.jammy"]
     uri = "https://deps.paketo.io/pip/pip_22.1.1_linux_noarch_bionic_5fc019c2.tgz"
     version = "22.1.1"
 
@@ -33,7 +33,7 @@ api = "0.7"
     sha256 = "a3d8e6f0a8e48e0786c52bbcf3daff77ac6e520b55a4f2156aaec9ef3a447c0a"
     source = "https://files.pythonhosted.org/packages/4b/b6/0fa7aa968a9fa4ef63a51b3ff0644e59f49dcd7235b3fd6cceb23f202e08/pip-22.1.2.tar.gz"
     source_sha256 = "6d55b27e10f506312894a87ccc59f280136bad9061719fac9101bdad5a6bce69"
-    stacks = ["io.buildpacks.stacks.bionic"]
+    stacks = ["io.buildpacks.stacks.bionic", "io.buildpacks.stacks.jammy"]
     uri = "https://deps.paketo.io/pip/pip_22.1.2_linux_noarch_bionic_a3d8e6f0.tgz"
     version = "22.1.2"
 
@@ -44,6 +44,9 @@ api = "0.7"
 
 [[stacks]]
   id = "io.buildpacks.stacks.bionic"
+
+[[stacks]]
+  id = "io.buildpacks.stacks.jammy"
 
 [[stacks]]
   id = "org.cloudfoundry.stacks.cflinuxfs3"
