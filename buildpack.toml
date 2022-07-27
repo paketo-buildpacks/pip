@@ -14,18 +14,6 @@ api = "0.7"
   pre-package = "./scripts/build.sh"
 
   [[metadata.dependencies]]
-    cpe = "cpe:2.3:a:pypa:pip:22.1.2:*:*:*:*:python:*:*"
-    id = "pip"
-    licenses = ["MIT", "MIT-0"]
-    purl = "pkg:generic/pip@22.1.2?checksum=6d55b27e10f506312894a87ccc59f280136bad9061719fac9101bdad5a6bce69&download_url=https://files.pythonhosted.org/packages/4b/b6/0fa7aa968a9fa4ef63a51b3ff0644e59f49dcd7235b3fd6cceb23f202e08/pip-22.1.2.tar.gz"
-    sha256 = "a3d8e6f0a8e48e0786c52bbcf3daff77ac6e520b55a4f2156aaec9ef3a447c0a"
-    source = "https://files.pythonhosted.org/packages/4b/b6/0fa7aa968a9fa4ef63a51b3ff0644e59f49dcd7235b3fd6cceb23f202e08/pip-22.1.2.tar.gz"
-    source_sha256 = "6d55b27e10f506312894a87ccc59f280136bad9061719fac9101bdad5a6bce69"
-    stacks = ["io.buildpacks.stacks.bionic"]
-    uri = "https://deps.paketo.io/pip/pip_22.1.2_linux_noarch_bionic_a3d8e6f0.tgz"
-    version = "22.1.2"
-
-  [[metadata.dependencies]]
     cpe = "cpe:2.3:a:pypa:pip:22.2:*:*:*:*:python:*:*"
     id = "pip"
     licenses = ["MIT", "MIT-0"]
@@ -36,6 +24,18 @@ api = "0.7"
     stacks = ["io.buildpacks.stacks.bionic", "io.buildpacks.stacks.jammy"]
     uri = "https://deps.paketo.io/pip/pip_22.2_linux_noarch_bionic_a41cd103.tgz"
     version = "22.2.0"
+
+  [[metadata.dependencies]]
+    cpe = "cpe:2.3:a:pypa:pip:22.2.1:*:*:*:*:python:*:*"
+    id = "pip"
+    licenses = ["MIT", "MIT-0"]
+    purl = "pkg:generic/pip@22.2.1?checksum=50516e47a2b79e77446f0d05649f0d53772c192571486236b1905492bfc24bac&download_url=https://files.pythonhosted.org/packages/46/28/addd7e66bb3af799d35a5dcbb79407b591a7ed674f4efd2bd8f930c40821/pip-22.2.1.tar.gz"
+    sha256 = "9181f9951f215953c31998b83fbb33f5c1d327727545da3fde077ed305ab63f7"
+    source = "https://files.pythonhosted.org/packages/46/28/addd7e66bb3af799d35a5dcbb79407b591a7ed674f4efd2bd8f930c40821/pip-22.2.1.tar.gz"
+    source_sha256 = "50516e47a2b79e77446f0d05649f0d53772c192571486236b1905492bfc24bac"
+    stacks = ["io.buildpacks.stacks.bionic", "io.buildpacks.stacks.jammy"]
+    uri = "https://deps.paketo.io/pip/pip_22.2.1_linux_noarch_bionic_9181f995.tgz"
+    version = "22.2.1"
 
   [[metadata.dependency-constraints]]
     constraint = "*"
