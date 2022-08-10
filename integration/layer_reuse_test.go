@@ -39,6 +39,9 @@ func testLayerReuse(t *testing.T, context spec.G, it spec.S) {
 
 		imageIDs = map[string]struct{}{}
 		containerIDs = map[string]struct{}{}
+
+		source, err = occam.Source(filepath.Join("testdata", "default_app"))
+		Expect(err).NotTo(HaveOccurred())
 	})
 
 	it.After(func() {
@@ -75,7 +78,7 @@ func testLayerReuse(t *testing.T, context spec.G, it spec.S) {
 					settings.Buildpacks.Pip.Online,
 					settings.Buildpacks.BuildPlan.Online,
 				).
-				Execute(name, filepath.Join("testdata", "default_app"))
+				Execute(name, source)
 			Expect(err).ToNot(HaveOccurred(), logs.String)
 
 			imageIDs[firstImage.ID] = struct{}{}
@@ -93,7 +96,7 @@ func testLayerReuse(t *testing.T, context spec.G, it spec.S) {
 					settings.Buildpacks.Pip.Online,
 					settings.Buildpacks.BuildPlan.Online,
 				).
-				Execute(name, filepath.Join("testdata", "default_app"))
+				Execute(name, source)
 			Expect(err).ToNot(HaveOccurred(), logs.String)
 
 			imageIDs[secondImage.ID] = struct{}{}
@@ -150,7 +153,7 @@ func testLayerReuse(t *testing.T, context spec.G, it spec.S) {
 					settings.Buildpacks.BuildPlan.Online,
 				).
 				WithEnv(map[string]string{"BP_PIP_VERSION": buildpackInfo.Metadata.Dependencies[0].Version}).
-				Execute(name, filepath.Join("testdata", "default_app"))
+				Execute(name, source)
 			Expect(err).ToNot(HaveOccurred(), logs.String)
 
 			imageIDs[firstImage.ID] = struct{}{}
@@ -169,7 +172,7 @@ func testLayerReuse(t *testing.T, context spec.G, it spec.S) {
 					settings.Buildpacks.BuildPlan.Online,
 				).
 				WithEnv(map[string]string{"BP_PIP_VERSION": buildpackInfo.Metadata.Dependencies[1].Version}).
-				Execute(name, filepath.Join("testdata", "default_app"))
+				Execute(name, source)
 			Expect(err).ToNot(HaveOccurred(), logs.String)
 
 			imageIDs[secondImage.ID] = struct{}{}
