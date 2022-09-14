@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -16,38 +17,42 @@ import (
 	"github.com/onsi/gomega/format"
 )
 
-var buildpackInfo struct {
-	Buildpack struct {
-		ID   string
-		Name string
-	}
-	Metadata struct {
-		Dependencies []struct {
-			Version string
-		}
-	}
-}
+var (
+	builder occam.Builder
 
-var settings struct {
-	Buildpacks struct {
-		CPython struct {
-			Online  string
-			Offline string
+	buildpackInfo struct {
+		Buildpack struct {
+			ID   string
+			Name string
 		}
-		Pip struct {
-			Online  string
-			Offline string
-		}
-		BuildPlan struct {
-			Online string
+		Metadata struct {
+			Dependencies []struct {
+				Version string
+			}
 		}
 	}
 
-	Config struct {
-		CPython   string `json:"cpython"`
-		BuildPlan string `json:"build-plan"`
+	settings struct {
+		Buildpacks struct {
+			CPython struct {
+				Online  string
+				Offline string
+			}
+			Pip struct {
+				Online  string
+				Offline string
+			}
+			BuildPlan struct {
+				Online string
+			}
+		}
+
+		Config struct {
+			CPython   string `json:"cpython"`
+			BuildPlan string `json:"build-plan"`
+		}
 	}
-}
+)
 
 func TestIntegration(t *testing.T) {
 	// Do not truncate Gomega matcher output
@@ -98,11 +103,17 @@ func TestIntegration(t *testing.T) {
 		Execute(settings.Config.BuildPlan)
 	Expect(err).NotTo(HaveOccurred())
 
+	pack := occam.NewPack().WithVerbose()
+	builder, err = pack.Builder.Inspect.Execute()
+	Expect(err).NotTo(HaveOccurred())
+
 	SetDefaultEventuallyTimeout(10 * time.Second)
 
 	suite := spec.New("Integration", spec.Report(report.Terminal{}))
 	suite("Default", testDefault, spec.Parallel())
 	suite("LayerReuse", testLayerReuse, spec.Parallel())
-	suite("Offline", testOffline, spec.Parallel())
+	if strings.Contains(builder.LocalInfo.Stack.ID, "jammy") || strings.Contains(builder.LocalInfo.Stack.ID, "bionic") {
+		suite("Offline", testOffline, spec.Parallel())
+	}
 	suite.Run(t)
 }
