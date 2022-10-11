@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+
+set -eu
+set -o pipefail
+shopt -s inherit_errexit
+
+function main() {
+  local version output_dir target download_dir
+  version=""
+  output_dir=""
+  target=""
+  download_dir=$(mktemp -d)
+
+  while [ "${#}" != 0 ]; do
+    case "${1}" in
+      --version)
+        version="${2}"
+        shift 2
+        ;;
+
+      --outputDir)
+        output_dir="${2}"
+        shift 2
+        ;;
+
+      --target)
+        target="${2}"
+        shift 2
+        ;;
+
+      "")
+        shift
+        ;;
+
+      *)
+        echo "unknown argument \"${1}\""
+        exit 1
+    esac
+  done
+
+  if [[ "${version}" == "" ]]; then
+    echo "--version is required"
+    exit 1
+  fi
+
+  if [[ "${output_dir}" == "" ]]; then
+    echo "--outputDir is required"
+    exit 1
+  fi
+
+  if [[ "${target}" == "" ]]; then
+    echo "--target is required"
+    exit 1
+  fi
+
+  echo "version=${version}"
+  echo "output_dir=${output_dir}"
+  echo "target=${target}"
+  echo "download_dir=${download_dir}"
+
+  pip3 --version
+  python3 --version
+
+  pushd "${download_dir}" > /dev/null
+    mkdir -p /tmp/pip-cache/
+    pip3 --cache-dir=/tmp/pip-cache/ download --no-binary :all: pip=="${version}"
+    pip3 --cache-dir=/tmp/pip-cache/ download --no-binary :all: wheel
+    pip3 --cache-dir=/tmp/pip-cache/ download --no-binary :all: setuptools
+
+    tar --extract \
+      --strip-components=1 \
+      --file "pip-${version}.tar.gz"
+
+    tar --create \
+      --gunzip \
+      --verbose \
+      --file "${output_dir}/temp.tgz" \
+      .
+  popd > /dev/null
+
+  pushd "${output_dir}" > /dev/null
+    local sha256
+    sha256=$(sha256sum temp.tgz)
+    sha256="${sha256:0:64}"
+
+    output_tarball_name="pip_${version}_${target}_${sha256:0:8}.tgz"
+
+    echo "Building tarball ${output_tarball_name}"
+
+    mv temp.tgz "${output_tarball_name}"
+    echo "sha256:${sha256}" > "${output_tarball_name}.checksum"
+  popd > /dev/null
+}
+
+main "${@:-}"
