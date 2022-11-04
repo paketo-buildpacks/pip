@@ -67,9 +67,11 @@ function main() {
     pip3 --cache-dir=/tmp/pip-cache/ download --no-binary :all: wheel
     pip3 --cache-dir=/tmp/pip-cache/ download --no-binary :all: setuptools
 
+    # Use globbing to detect the pip tarball
+    # https://github.com/paketo-buildpacks/pip/issues/334
     tar --extract \
       --strip-components=1 \
-      --file "pip-${version}.tar.gz"
+      --file pip-*.tar.gz
 
     tar --create \
       --gunzip \
