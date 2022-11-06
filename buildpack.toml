@@ -14,18 +14,6 @@ api = "0.7"
   pre-package = "./scripts/build.sh"
 
   [[metadata.dependencies]]
-    cpe = "cpe:2.3:a:pypa:pip:22.2.1:*:*:*:*:python:*:*"
-    id = "pip"
-    licenses = ["MIT", "MIT-0"]
-    purl = "pkg:generic/pip@22.2.1?checksum=50516e47a2b79e77446f0d05649f0d53772c192571486236b1905492bfc24bac&download_url=https://files.pythonhosted.org/packages/46/28/addd7e66bb3af799d35a5dcbb79407b591a7ed674f4efd2bd8f930c40821/pip-22.2.1.tar.gz"
-    sha256 = "9181f9951f215953c31998b83fbb33f5c1d327727545da3fde077ed305ab63f7"
-    source = "https://files.pythonhosted.org/packages/46/28/addd7e66bb3af799d35a5dcbb79407b591a7ed674f4efd2bd8f930c40821/pip-22.2.1.tar.gz"
-    source_sha256 = "50516e47a2b79e77446f0d05649f0d53772c192571486236b1905492bfc24bac"
-    stacks = ["*"]
-    uri = "https://deps.paketo.io/pip/pip_22.2.1_linux_noarch_bionic_9181f995.tgz"
-    version = "22.2.1"
-
-  [[metadata.dependencies]]
     cpe = "cpe:2.3:a:pypa:pip:22.2.2:*:*:*:*:python:*:*"
     id = "pip"
     licenses = ["MIT", "MIT-0"]
@@ -36,6 +24,18 @@ api = "0.7"
     stacks = ["*"]
     uri = "https://deps.paketo.io/pip/pip_22.2.2_linux_noarch_bionic_97bb6b2d.tgz"
     version = "22.2.2"
+
+  [[metadata.dependencies]]
+    checksum = "sha256:3d2e95997952aca43524a4fb791a51fa1d0fe91d777b4aeaa7af5cf1c084036a"
+    cpe = "cpe:2.3:a:pypa:pip:22.3.0:*:*:*:*:python:*:*"
+    id = "pip"
+    licenses = ["MIT"]
+    purl = "pkg:generic/pip@22.3.0?checksum=8182aec21dad6c0a49a2a3d121a87cd524b950e0b6092b181625f07ebdde7530&download_url=https://files.pythonhosted.org/packages/f8/08/7f92782ff571c7c7cb6c5eeb8ebbb1f68cb02bdb24e55c5de4dd9ce98bc3/pip-22.3.tar.gz"
+    source = "https://files.pythonhosted.org/packages/f8/08/7f92782ff571c7c7cb6c5eeb8ebbb1f68cb02bdb24e55c5de4dd9ce98bc3/pip-22.3.tar.gz"
+    source-checksum = "sha256:8182aec21dad6c0a49a2a3d121a87cd524b950e0b6092b181625f07ebdde7530"
+    stacks = ["*"]
+    uri = "https://artifacts.paketo.io/pip/pip_22.3.0_noarch_3d2e9599.tgz"
+    version = "22.3.0"
 
   [[metadata.dependency-constraints]]
     constraint = "*"
