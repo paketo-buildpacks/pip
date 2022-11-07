@@ -14,18 +14,6 @@ api = "0.7"
   pre-package = "./scripts/build.sh"
 
   [[metadata.dependencies]]
-    cpe = "cpe:2.3:a:pypa:pip:22.2.2:*:*:*:*:python:*:*"
-    id = "pip"
-    licenses = ["MIT", "MIT-0"]
-    purl = "pkg:generic/pip@22.2.2?checksum=3fd1929db052f056d7a998439176d3333fa1b3f6c1ad881de1885c0717608a4b&download_url=https://files.pythonhosted.org/packages/4b/30/e15b806597e67057e07a5acdc135216ccbf76a5f1681a324533b61066b0b/pip-22.2.2.tar.gz"
-    sha256 = "97bb6b2d79523a76aff67f93df6685117559979092572924931c010d705a4df4"
-    source = "https://files.pythonhosted.org/packages/4b/30/e15b806597e67057e07a5acdc135216ccbf76a5f1681a324533b61066b0b/pip-22.2.2.tar.gz"
-    source_sha256 = "3fd1929db052f056d7a998439176d3333fa1b3f6c1ad881de1885c0717608a4b"
-    stacks = ["*"]
-    uri = "https://deps.paketo.io/pip/pip_22.2.2_linux_noarch_bionic_97bb6b2d.tgz"
-    version = "22.2.2"
-
-  [[metadata.dependencies]]
     checksum = "sha256:3d2e95997952aca43524a4fb791a51fa1d0fe91d777b4aeaa7af5cf1c084036a"
     cpe = "cpe:2.3:a:pypa:pip:22.3.0:*:*:*:*:python:*:*"
     id = "pip"
@@ -36,6 +24,18 @@ api = "0.7"
     stacks = ["*"]
     uri = "https://artifacts.paketo.io/pip/pip_22.3.0_noarch_3d2e9599.tgz"
     version = "22.3.0"
+
+  [[metadata.dependencies]]
+    checksum = "sha256:7614fdbdc96ac281f12e3285ca12234dce39e1f4a164f137226fb25cd47f0166"
+    cpe = "cpe:2.3:a:pypa:pip:22.3.1:*:*:*:*:python:*:*"
+    id = "pip"
+    licenses = ["MIT"]
+    purl = "pkg:generic/pip@22.3.1?checksum=65fd48317359f3af8e593943e6ae1506b66325085ea64b706a998c6e83eeaf38&download_url=https://files.pythonhosted.org/packages/a3/50/c4d2727b99052780aad92c7297465af5fe6eec2dbae490aa9763273ffdc1/pip-22.3.1.tar.gz"
+    source = "https://files.pythonhosted.org/packages/a3/50/c4d2727b99052780aad92c7297465af5fe6eec2dbae490aa9763273ffdc1/pip-22.3.1.tar.gz"
+    source-checksum = "sha256:65fd48317359f3af8e593943e6ae1506b66325085ea64b706a998c6e83eeaf38"
+    stacks = ["*"]
+    uri = "https://artifacts.paketo.io/pip/pip_22.3.1_noarch_7614fdbd.tgz"
+    version = "22.3.1"
 
   [[metadata.dependency-constraints]]
     constraint = "*"
