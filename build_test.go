@@ -53,12 +53,12 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 
 		dependencyManager = &fakes.DependencyManager{}
 		dependencyManager.ResolveCall.Returns.Dependency = postal.Dependency{
-			ID:      "pip",
-			Name:    "Pip",
-			SHA256:  "some-sha",
-			Stacks:  []string{"some-stack"},
-			URI:     "some-uri",
-			Version: "21.0",
+			ID:       "pip",
+			Name:     "Pip",
+			Checksum: "some-sha",
+			Stacks:   []string{"some-stack"},
+			URI:      "some-uri",
+			Version:  "21.0",
 		}
 
 		// Legacy SBOM
@@ -153,7 +153,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		Expect(layer.Cache).To(BeFalse())
 
 		Expect(layer.Metadata).To(HaveLen(1))
-		Expect(layer.Metadata["dependency_sha"]).To(Equal("some-sha"))
+		Expect(layer.Metadata["dependency_checksum"]).To(Equal("some-sha"))
 
 		Expect(layer.SBOM.Formats()).To(Equal([]packit.SBOMFormat{
 			{
@@ -172,12 +172,12 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		Expect(dependencyManager.ResolveCall.Receives.Stack).To(Equal("some-stack"))
 
 		Expect(dependencyManager.DeliverCall.Receives.Dependency).To(Equal(postal.Dependency{
-			ID:      "pip",
-			Name:    "Pip",
-			SHA256:  "some-sha",
-			Stacks:  []string{"some-stack"},
-			URI:     "some-uri",
-			Version: "21.0",
+			ID:       "pip",
+			Name:     "Pip",
+			Checksum: "some-sha",
+			Stacks:   []string{"some-stack"},
+			URI:      "some-uri",
+			Version:  "21.0",
 		}))
 
 		Expect(dependencyManager.DeliverCall.Receives.CnbPath).To(Equal(cnbDir))
@@ -253,7 +253,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 			err := os.WriteFile(filepath.Join(layersDir, fmt.Sprintf("%s.toml", pip.Pip)), []byte(fmt.Sprintf(`[metadata]
 			%s = "some-sha"
 			built_at = "some-build-time"
-			`, pip.DependencySHAKey)), os.ModePerm)
+			`, pip.DependencyChecksumKey)), os.ModePerm)
 			Expect(err).NotTo(HaveOccurred())
 
 			buildContext.Plan.Entries[0].Metadata = make(map[string]interface{})
