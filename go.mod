@@ -2,8 +2,6 @@ module github.com/paketo-buildpacks/pip
 
 go 1.18
 
-// This is required because of a breaking change in a newer version
-
 require (
 	github.com/BurntSushi/toml v1.2.1
 	github.com/onsi/gomega v1.25.0
