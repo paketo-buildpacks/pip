@@ -4,15 +4,23 @@ Running compilation locally:
 
 1. Build the build environment:
 ```shell
-docker build --tag compilation-noarch --file noarch.Dockerfile .
+docker build \
+  --tag pip-compilation-noarch \
+  --file noarch.Dockerfile \
+  .
 ```
 
-2. Make the output directory:
+2. Make a directory for the compiled output:
 ```shell
 output_dir=$(mktemp -d)
 ```
 
-3. Run compilation and use a volume mount to access it:
+3. Run compilation and use a volume mount to access the output directory:
 ```shell
-docker run --volume $output_dir:/tmp/compilation compilation-noarch --outputDir /tmp/compilation --target noarch --version 22.2.2
+docker run \
+  --volume $output_dir:/tmp/compilation \
+  pip-compilation-noarch \
+  --outputDir /tmp/compilation \
+  --target noarch \
+  --version 22.2.2
 ```

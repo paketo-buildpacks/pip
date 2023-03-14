@@ -14,6 +14,13 @@ extract_tarball() {
 
 check_version() {
   expected_version="$1"
+
+  if [[ "${expected_version}" =~ [0-9]+.[0-9]+.0 ]]; then
+    new_expected_version="$(echo "${expected_version}" | cut -d '.' -f1,2)"
+    echo "expected version ${expected_version} has '0' for patch - using 'Major.Minor' format instead (i.e.: '${new_expected_version}')"
+    expected_version="${new_expected_version}"
+  fi
+
   actual_version="$(python3 ./pip/setup.py  --version)"
   if [[ "${actual_version}" != "${expected_version}" ]]; then
     echo "Version ${actual_version} does not match expected version ${expected_version}"
