@@ -14,28 +14,28 @@ api = "0.7"
   pre-package = "./scripts/build.sh"
 
   [[metadata.dependencies]]
-    checksum = "sha256:3d2e95997952aca43524a4fb791a51fa1d0fe91d777b4aeaa7af5cf1c084036a"
-    cpe = "cpe:2.3:a:pypa:pip:22.3.0:*:*:*:*:python:*:*"
+    checksum = "sha256:fa7cfb124652704a1a45954245e26b1956572a3df0e2fa364ce37492ae0586af"
+    cpe = "cpe:2.3:a:pypa:pip:23.0.0:*:*:*:*:python:*:*"
     id = "pip"
     licenses = ["MIT"]
-    purl = "pkg:generic/pip@22.3.0?checksum=8182aec21dad6c0a49a2a3d121a87cd524b950e0b6092b181625f07ebdde7530&download_url=https://files.pythonhosted.org/packages/f8/08/7f92782ff571c7c7cb6c5eeb8ebbb1f68cb02bdb24e55c5de4dd9ce98bc3/pip-22.3.tar.gz"
-    source = "https://files.pythonhosted.org/packages/f8/08/7f92782ff571c7c7cb6c5eeb8ebbb1f68cb02bdb24e55c5de4dd9ce98bc3/pip-22.3.tar.gz"
-    source-checksum = "sha256:8182aec21dad6c0a49a2a3d121a87cd524b950e0b6092b181625f07ebdde7530"
+    purl = "pkg:generic/pip@23.0.0?checksum=aee438284e82c8def684b0bcc50b1f6ed5e941af97fa940e83e2e8ef1a59da9b&download_url=https://files.pythonhosted.org/packages/b5/16/5e24bf63cff51dcc169f43bd43b86b005c49941e09cc3482a5b370db239e/pip-23.0.tar.gz"
+    source = "https://files.pythonhosted.org/packages/b5/16/5e24bf63cff51dcc169f43bd43b86b005c49941e09cc3482a5b370db239e/pip-23.0.tar.gz"
+    source-checksum = "sha256:aee438284e82c8def684b0bcc50b1f6ed5e941af97fa940e83e2e8ef1a59da9b"
     stacks = ["*"]
-    uri = "https://artifacts.paketo.io/pip/pip_22.3.0_noarch_3d2e9599.tgz"
-    version = "22.3.0"
+    uri = "https://artifacts.paketo.io/pip/pip_23.0.0_noarch_fa7cfb12.tgz"
+    version = "23.0.0"
 
   [[metadata.dependencies]]
-    checksum = "sha256:7614fdbdc96ac281f12e3285ca12234dce39e1f4a164f137226fb25cd47f0166"
-    cpe = "cpe:2.3:a:pypa:pip:22.3.1:*:*:*:*:python:*:*"
+    checksum = "sha256:41caa9ae9a910e398296783e8c33506af2f7bc79f9af5ea0a351d22a63fec326"
+    cpe = "cpe:2.3:a:pypa:pip:23.0.1:*:*:*:*:python:*:*"
     id = "pip"
     licenses = ["MIT"]
-    purl = "pkg:generic/pip@22.3.1?checksum=65fd48317359f3af8e593943e6ae1506b66325085ea64b706a998c6e83eeaf38&download_url=https://files.pythonhosted.org/packages/a3/50/c4d2727b99052780aad92c7297465af5fe6eec2dbae490aa9763273ffdc1/pip-22.3.1.tar.gz"
-    source = "https://files.pythonhosted.org/packages/a3/50/c4d2727b99052780aad92c7297465af5fe6eec2dbae490aa9763273ffdc1/pip-22.3.1.tar.gz"
-    source-checksum = "sha256:65fd48317359f3af8e593943e6ae1506b66325085ea64b706a998c6e83eeaf38"
+    purl = "pkg:generic/pip@23.0.1?checksum=cd015ea1bfb0fcef59d8a286c1f8bebcb983f6317719d415dc5351efb7cd7024&download_url=https://files.pythonhosted.org/packages/6b/8b/0b16094553ecc680e43ded8f920c3873b01b1da79a54274c98f08cb29fca/pip-23.0.1.tar.gz"
+    source = "https://files.pythonhosted.org/packages/6b/8b/0b16094553ecc680e43ded8f920c3873b01b1da79a54274c98f08cb29fca/pip-23.0.1.tar.gz"
+    source-checksum = "sha256:cd015ea1bfb0fcef59d8a286c1f8bebcb983f6317719d415dc5351efb7cd7024"
     stacks = ["*"]
-    uri = "https://artifacts.paketo.io/pip/pip_22.3.1_noarch_7614fdbd.tgz"
-    version = "22.3.1"
+    uri = "https://artifacts.paketo.io/pip/pip_23.0.1_noarch_41caa9ae.tgz"
+    version = "23.0.1"
 
   [[metadata.dependency-constraints]]
     constraint = "*"
