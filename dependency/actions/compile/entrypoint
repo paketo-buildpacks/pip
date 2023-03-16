@@ -66,6 +66,7 @@ function main() {
     pip3 --cache-dir=/tmp/pip-cache/ download --no-binary :all: pip=="${version}"
     pip3 --cache-dir=/tmp/pip-cache/ download --no-binary :all: wheel
     pip3 --cache-dir=/tmp/pip-cache/ download --no-binary :all: setuptools
+    pip3 --cache-dir=/tmp/pip-cache/ download --no-binary :all: flit_core
 
     # Use globbing to detect the pip tarball
     # https://github.com/paketo-buildpacks/pip/issues/334
