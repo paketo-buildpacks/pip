@@ -13,30 +13,6 @@ api = "0.7"
   include-files = ["bin/run", "bin/build", "bin/detect", "buildpack.toml"]
   pre-package = "./scripts/build.sh"
 
-  [[metadata.dependencies]]
-    checksum = "sha256:41caa9ae9a910e398296783e8c33506af2f7bc79f9af5ea0a351d22a63fec326"
-    cpe = "cpe:2.3:a:pypa:pip:23.0.1:*:*:*:*:python:*:*"
-    id = "pip"
-    licenses = ["MIT"]
-    purl = "pkg:generic/pip@23.0.1?checksum=cd015ea1bfb0fcef59d8a286c1f8bebcb983f6317719d415dc5351efb7cd7024&download_url=https://files.pythonhosted.org/packages/6b/8b/0b16094553ecc680e43ded8f920c3873b01b1da79a54274c98f08cb29fca/pip-23.0.1.tar.gz"
-    source = "https://files.pythonhosted.org/packages/6b/8b/0b16094553ecc680e43ded8f920c3873b01b1da79a54274c98f08cb29fca/pip-23.0.1.tar.gz"
-    source-checksum = "sha256:cd015ea1bfb0fcef59d8a286c1f8bebcb983f6317719d415dc5351efb7cd7024"
-    stacks = ["*"]
-    uri = "https://artifacts.paketo.io/pip/pip_23.0.1_noarch_41caa9ae.tgz"
-    version = "23.0.1"
-
-  [[metadata.dependencies]]
-    checksum = "sha256:01c2d9c0143defd2e1a21ccde71a7f0ac073d1420a1e0950cc12e55f15ba1f6d"
-    cpe = "cpe:2.3:a:pypa:pip:23.1.0:*:*:*:*:python:*:*"
-    id = "pip"
-    licenses = ["MIT"]
-    purl = "pkg:generic/pip@23.1.0?checksum=408539897ee535dbfb83a153f7bc4d620f990d8bd44a52a986efc0b4d330d34a&download_url=https://files.pythonhosted.org/packages/da/bf/1bdbe62f5fbde085351693e3a8e387a59f8220932b911b1719fe65efa2d7/pip-23.1.tar.gz"
-    source = "https://files.pythonhosted.org/packages/da/bf/1bdbe62f5fbde085351693e3a8e387a59f8220932b911b1719fe65efa2d7/pip-23.1.tar.gz"
-    source-checksum = "sha256:408539897ee535dbfb83a153f7bc4d620f990d8bd44a52a986efc0b4d330d34a"
-    stacks = ["*"]
-    uri = "https://artifacts.paketo.io/pip/pip_23.1.0_noarch_01c2d9c0.tgz"
-    version = "23.1.0"
-
   [[metadata.dependency-constraints]]
     constraint = "*"
     id = "pip"
