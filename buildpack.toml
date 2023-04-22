@@ -14,18 +14,6 @@ api = "0.7"
   pre-package = "./scripts/build.sh"
 
   [[metadata.dependencies]]
-    checksum = "sha256:0694248067c1dfad8f3decab46de51875b8bdb482f14a12e160b8f8558ebe21b"
-    cpe = "cpe:2.3:a:pypa:pip:23.0.1:*:*:*:*:python:*:*"
-    id = "pip"
-    licenses = ["MIT"]
-    purl = "pkg:generic/pip@23.0.1?checksum=cd015ea1bfb0fcef59d8a286c1f8bebcb983f6317719d415dc5351efb7cd7024&download_url=https://files.pythonhosted.org/packages/6b/8b/0b16094553ecc680e43ded8f920c3873b01b1da79a54274c98f08cb29fca/pip-23.0.1.tar.gz"
-    source = "https://files.pythonhosted.org/packages/6b/8b/0b16094553ecc680e43ded8f920c3873b01b1da79a54274c98f08cb29fca/pip-23.0.1.tar.gz"
-    source-checksum = "sha256:cd015ea1bfb0fcef59d8a286c1f8bebcb983f6317719d415dc5351efb7cd7024"
-    stacks = ["*"]
-    uri = "https://artifacts.paketo.io/pip/pip_23.0.1_noarch_06942480.tgz"
-    version = "23.0.1"
-
-  [[metadata.dependencies]]
     checksum = "sha256:a9c07a26633fbdf2a7623d06d8405dbf106af0aeb60b6df61207cda37b4dd5da"
     cpe = "cpe:2.3:a:pypa:pip:23.1.0:*:*:*:*:python:*:*"
     id = "pip"
@@ -36,6 +24,18 @@ api = "0.7"
     stacks = ["*"]
     uri = "https://artifacts.paketo.io/pip/pip_23.1.0_noarch_a9c07a26.tgz"
     version = "23.1.0"
+
+  [[metadata.dependencies]]
+    checksum = "sha256:5f0622fdc984d4957cf5ece7d0641fa604c2187f3ddce9fe9ce0019d4d015f03"
+    cpe = "cpe:2.3:a:pypa:pip:23.1.1:*:*:*:*:python:*:*"
+    id = "pip"
+    licenses = ["MIT"]
+    purl = "pkg:generic/pip@23.1.1?checksum=c95b53d309f903f33dfe5fd37e502a5c3a05ee3454d518e45df522a4f091b728&download_url=https://files.pythonhosted.org/packages/43/7d/1f52f99a7f2eae870483b2c2a3064511487de87911bce146df8a154fbe81/pip-23.1.1.tar.gz"
+    source = "https://files.pythonhosted.org/packages/43/7d/1f52f99a7f2eae870483b2c2a3064511487de87911bce146df8a154fbe81/pip-23.1.1.tar.gz"
+    source-checksum = "sha256:c95b53d309f903f33dfe5fd37e502a5c3a05ee3454d518e45df522a4f091b728"
+    stacks = ["*"]
+    uri = "https://artifacts.paketo.io/pip/pip_23.1.1_noarch_5f0622fd.tgz"
+    version = "23.1.1"
 
   [[metadata.dependency-constraints]]
     constraint = "*"
