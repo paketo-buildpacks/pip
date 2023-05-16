@@ -4,7 +4,7 @@ import "sync"
 
 type SitePackageProcess struct {
 	ExecuteCall struct {
-		sync.Mutex
+		mutex     sync.Mutex
 		CallCount int
 		Receives  struct {
 			TargetLayerPath string
@@ -18,8 +18,8 @@ type SitePackageProcess struct {
 }
 
 func (f *SitePackageProcess) Execute(param1 string) (string, error) {
-	f.ExecuteCall.Lock()
-	defer f.ExecuteCall.Unlock()
+	f.ExecuteCall.mutex.Lock()
+	defer f.ExecuteCall.mutex.Unlock()
 	f.ExecuteCall.CallCount++
 	f.ExecuteCall.Receives.TargetLayerPath = param1
 	if f.ExecuteCall.Stub != nil {

@@ -2,34 +2,30 @@ package pip
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
-	"github.com/paketo-buildpacks/packit"
-	"github.com/paketo-buildpacks/packit/chronos"
-	"github.com/paketo-buildpacks/packit/postal"
-	"github.com/paketo-buildpacks/packit/scribe"
+	"github.com/paketo-buildpacks/packit/v2"
+	"github.com/paketo-buildpacks/packit/v2/cargo"
+	"github.com/paketo-buildpacks/packit/v2/chronos"
+	"github.com/paketo-buildpacks/packit/v2/draft"
+	"github.com/paketo-buildpacks/packit/v2/postal"
+	"github.com/paketo-buildpacks/packit/v2/sbom"
+	"github.com/paketo-buildpacks/packit/v2/scribe"
 )
 
-//go:generate faux --interface EntryResolver --output fakes/entry_resolver.go
 //go:generate faux --interface DependencyManager --output fakes/dependency_manager.go
 //go:generate faux --interface InstallProcess --output fakes/install_process.go
 //go:generate faux --interface SitePackageProcess --output fakes/site_package_process.go
-
-// EntryResolver defines the interface for picking the most relevant entry from
-// the Buildpack Plan entries.
-type EntryResolver interface {
-	Resolve(string, []packit.BuildpackPlanEntry, []interface{}) (packit.BuildpackPlanEntry, []packit.BuildpackPlanEntry)
-	MergeLayerTypes(string, []packit.BuildpackPlanEntry) (launch, build bool)
-}
+//go:generate faux --interface SBOMGenerator --output fakes/sbom_generator.go
 
 // DependencyManager defines the interface for picking the best matching
 // dependency and installing it.
 type DependencyManager interface {
 	Resolve(path, id, version, stack string) (postal.Dependency, error)
-	Install(dependency postal.Dependency, cnbPath, destPath string) error
+	Deliver(dependency postal.Dependency, cnbPath, destinationPath, platformPath string) error
 	GenerateBillOfMaterials(dependencies ...postal.Dependency) []packit.BOMEntry
 }
 
@@ -43,21 +39,32 @@ type SitePackageProcess interface {
 	Execute(targetLayerPath string) (string, error)
 }
 
+type SBOMGenerator interface {
+	GenerateFromDependency(dependency postal.Dependency, dir string) (sbom.SBOM, error)
+}
+
 // Build will return a packit.BuildFunc that will be invoked during the build
 // phase of the buildpack lifecycle.
 //
 // Build will find the right pip dependency to install, install it in a
 // layer, and generate Bill-of-Materials. It also makes use of the checksum of
 // the dependency to reuse the layer when possible.
-func Build(installProcess InstallProcess, entries EntryResolver, dependencies DependencyManager, logs scribe.Emitter, clock chronos.Clock, siteProcess SitePackageProcess) packit.BuildFunc {
+func Build(
+	dependencies DependencyManager,
+	installProcess InstallProcess,
+	siteProcess SitePackageProcess,
+	sbomGenerator SBOMGenerator,
+	logger scribe.Emitter,
+	clock chronos.Clock,
+) packit.BuildFunc {
 	return func(context packit.BuildContext) (packit.BuildResult, error) {
-		logs.Title("%s %s", context.BuildpackInfo.Name, context.BuildpackInfo.Version)
+		logger.Title("%s %s", context.BuildpackInfo.Name, context.BuildpackInfo.Version)
 
-		logs.Process("Resolving Pip version")
+		planner := draft.NewPlanner()
 
-		entry, sortedEntries := entries.Resolve(Pip, context.Plan.Entries, Priorities)
-
-		logs.Candidates(sortedEntries)
+		logger.Process("Resolving Pip version")
+		entry, sortedEntries := planner.Resolve(Pip, context.Plan.Entries, Priorities)
+		logger.Candidates(sortedEntries)
 
 		version, _ := entry.Metadata["version"].(string)
 
@@ -67,31 +74,36 @@ func Build(installProcess InstallProcess, entries EntryResolver, dependencies De
 		}
 
 		dependency.Name = "Pip"
-		logs.SelectedDependency(entry, dependency, clock.Now())
+		logger.SelectedDependency(entry, dependency, clock.Now())
 
-		boms := dependencies.GenerateBillOfMaterials(dependency)
+		legacySBOM := dependencies.GenerateBillOfMaterials(dependency)
+		launch, build := planner.MergeLayerTypes(Pip, context.Plan.Entries)
+
+		var launchMetadata packit.LaunchMetadata
+		if launch {
+			launchMetadata.BOM = legacySBOM
+		}
+
+		var buildMetadata packit.BuildMetadata
+		if build {
+			buildMetadata.BOM = legacySBOM
+		}
 
 		pipLayer, err := context.Layers.Get(Pip)
 		if err != nil {
 			return packit.BuildResult{}, err
 		}
 
-		cachedSHA, ok := pipLayer.Metadata[DependencySHAKey].(string)
-		if ok && cachedSHA == dependency.SHA256 {
-			logs.Process("Reusing cached layer %s", pipLayer.Path)
-			result := packit.BuildResult{
+		cachedChecksum, ok := pipLayer.Metadata[DependencyChecksumKey].(string)
+		if ok && cargo.Checksum(cachedChecksum).Match(cargo.Checksum(dependency.Checksum)) {
+			logger.Process("Reusing cached layer %s", pipLayer.Path)
+			pipLayer.Launch, pipLayer.Build, pipLayer.Cache = launch, build, build
+
+			return packit.BuildResult{
 				Layers: []packit.Layer{pipLayer},
-			}
-
-			if pipLayer.Build {
-				result.Build = packit.BuildMetadata{BOM: boms}
-			}
-
-			if pipLayer.Launch {
-				result.Launch = packit.LaunchMetadata{BOM: boms}
-			}
-
-			return result, nil
+				Build:  buildMetadata,
+				Launch: launchMetadata,
+			}, nil
 		}
 
 		pipLayer, err = pipLayer.Reset()
@@ -99,22 +111,21 @@ func Build(installProcess InstallProcess, entries EntryResolver, dependencies De
 			return packit.BuildResult{}, err
 		}
 
-		pipLayer.Launch, pipLayer.Build = entries.MergeLayerTypes(Pip, context.Plan.Entries)
-		pipLayer.Cache = pipLayer.Build
+		pipLayer.Launch, pipLayer.Build, pipLayer.Cache = launch, build, build
 
 		// Install the pip source to a temporary dir, since we only need access to
 		// it as an intermediate step when installing pip.
 		// It doesn't need to go into a layer, since we won't need it in future builds.
-		pipSrcDir, err := ioutil.TempDir("", "pip-source")
+		pipSrcDir, err := os.MkdirTemp("", "pip-source")
 		if err != nil {
 			return packit.BuildResult{}, fmt.Errorf("failed to create temp pip-source dir: %w", err)
 		}
 
-		logs.Process("Executing build process")
-		logs.Subprocess(fmt.Sprintf("Installing Pip %s", dependency.Version))
+		logger.Process("Executing build process")
+		logger.Subprocess(fmt.Sprintf("Installing Pip %s", dependency.Version))
 
 		duration, err := clock.Measure(func() error {
-			err = dependencies.Install(dependency, context.CNBPath, pipSrcDir)
+			err = dependencies.Deliver(dependency, context.CNBPath, pipSrcDir, context.Platform.Path)
 			if err != nil {
 				return err
 			}
@@ -124,8 +135,27 @@ func Build(installProcess InstallProcess, entries EntryResolver, dependencies De
 			return packit.BuildResult{}, err
 		}
 
-		logs.Action("Completed in %s", duration.Round(time.Millisecond))
-		logs.Break()
+		logger.Action("Completed in %s", duration.Round(time.Millisecond))
+		logger.Break()
+
+		logger.GeneratingSBOM(pipLayer.Path)
+		var sbomContent sbom.SBOM
+		duration, err = clock.Measure(func() error {
+			sbomContent, err = sbomGenerator.GenerateFromDependency(dependency, pipLayer.Path)
+			return err
+		})
+		if err != nil {
+			return packit.BuildResult{}, err
+		}
+
+		logger.Action("Completed in %s", duration.Round(time.Millisecond))
+		logger.Break()
+
+		logger.FormattingSBOM(context.BuildpackInfo.SBOMFormats...)
+		pipLayer.SBOM, err = sbomContent.InFormats(context.BuildpackInfo.SBOMFormats...)
+		if err != nil {
+			return packit.BuildResult{}, err
+		}
 
 		// Look up the site packages path and prepend it onto $PYTHONPATH
 		sitePackagesPath, err := siteProcess.Execute(pipLayer.Path)
@@ -135,30 +165,18 @@ func Build(installProcess InstallProcess, entries EntryResolver, dependencies De
 		if sitePackagesPath == "" {
 			return packit.BuildResult{}, fmt.Errorf("pip installation failed: site packages are missing from the pip layer")
 		}
-
 		pipLayer.SharedEnv.Prepend("PYTHONPATH", strings.TrimRight(sitePackagesPath, "\n"), ":")
 
-		logs.Process("Configuring environment")
-		logs.Subprocess("%s", scribe.NewFormattedMapFromEnvironment(pipLayer.SharedEnv))
-		logs.Break()
+		logger.EnvironmentVariables(pipLayer)
 
 		pipLayer.Metadata = map[string]interface{}{
-			DependencySHAKey: dependency.SHA256,
-			"built_at":       clock.Now().Format(time.RFC3339Nano),
+			DependencyChecksumKey: dependency.Checksum,
 		}
 
-		result := packit.BuildResult{
+		return packit.BuildResult{
 			Layers: []packit.Layer{pipLayer},
-		}
-
-		if pipLayer.Build {
-			result.Build = packit.BuildMetadata{BOM: boms}
-		}
-
-		if pipLayer.Launch {
-			result.Launch = packit.LaunchMetadata{BOM: boms}
-		}
-
-		return result, nil
+			Build:  buildMetadata,
+			Launch: launchMetadata,
+		}, nil
 	}
 }

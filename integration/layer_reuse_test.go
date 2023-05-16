@@ -39,6 +39,9 @@ func testLayerReuse(t *testing.T, context spec.G, it spec.S) {
 
 		imageIDs = map[string]struct{}{}
 		containerIDs = map[string]struct{}{}
+
+		source, err = occam.Source(filepath.Join("testdata", "default_app"))
+		Expect(err).NotTo(HaveOccurred())
 	})
 
 	it.After(func() {
@@ -75,7 +78,7 @@ func testLayerReuse(t *testing.T, context spec.G, it spec.S) {
 					settings.Buildpacks.Pip.Online,
 					settings.Buildpacks.BuildPlan.Online,
 				).
-				Execute(name, filepath.Join("testdata", "default_app"))
+				Execute(name, source)
 			Expect(err).ToNot(HaveOccurred(), logs.String)
 
 			imageIDs[firstImage.ID] = struct{}{}
@@ -93,7 +96,7 @@ func testLayerReuse(t *testing.T, context spec.G, it spec.S) {
 					settings.Buildpacks.Pip.Online,
 					settings.Buildpacks.BuildPlan.Online,
 				).
-				Execute(name, filepath.Join("testdata", "default_app"))
+				Execute(name, source)
 			Expect(err).ToNot(HaveOccurred(), logs.String)
 
 			imageIDs[secondImage.ID] = struct{}{}
@@ -103,9 +106,11 @@ func testLayerReuse(t *testing.T, context spec.G, it spec.S) {
 				"  Resolving Pip version",
 				"    Candidate version sources (in priority order):",
 				"      <unknown> -> \"\"",
-				"",
+			))
+			Expect(logs).To(ContainLines(
 				MatchRegexp(`    Selected Pip version \(using <unknown>\): \d+\.\d+\.\d+`),
-				"",
+			))
+			Expect(logs).To(ContainLines(
 				fmt.Sprintf("  Reusing cached layer /layers/%s/pip", strings.ReplaceAll(buildpackInfo.Buildpack.ID, "/", "_")),
 			))
 
@@ -120,10 +125,10 @@ func testLayerReuse(t *testing.T, context spec.G, it spec.S) {
 				cLogs, err := docker.Container.Logs.Execute(secondContainer.ID)
 				Expect(err).NotTo(HaveOccurred())
 				return cLogs.String()
-			}).Should(MatchRegexp(fmt.Sprintf(`pip \d+\.\d+\.\d+ from /layers/%s/pip/lib/python\d+.\d+/site-packages/pip`, strings.ReplaceAll(buildpackInfo.Buildpack.ID, "/", "_"))))
+			}).Should(MatchRegexp(fmt.Sprintf(`pip \d+\.\d+(\.\d+)? from /layers/%s/pip/lib/python\d+.\d+/site-packages/pip`, strings.ReplaceAll(buildpackInfo.Buildpack.ID, "/", "_"))))
 
 			Expect(secondImage.Buildpacks[1].Key).To(Equal(buildpackInfo.Buildpack.ID))
-			Expect(secondImage.Buildpacks[1].Layers["pip"].Metadata["built_at"]).To(Equal(firstImage.Buildpacks[1].Layers["pip"].Metadata["built_at"]))
+			Expect(secondImage.Buildpacks[1].Layers["pip"].SHA).To(Equal(firstImage.Buildpacks[1].Layers["pip"].SHA))
 		})
 	})
 
@@ -148,7 +153,7 @@ func testLayerReuse(t *testing.T, context spec.G, it spec.S) {
 					settings.Buildpacks.BuildPlan.Online,
 				).
 				WithEnv(map[string]string{"BP_PIP_VERSION": buildpackInfo.Metadata.Dependencies[0].Version}).
-				Execute(name, filepath.Join("testdata", "default_app"))
+				Execute(name, source)
 			Expect(err).ToNot(HaveOccurred(), logs.String)
 
 			imageIDs[firstImage.ID] = struct{}{}
@@ -167,7 +172,7 @@ func testLayerReuse(t *testing.T, context spec.G, it spec.S) {
 					settings.Buildpacks.BuildPlan.Online,
 				).
 				WithEnv(map[string]string{"BP_PIP_VERSION": buildpackInfo.Metadata.Dependencies[1].Version}).
-				Execute(name, filepath.Join("testdata", "default_app"))
+				Execute(name, source)
 			Expect(err).ToNot(HaveOccurred(), logs.String)
 
 			imageIDs[secondImage.ID] = struct{}{}
@@ -178,14 +183,20 @@ func testLayerReuse(t *testing.T, context spec.G, it spec.S) {
 				"    Candidate version sources (in priority order):",
 				MatchRegexp(`      BP_PIP_VERSION -> "\d+\.\d+\.\d+"`),
 				"      <unknown>      -> \"\"",
-				"",
+			))
+			Expect(logs).To(ContainLines(
 				MatchRegexp(`    Selected Pip version \(using BP_PIP_VERSION\): \d+\.\d+\.\d+`),
-				"",
+			))
+			Expect(logs).To(ContainLines(
 				"  Executing build process",
 				MatchRegexp(`    Installing Pip \d+\.\d+\.\d+`),
 				MatchRegexp(`      Completed in \d+\.\d+`),
+			))
+			Expect(logs).To(ContainLines(
+				"  Configuring build environment",
+				MatchRegexp(fmt.Sprintf(`    PYTHONPATH -> "\/layers\/%s\/pip\/lib\/python\d+\.\d+\/site-packages:\$PYTHONPATH"`, strings.ReplaceAll(buildpackInfo.Buildpack.ID, "/", "_"))),
 				"",
-				"  Configuring environment",
+				"  Configuring launch environment",
 				MatchRegexp(fmt.Sprintf(`    PYTHONPATH -> "\/layers\/%s\/pip\/lib\/python\d+\.\d+\/site-packages:\$PYTHONPATH"`, strings.ReplaceAll(buildpackInfo.Buildpack.ID, "/", "_"))),
 			))
 
@@ -200,10 +211,10 @@ func testLayerReuse(t *testing.T, context spec.G, it spec.S) {
 				cLogs, err := docker.Container.Logs.Execute(secondContainer.ID)
 				Expect(err).NotTo(HaveOccurred())
 				return cLogs.String()
-			}).Should(MatchRegexp(fmt.Sprintf(`pip %s from /layers/%s/pip/lib/python\d+.\d+/site-packages/pip`, buildpackInfo.Metadata.Dependencies[1].Version, strings.ReplaceAll(buildpackInfo.Buildpack.ID, "/", "_"))))
+			}).Should(MatchRegexp(fmt.Sprintf(`pip %s from /layers/%s/pip/lib/python\d+.\d+/site-packages/pip`, strings.Replace(buildpackInfo.Metadata.Dependencies[1].Version, ".0", `(\.\d+)?`, 1), strings.ReplaceAll(buildpackInfo.Buildpack.ID, "/", "_"))))
 
 			Expect(secondImage.Buildpacks[1].Key).To(Equal(buildpackInfo.Buildpack.ID))
-			Expect(secondImage.Buildpacks[1].Layers["pip"].Metadata["built_at"]).ToNot(Equal(firstImage.Buildpacks[1].Layers["pip"].Metadata["built_at"]))
+			Expect(secondImage.Buildpacks[1].Layers["pip"].SHA).ToNot(Equal(firstImage.Buildpacks[1].Layers["pip"].SHA))
 		})
 	})
 }

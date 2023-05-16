@@ -6,6 +6,42 @@ set -o pipefail
 # shellcheck source=SCRIPTDIR/print.sh
 source "$(dirname "${BASH_SOURCE[0]}")/print.sh"
 
+function util::tools::os() {
+  case "$(uname)" in
+    "Darwin")
+      echo "${1:-darwin}"
+      ;;
+
+    "Linux")
+      echo "linux"
+      ;;
+
+    *)
+      util::print::error "Unknown OS \"$(uname)\""
+      exit 1
+  esac
+}
+
+function util::tools::arch() {
+  case "$(uname -m)" in
+    arm64|aarch64)
+      echo "arm64"
+      ;;
+
+    amd64|x86_64)
+      if [[ "${1:-}" == "--blank-amd64" ]]; then
+        echo ""
+      else
+        echo "amd64"
+      fi
+      ;;
+
+    *)
+      util::print::error "Unknown Architecture \"$(uname -m)\""
+      exit 1
+  esac
+}
+
 function util::tools::path::export() {
   local dir
   dir="${1}"
@@ -16,8 +52,10 @@ function util::tools::path::export() {
   fi
 }
 
-function util::tools::jam::install () {
-  local dir
+function util::tools::jam::install() {
+  local dir token
+  token=""
+
   while [[ "${#}" != 0 ]]; do
     case "${1}" in
       --directory)
@@ -25,48 +63,62 @@ function util::tools::jam::install () {
         shift 2
         ;;
 
+      --token)
+        token="${2}"
+        shift 2
+        ;;
+
       *)
         util::print::error "unknown argument \"${1}\""
     esac
   done
-
-  local os
-  case "$(uname)" in
-    "Darwin")
-      os="darwin"
-      ;;
-
-    "Linux")
-      os="linux"
-      ;;
-
-    *)
-      echo "Unknown OS \"$(uname)\""
-      exit 1
-  esac
 
   mkdir -p "${dir}"
   util::tools::path::export "${dir}"
 
   if [[ ! -f "${dir}/jam" ]]; then
-    local version
+    local version curl_args os arch
+
     version="$(jq -r .jam "$(dirname "${BASH_SOURCE[0]}")/tools.json")"
 
+    curl_args=(
+      "--fail"
+      "--silent"
+      "--location"
+      "--output" "${dir}/jam"
+    )
+
+    if [[ "${token}" != "" ]]; then
+      curl_args+=("--header" "Authorization: Token ${token}")
+    fi
+
     util::print::title "Installing jam ${version}"
-    curl "https://github.com/paketo-buildpacks/jam/releases/download/${version}/jam-${os}" \
-      --silent \
-      --location \
-      --output "${dir}/jam"
+
+    os=$(util::tools::os)
+    arch=$(util::tools::arch)
+
+    curl "https://github.com/paketo-buildpacks/jam/releases/download/${version}/jam-${os}-${arch}" \
+      "${curl_args[@]}"
+
     chmod +x "${dir}/jam"
+  else
+    util::print::info "Using $("${dir}"/jam version)"
   fi
 }
 
 function util::tools::pack::install() {
-  local dir
+  local dir token
+  token=""
+
   while [[ "${#}" != 0 ]]; do
     case "${1}" in
       --directory)
         dir="${2}"
+        shift 2
+        ;;
+
+      --token)
+        token="${2}"
         shift 2
         ;;
 
@@ -78,33 +130,37 @@ function util::tools::pack::install() {
   mkdir -p "${dir}"
   util::tools::path::export "${dir}"
 
-  local os
-  case "$(uname)" in
-    "Darwin")
-      os="macos"
-      ;;
-
-    "Linux")
-      os="linux"
-      ;;
-
-    *)
-      echo "Unknown OS \"$(uname)\""
-      exit 1
-  esac
-
   if [[ ! -f "${dir}/pack" ]]; then
-    local version
+    local version curl_args os arch
+
     version="$(jq -r .pack "$(dirname "${BASH_SOURCE[0]}")/tools.json")"
 
+    tmp_location="/tmp/pack.tgz"
+    curl_args=(
+      "--fail"
+      "--silent"
+      "--location"
+      "--output" "${tmp_location}"
+    )
+
+    if [[ "${token}" != "" ]]; then
+      curl_args+=("--header" "Authorization: Token ${token}")
+    fi
+
     util::print::title "Installing pack ${version}"
-    curl "https://github.com/buildpacks/pack/releases/download/${version}/pack-${version}-${os}.tgz" \
-      --silent \
-      --location \
-      --output /tmp/pack.tgz
-    tar xzf /tmp/pack.tgz -C "${dir}"
+
+    os=$(util::tools::os macos)
+    arch=$(util::tools::arch --blank-amd64)
+
+    curl "https://github.com/buildpacks/pack/releases/download/${version}/pack-${version}-${os}${arch:+-$arch}.tgz" \
+      "${curl_args[@]}"
+
+    tar xzf "${tmp_location}" -C "${dir}"
     chmod +x "${dir}/pack"
-    rm /tmp/pack.tgz
+
+    rm "${tmp_location}"
+  else
+    util::print::info "Using pack $("${dir}"/pack version)"
   fi
 }
 
@@ -129,7 +185,34 @@ function util::tools::packager::install () {
 
     if [[ ! -f "${dir}/packager" ]]; then
       util::print::title "Installing packager"
-      GOBIN="${dir}" go get -u github.com/cloudfoundry/libcfbuildpack/packager
+      GOBIN="${dir}" go install github.com/cloudfoundry/libcfbuildpack/packager@latest
+    fi
+}
+
+function util::tools::create-package::install () {
+  local dir version
+    while [[ "${#}" != 0 ]]; do
+      case "${1}" in
+        --directory)
+          dir="${2}"
+          shift 2
+          ;;
+
+        *)
+          util::print::error "unknown argument \"${1}\""
+          ;;
+
+      esac
+    done
+
+    version="$(jq -r .createpackage "$(dirname "${BASH_SOURCE[0]}")/tools.json")"
+
+    mkdir -p "${dir}"
+    util::tools::path::export "${dir}"
+
+    if [[ ! -f "${dir}/create-package" ]]; then
+      util::print::title "Installing create-package"
+      GOBIN="${dir}" go install -ldflags="-s -w" "github.com/paketo-buildpacks/libpak/cmd/create-package@${version}"
     fi
 }
 

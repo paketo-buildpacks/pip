@@ -3,12 +3,11 @@ package pip_test
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
 
-	"github.com/paketo-buildpacks/packit/pexec"
+	"github.com/paketo-buildpacks/packit/v2/pexec"
 	pip "github.com/paketo-buildpacks/pip"
 	"github.com/paketo-buildpacks/pip/fakes"
 	"github.com/sclevine/spec"
@@ -28,7 +27,7 @@ func testSiteProcess(t *testing.T, context spec.G, it spec.S) {
 
 	it.Before(func() {
 		var err error
-		targetLayerPath, err = ioutil.TempDir("", "pip")
+		targetLayerPath, err = os.MkdirTemp("", "pip")
 		Expect(err).NotTo(HaveOccurred())
 
 		executable = &fakes.Executable{}

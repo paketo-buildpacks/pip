@@ -4,17 +4,19 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
-	"time"
 
-	"github.com/paketo-buildpacks/packit"
-	"github.com/paketo-buildpacks/packit/chronos"
-	"github.com/paketo-buildpacks/packit/postal"
-	"github.com/paketo-buildpacks/packit/scribe"
-	pip "github.com/paketo-buildpacks/pip"
+	"github.com/paketo-buildpacks/packit/v2"
+	"github.com/paketo-buildpacks/packit/v2/chronos"
+
+	//nolint Ignore SA1019, informed usage of deprecated package
+	"github.com/paketo-buildpacks/packit/v2/paketosbom"
+	"github.com/paketo-buildpacks/packit/v2/postal"
+	"github.com/paketo-buildpacks/packit/v2/sbom"
+	"github.com/paketo-buildpacks/packit/v2/scribe"
+	"github.com/paketo-buildpacks/pip"
 	"github.com/paketo-buildpacks/pip/fakes"
 	"github.com/sclevine/spec"
 
@@ -25,66 +27,47 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 	var (
 		Expect = NewWithT(t).Expect
 
-		layersDir          string
-		cnbDir             string
-		entryResolver      *fakes.EntryResolver
+		layersDir string
+		cnbDir    string
+
 		dependencyManager  *fakes.DependencyManager
-		clock              chronos.Clock
-		timeStamp          time.Time
 		installProcess     *fakes.InstallProcess
 		sitePackageProcess *fakes.SitePackageProcess
-		buffer             *bytes.Buffer
-		logEmitter         scribe.Emitter
+		sbomGenerator      *fakes.SBOMGenerator
 
-		build packit.BuildFunc
+		logEmitter scribe.Emitter
+
+		buffer *bytes.Buffer
+
+		build        packit.BuildFunc
+		buildContext packit.BuildContext
 	)
 
 	it.Before(func() {
 		var err error
-		layersDir, err = ioutil.TempDir("", "layers")
+		layersDir, err = os.MkdirTemp("", "layers")
 		Expect(err).NotTo(HaveOccurred())
 
-		cnbDir, err = ioutil.TempDir("", "cnb")
+		cnbDir, err = os.MkdirTemp("", "cnb")
 		Expect(err).NotTo(HaveOccurred())
-
-		err = ioutil.WriteFile(filepath.Join(cnbDir, "buildpack.toml"), []byte(`api = "0.2"
-[buildpack]
-  id = "org.some-org.some-buildpack"
-  name = "Some Buildpack"
-  version = "some-version"
-
-[metadata]
-
-  [[metadata.dependencies]]
-		id = "pip"
-    name = "Pip"
-    sha256 = "some-sha"
-    stacks = ["some-stack"]
-    uri = "some-uri"
-    version = "21.0"
-`), 0600)
-		Expect(err).NotTo(HaveOccurred())
-
-		entryResolver = &fakes.EntryResolver{}
-		entryResolver.ResolveCall.Returns.BuildpackPlanEntry = packit.BuildpackPlanEntry{
-			Name: "pip",
-		}
 
 		dependencyManager = &fakes.DependencyManager{}
 		dependencyManager.ResolveCall.Returns.Dependency = postal.Dependency{
-			ID:      "pip",
-			Name:    "Pip",
-			SHA256:  "some-sha",
-			Stacks:  []string{"some-stack"},
-			URI:     "some-uri",
-			Version: "21.0",
+			ID:       "pip",
+			Name:     "Pip",
+			Checksum: "some-sha",
+			Stacks:   []string{"some-stack"},
+			URI:      "some-uri",
+			Version:  "21.0",
 		}
+
+		// Legacy SBOM
 		dependencyManager.GenerateBillOfMaterialsCall.Returns.BOMEntrySlice = []packit.BOMEntry{
 			{
 				Name: "pip",
-				Metadata: packit.BOMMetadata{
-					Checksum: packit.BOMChecksum{
-						Algorithm: packit.SHA256,
+				Metadata: paketosbom.BOMMetadata{
+					Checksum: paketosbom.BOMChecksum{
+						Algorithm: paketosbom.SHA256,
 						Hash:      "pip-dependency-sha",
 					},
 					URI:     "pip-dependency-uri",
@@ -105,27 +88,27 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		sitePackageProcess = &fakes.SitePackageProcess{}
 		sitePackageProcess.ExecuteCall.Returns.String = filepath.Join(layersDir, "pip", "lib", "python1.23", "site-packages")
 
+		// Syft SBOM
+		sbomGenerator = &fakes.SBOMGenerator{}
+		sbomGenerator.GenerateFromDependencyCall.Returns.SBOM = sbom.SBOM{}
+
 		buffer = bytes.NewBuffer(nil)
 		logEmitter = scribe.NewEmitter(buffer)
 
-		timeStamp = time.Now()
-		clock = chronos.NewClock(func() time.Time {
-			return timeStamp
-		})
+		build = pip.Build(
+			dependencyManager,
+			installProcess,
+			sitePackageProcess,
+			sbomGenerator,
+			logEmitter,
+			chronos.DefaultClock,
+		)
 
-		build = pip.Build(installProcess, entryResolver, dependencyManager, logEmitter, clock, sitePackageProcess)
-	})
-
-	it.After(func() {
-		Expect(os.RemoveAll(layersDir)).To(Succeed())
-		Expect(os.RemoveAll(cnbDir)).To(Succeed())
-	})
-
-	it("returns a result that installs pip", func() {
-		result, err := build(packit.BuildContext{
+		buildContext = packit.BuildContext{
 			BuildpackInfo: packit.BuildpackInfo{
-				Name:    "Some Buildpack",
-				Version: "some-version",
+				Name:        "Some Buildpack",
+				Version:     "some-version",
+				SBOMFormats: []string{sbom.CycloneDXFormat, sbom.SPDXFormat},
 			},
 			CNBPath: cnbDir,
 			Plan: packit.BuildpackPlan{
@@ -135,285 +118,162 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 					},
 				},
 			},
-			Layers: packit.Layers{Path: layersDir},
-			Stack:  "some-stack",
-		})
+			Platform: packit.Platform{Path: "platform"},
+			Layers:   packit.Layers{Path: layersDir},
+			Stack:    "some-stack",
+		}
+	})
+
+	it.After(func() {
+		Expect(os.RemoveAll(layersDir)).To(Succeed())
+		Expect(os.RemoveAll(cnbDir)).To(Succeed())
+	})
+
+	it("returns a result that installs pip", func() {
+		result, err := build(buildContext)
 		Expect(err).NotTo(HaveOccurred())
 
-		Expect(result).To(Equal(packit.BuildResult{
-			Layers: []packit.Layer{
-				{
-					Name: "pip",
-					Path: filepath.Join(layersDir, "pip"),
-					SharedEnv: packit.Environment{
-						"PYTHONPATH.delim":   ":",
-						"PYTHONPATH.prepend": filepath.Join(layersDir, "pip", "lib/python1.23/site-packages"),
-					},
-					BuildEnv:         packit.Environment{},
-					LaunchEnv:        packit.Environment{},
-					Build:            false,
-					Launch:           false,
-					Cache:            false,
-					ProcessLaunchEnv: map[string]packit.Environment{},
-					Metadata: map[string]interface{}{
-						pip.DependencySHAKey: "some-sha",
-						"built_at":           timeStamp.Format(time.RFC3339Nano),
-					},
-				},
-			},
-		}))
+		Expect(result.Layers).To(HaveLen(1))
+		layer := result.Layers[0]
 
-		Expect(entryResolver.ResolveCall.Receives.String).To(Equal("pip"))
-		Expect(entryResolver.ResolveCall.Receives.BuildpackPlanEntrySlice).To(Equal([]packit.BuildpackPlanEntry{
-			{
-				Name: "pip",
-			},
-		}))
+		Expect(layer.Name).To(Equal("pip"))
 
-		Expect(entryResolver.ResolveCall.Receives.InterfaceSlice).To(Equal([]interface{}{"BP_PIP_VERSION"}))
+		Expect(layer.Path).To(Equal(filepath.Join(layersDir, "pip")))
 
-		Expect(entryResolver.MergeLayerTypesCall.Receives.String).To(Equal("pip"))
-		Expect(entryResolver.MergeLayerTypesCall.Receives.BuildpackPlanEntrySlice).To(Equal(
-			[]packit.BuildpackPlanEntry{
-				{
-					Name: "pip",
-				},
-			},
-		))
+		Expect(layer.SharedEnv).To(HaveLen(2))
+		Expect(layer.SharedEnv["PYTHONPATH.delim"]).To(Equal(":"))
+		Expect(layer.SharedEnv["PYTHONPATH.prepend"]).To(Equal(filepath.Join(layersDir, "pip", "lib/python1.23/site-packages")))
+
+		Expect(layer.BuildEnv).To(BeEmpty())
+		Expect(layer.LaunchEnv).To(BeEmpty())
+		Expect(layer.ProcessLaunchEnv).To(BeEmpty())
+
+		Expect(layer.Build).To(BeFalse())
+		Expect(layer.Launch).To(BeFalse())
+		Expect(layer.Cache).To(BeFalse())
+
+		Expect(layer.Metadata).To(HaveLen(1))
+		Expect(layer.Metadata["dependency_checksum"]).To(Equal("some-sha"))
+
+		Expect(layer.SBOM.Formats()).To(HaveLen(2))
+		var actualExtensions []string
+		for _, format := range layer.SBOM.Formats() {
+			actualExtensions = append(actualExtensions, format.Extension)
+		}
+		Expect(actualExtensions).To(ConsistOf("cdx.json", "spdx.json"))
 
 		Expect(dependencyManager.ResolveCall.Receives.Path).To(Equal(filepath.Join(cnbDir, "buildpack.toml")))
 		Expect(dependencyManager.ResolveCall.Receives.Id).To(Equal("pip"))
 		Expect(dependencyManager.ResolveCall.Receives.Version).To(Equal(""))
 		Expect(dependencyManager.ResolveCall.Receives.Stack).To(Equal("some-stack"))
 
-		Expect(dependencyManager.InstallCall.Receives.Dependency).To(Equal(postal.Dependency{
-			ID:      "pip",
-			Name:    "Pip",
-			SHA256:  "some-sha",
-			Stacks:  []string{"some-stack"},
-			URI:     "some-uri",
-			Version: "21.0",
+		Expect(dependencyManager.DeliverCall.Receives.Dependency).To(Equal(postal.Dependency{
+			ID:       "pip",
+			Name:     "Pip",
+			Checksum: "some-sha",
+			Stacks:   []string{"some-stack"},
+			URI:      "some-uri",
+			Version:  "21.0",
 		}))
 
-		Expect(dependencyManager.InstallCall.Receives.CnbPath).To(Equal(cnbDir))
-		Expect(dependencyManager.InstallCall.Receives.DestPath).To(ContainSubstring("pip-source"))
+		Expect(dependencyManager.DeliverCall.Receives.CnbPath).To(Equal(cnbDir))
+		Expect(dependencyManager.DeliverCall.Receives.DestinationPath).To(ContainSubstring("pip-source"))
+		Expect(dependencyManager.DeliverCall.Receives.PlatformPath).To(Equal("platform"))
 
-		Expect(installProcess.ExecuteCall.Receives.SrcPath).To(Equal(dependencyManager.InstallCall.Receives.DestPath))
+		Expect(sbomGenerator.GenerateFromDependencyCall.Receives.Dir).To(Equal(filepath.Join(layersDir, "pip")))
+
+		Expect(installProcess.ExecuteCall.Receives.SrcPath).To(Equal(dependencyManager.DeliverCall.Receives.DestinationPath))
 		Expect(installProcess.ExecuteCall.Receives.TargetLayerPath).To(Equal(filepath.Join(layersDir, "pip")))
 
 		Expect(buffer.String()).To(ContainSubstring("Some Buildpack some-version"))
 		Expect(buffer.String()).To(ContainSubstring("Executing build process"))
 		Expect(buffer.String()).To(ContainSubstring("Installing Pip"))
-		Expect(buffer.String()).To(ContainSubstring("Configuring environment"))
 	})
 
-	context("when there's an entry with version source BP_PIP_VERSION", func() {
-		it.Before(func() {
-			entryResolver.MergeLayerTypesCall.Returns.Build = true
-			entryResolver.MergeLayerTypesCall.Returns.Launch = true
-		})
-
-		it("the BP_PIP_VERSION version takes precedence", func() {
-			result, err := build(packit.BuildContext{
-				BuildpackInfo: packit.BuildpackInfo{
-					Name:    "Some Buildpack",
-					Version: "some-version",
-				},
-				CNBPath: cnbDir,
-				Plan: packit.BuildpackPlan{
-					Entries: []packit.BuildpackPlanEntry{
-						{
-							Name: "pip",
-							Metadata: map[string]interface{}{
-								"build": true,
-							},
-						},
-						{
-							Name: "pip",
-							Metadata: map[string]interface{}{
-								"launch": true,
-							},
-						},
-					},
-				},
-				Layers: packit.Layers{Path: layersDir},
-				Stack:  "some-stack",
-			})
-			Expect(err).NotTo(HaveOccurred())
-
-			Expect(result).To(Equal(packit.BuildResult{
-				Layers: []packit.Layer{
-					{
-						Name: "pip",
-						Path: filepath.Join(layersDir, "pip"),
-						SharedEnv: packit.Environment{
-							"PYTHONPATH.delim":   ":",
-							"PYTHONPATH.prepend": filepath.Join(layersDir, "pip", "lib/python1.23/site-packages"),
-						},
-						BuildEnv:         packit.Environment{},
-						LaunchEnv:        packit.Environment{},
-						Build:            true,
-						Launch:           true,
-						Cache:            true,
-						ProcessLaunchEnv: map[string]packit.Environment{},
-						Metadata: map[string]interface{}{
-							pip.DependencySHAKey: "some-sha",
-							"built_at":           timeStamp.Format(time.RFC3339Nano),
-						},
-					},
-				},
-				Build: packit.BuildMetadata{
-					BOM: []packit.BOMEntry{
-						{
-							Name: "pip",
-							Metadata: packit.BOMMetadata{
-								Checksum: packit.BOMChecksum{
-									Algorithm: packit.SHA256,
-									Hash:      "pip-dependency-sha",
-								},
-								URI:     "pip-dependency-uri",
-								Version: "pip-dependency-version",
-							},
-						},
-					},
-				},
-				Launch: packit.LaunchMetadata{
-					BOM: []packit.BOMEntry{
-						{
-							Name: "pip",
-							Metadata: packit.BOMMetadata{
-								Checksum: packit.BOMChecksum{
-									Algorithm: packit.SHA256,
-									Hash:      "pip-dependency-sha",
-								},
-								URI:     "pip-dependency-uri",
-								Version: "pip-dependency-version",
-							},
-						},
-					},
-				},
-			}))
-		})
-	})
 	context("when build plan entries require pip at build/launch", func() {
 		it.Before(func() {
-			entryResolver.MergeLayerTypesCall.Returns.Build = true
-			entryResolver.MergeLayerTypesCall.Returns.Launch = true
+			buildContext.Plan.Entries[0].Metadata = make(map[string]interface{})
+			buildContext.Plan.Entries[0].Metadata["build"] = true
+			buildContext.Plan.Entries[0].Metadata["launch"] = true
 		})
 
 		it("makes the layer available at the right times", func() {
-			result, err := build(packit.BuildContext{
-				BuildpackInfo: packit.BuildpackInfo{
-					Name:    "Some Buildpack",
-					Version: "some-version",
-				},
-				CNBPath: cnbDir,
-				Plan: packit.BuildpackPlan{
-					Entries: []packit.BuildpackPlanEntry{
-						{
-							Name: "pip",
-							Metadata: map[string]interface{}{
-								"build": true,
-							},
-						},
-						{
-							Name: "pip",
-							Metadata: map[string]interface{}{
-								"launch": true,
-							},
-						},
-					},
-				},
-				Layers: packit.Layers{Path: layersDir},
-				Stack:  "some-stack",
-			})
+			result, err := build(buildContext)
 			Expect(err).NotTo(HaveOccurred())
 
-			Expect(result.Layers).To(Equal([]packit.Layer{
-				{
-					Name: "pip",
-					Path: filepath.Join(layersDir, "pip"),
-					SharedEnv: packit.Environment{
-						"PYTHONPATH.delim":   ":",
-						"PYTHONPATH.prepend": filepath.Join(layersDir, "pip", "lib/python1.23/site-packages"),
-					},
-					BuildEnv:         packit.Environment{},
-					LaunchEnv:        packit.Environment{},
-					Build:            true,
-					Launch:           true,
-					Cache:            true,
-					ProcessLaunchEnv: map[string]packit.Environment{},
-					Metadata: map[string]interface{}{
-						pip.DependencySHAKey: "some-sha",
-						"built_at":           timeStamp.Format(time.RFC3339Nano),
+			Expect(result.Layers).To(HaveLen(1))
+			layer := result.Layers[0]
+
+			Expect(layer.Name).To(Equal("pip"))
+
+			Expect(layer.Build).To(BeTrue())
+			Expect(layer.Launch).To(BeTrue())
+			Expect(layer.Cache).To(BeTrue())
+
+			Expect(result.Build.BOM).To(Equal(
+				[]packit.BOMEntry{
+					{
+						Name: "pip",
+						Metadata: paketosbom.BOMMetadata{
+							Checksum: paketosbom.BOMChecksum{
+								Algorithm: paketosbom.SHA256,
+								Hash:      "pip-dependency-sha",
+							},
+							URI:     "pip-dependency-uri",
+							Version: "pip-dependency-version",
+						},
 					},
 				},
-			}))
+			))
+
+			Expect(result.Launch.BOM).To(Equal(
+				[]packit.BOMEntry{
+					{
+						Name: "pip",
+						Metadata: paketosbom.BOMMetadata{
+							Checksum: paketosbom.BOMChecksum{
+								Algorithm: paketosbom.SHA256,
+								Hash:      "pip-dependency-sha",
+							},
+							URI:     "pip-dependency-uri",
+							Version: "pip-dependency-version",
+						},
+					},
+				},
+			))
 		})
 	})
 
 	context("when rebuilding a layer", func() {
 		it.Before(func() {
-			err := ioutil.WriteFile(filepath.Join(layersDir, fmt.Sprintf("%s.toml", pip.Pip)), []byte(fmt.Sprintf(`[metadata]
+			err := os.WriteFile(filepath.Join(layersDir, fmt.Sprintf("%s.toml", pip.Pip)), []byte(fmt.Sprintf(`[metadata]
 			%s = "some-sha"
 			built_at = "some-build-time"
-			`, pip.DependencySHAKey)), os.ModePerm)
+			`, pip.DependencyChecksumKey)), os.ModePerm)
 			Expect(err).NotTo(HaveOccurred())
 
-			err = os.MkdirAll(filepath.Join(layersDir, "pip", "env"), os.ModePerm)
-			Expect(err).NotTo(HaveOccurred())
-
-			err = ioutil.WriteFile(filepath.Join(layersDir, "pip", "env", "PYTHONPATH.prepend"), []byte(fmt.Sprintf("%s/pip/lib/python1.23/site-packages", layersDir)), os.ModePerm)
-			Expect(err).NotTo(HaveOccurred())
-
-			err = ioutil.WriteFile(filepath.Join(layersDir, "pip", "env", "PYTHONPATH.delim"), []byte(":"), os.ModePerm)
-			Expect(err).NotTo(HaveOccurred())
+			buildContext.Plan.Entries[0].Metadata = make(map[string]interface{})
+			buildContext.Plan.Entries[0].Metadata["build"] = true
+			buildContext.Plan.Entries[0].Metadata["launch"] = false
 		})
 
 		it("skips the build process if the cached dependency sha matches the selected dependency sha", func() {
-			result, err := build(packit.BuildContext{
-				BuildpackInfo: packit.BuildpackInfo{
-					Name:    "Some Buildpack",
-					Version: "some-version",
-				},
-				CNBPath: cnbDir,
-				Plan: packit.BuildpackPlan{
-					Entries: []packit.BuildpackPlanEntry{
-						{
-							Name: "pip",
-						},
-					},
-				},
-				Layers: packit.Layers{Path: layersDir},
-				Stack:  "some-stack",
-			})
+			result, err := build(buildContext)
 			Expect(err).NotTo(HaveOccurred())
+
+			Expect(result.Layers).To(HaveLen(1))
+			layer := result.Layers[0]
+
+			Expect(layer.Name).To(Equal("pip"))
+
+			Expect(layer.Build).To(BeTrue())
+			Expect(layer.Launch).To(BeFalse())
+			Expect(layer.Cache).To(BeTrue())
 
 			Expect(buffer.String()).ToNot(ContainSubstring("Executing build process"))
 			Expect(buffer.String()).To(ContainSubstring("Reusing cached layer"))
 
-			Expect(result.Layers).To(Equal([]packit.Layer{
-				{
-					Name: "pip",
-					Path: filepath.Join(layersDir, "pip"),
-					SharedEnv: packit.Environment{
-						"PYTHONPATH.delim":   ":",
-						"PYTHONPATH.prepend": filepath.Join(layersDir, "pip", "lib/python1.23/site-packages"),
-					},
-					BuildEnv:         packit.Environment{},
-					LaunchEnv:        packit.Environment{},
-					Build:            false,
-					Launch:           false,
-					Cache:            false,
-					ProcessLaunchEnv: map[string]packit.Environment{},
-					Metadata: map[string]interface{}{
-						pip.DependencySHAKey: "some-sha",
-						"built_at":           "some-build-time",
-					},
-				},
-			}))
-
-			Expect(dependencyManager.InstallCall.CallCount).To(Equal(0))
+			Expect(dependencyManager.DeliverCall.CallCount).To(Equal(0))
 			Expect(installProcess.ExecuteCall.CallCount).To(Equal(0))
 		})
 	})
@@ -424,22 +284,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 				dependencyManager.ResolveCall.Returns.Error = errors.New("failed to resolve dependency")
 			})
 			it("returns an error", func() {
-				_, err := build(packit.BuildContext{
-					BuildpackInfo: packit.BuildpackInfo{
-						Name:    "Some Buildpack",
-						Version: "some-version",
-					},
-					CNBPath: cnbDir,
-					Plan: packit.BuildpackPlan{
-						Entries: []packit.BuildpackPlanEntry{
-							{
-								Name: "pip",
-							},
-						},
-					},
-					Layers: packit.Layers{Path: layersDir},
-					Stack:  "some-stack",
-				})
+				_, err := build(buildContext)
 
 				Expect(err).To(MatchError(ContainSubstring("failed to resolve dependency")))
 			})
@@ -455,22 +300,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 			})
 
 			it("returns an error", func() {
-				_, err := build(packit.BuildContext{
-					BuildpackInfo: packit.BuildpackInfo{
-						Name:    "Some Buildpack",
-						Version: "some-version",
-					},
-					CNBPath: cnbDir,
-					Plan: packit.BuildpackPlan{
-						Entries: []packit.BuildpackPlanEntry{
-							{
-								Name: "pip",
-							},
-						},
-					},
-					Layers: packit.Layers{Path: layersDir},
-					Stack:  "some-stack",
-				})
+				_, err := build(buildContext)
 
 				Expect(err).To(MatchError(ContainSubstring("permission denied")))
 			})
@@ -487,22 +317,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 			})
 
 			it("returns an error", func() {
-				_, err := build(packit.BuildContext{
-					BuildpackInfo: packit.BuildpackInfo{
-						Name:    "Some Buildpack",
-						Version: "some-version",
-					},
-					CNBPath: cnbDir,
-					Plan: packit.BuildpackPlan{
-						Entries: []packit.BuildpackPlanEntry{
-							{
-								Name: "pip",
-							},
-						},
-					},
-					Layers: packit.Layers{Path: layersDir},
-					Stack:  "some-stack",
-				})
+				_, err := build(buildContext)
 
 				Expect(err).To(MatchError(ContainSubstring("permission denied")))
 			})
@@ -510,25 +325,10 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 
 		context("when dependency cannot be installed", func() {
 			it.Before(func() {
-				dependencyManager.InstallCall.Returns.Error = errors.New("failed to install dependency")
+				dependencyManager.DeliverCall.Returns.Error = errors.New("failed to install dependency")
 			})
 			it("returns an error", func() {
-				_, err := build(packit.BuildContext{
-					BuildpackInfo: packit.BuildpackInfo{
-						Name:    "Some Buildpack",
-						Version: "some-version",
-					},
-					CNBPath: cnbDir,
-					Plan: packit.BuildpackPlan{
-						Entries: []packit.BuildpackPlanEntry{
-							{
-								Name: "pip",
-							},
-						},
-					},
-					Layers: packit.Layers{Path: layersDir},
-					Stack:  "some-stack",
-				})
+				_, err := build(buildContext)
 
 				Expect(err).To(MatchError(ContainSubstring("failed to install dependency")))
 			})
@@ -540,22 +340,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 			})
 
 			it("returns an error", func() {
-				_, err := build(packit.BuildContext{
-					BuildpackInfo: packit.BuildpackInfo{
-						Name:    "Some Buildpack",
-						Version: "some-version",
-					},
-					CNBPath: cnbDir,
-					Plan: packit.BuildpackPlan{
-						Entries: []packit.BuildpackPlanEntry{
-							{
-								Name: "pip",
-							},
-						},
-					},
-					Layers: packit.Layers{Path: layersDir},
-					Stack:  "some-stack",
-				})
+				_, err := build(buildContext)
 				Expect(err).To(MatchError(ContainSubstring("failed to find site-packages dir")))
 			})
 		})
@@ -566,25 +351,31 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 			})
 
 			it("returns an error", func() {
-				_, err := build(packit.BuildContext{
-					BuildpackInfo: packit.BuildpackInfo{
-						Name:    "Some Buildpack",
-						Version: "some-version",
-					},
-					CNBPath: cnbDir,
-					Plan: packit.BuildpackPlan{
-						Entries: []packit.BuildpackPlanEntry{
-							{
-								Name: "pip",
-							},
-						},
-					},
-					Layers: packit.Layers{Path: layersDir},
-					Stack:  "some-stack",
-				})
+				_, err := build(buildContext)
 				Expect(err).To(MatchError(ContainSubstring("pip installation failed: site packages are missing from the pip layer")))
 			})
 		})
 
+		context("when generating the SBOM returns an error", func() {
+			it.Before(func() {
+				buildContext.BuildpackInfo.SBOMFormats = []string{"random-format"}
+			})
+
+			it("returns an error", func() {
+				_, err := build(buildContext)
+				Expect(err).To(MatchError(`unsupported SBOM format: 'random-format'`))
+			})
+		})
+
+		context("when formatting the SBOM returns an error", func() {
+			it.Before(func() {
+				sbomGenerator.GenerateFromDependencyCall.Returns.Error = errors.New("failed to generate SBOM")
+			})
+
+			it("returns an error", func() {
+				_, err := build(buildContext)
+				Expect(err).To(MatchError(ContainSubstring("failed to generate SBOM")))
+			})
+		})
 	})
 }

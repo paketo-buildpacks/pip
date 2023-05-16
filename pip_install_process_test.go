@@ -3,11 +3,10 @@ package pip_test
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"testing"
 
-	"github.com/paketo-buildpacks/packit/pexec"
+	"github.com/paketo-buildpacks/packit/v2/pexec"
 	pip "github.com/paketo-buildpacks/pip"
 	"github.com/paketo-buildpacks/pip/fakes"
 	"github.com/sclevine/spec"
@@ -28,10 +27,10 @@ func testPipInstallProcess(t *testing.T, context spec.G, it spec.S) {
 
 	it.Before(func() {
 		var err error
-		srcLayerPath, err = ioutil.TempDir("", "pip-source")
+		srcLayerPath, err = os.MkdirTemp("", "pip-source")
 		Expect(err).NotTo(HaveOccurred())
 
-		targetLayerPath, err = ioutil.TempDir("", "pip")
+		targetLayerPath, err = os.MkdirTemp("", "pip")
 		Expect(err).NotTo(HaveOccurred())
 
 		executable = &fakes.Executable{}
@@ -46,7 +45,7 @@ func testPipInstallProcess(t *testing.T, context spec.G, it spec.S) {
 				Expect(err).NotTo(HaveOccurred())
 
 				Expect(executable.ExecuteCall.Receives.Execution.Env).To(Equal(append(os.Environ(), fmt.Sprintf("PYTHONUSERBASE=%s", targetLayerPath))))
-				Expect(executable.ExecuteCall.Receives.Execution.Args).To(Equal([]string{"-m", "pip", "install", srcLayerPath, "--user", fmt.Sprintf("--find-links=%s", srcLayerPath)}))
+				Expect(executable.ExecuteCall.Receives.Execution.Args).To(Equal([]string{"-m", "pip", "install", srcLayerPath, "--user", "--no-index", fmt.Sprintf("--find-links=%s", srcLayerPath)}))
 			})
 		})
 
