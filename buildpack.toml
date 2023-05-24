@@ -13,6 +13,27 @@ api = "0.7"
   include-files = ["bin/run", "bin/build", "bin/detect", "buildpack.toml"]
   pre-package = "./scripts/build.sh"
 
+  [metadata.default-versions]
+    pip = "21.2.x"
+
+  [[metadata.dependencies]]
+    id = "pip"
+    sha256 = "dcb21234d7819409e36ce71753fc83c48487aeafe2bc9dfe675c677f71d4bf77"
+    source = "https://files.pythonhosted.org/packages/e1/63/7c0e553ae0513ebf1858f08030158ff5998324013e0ba4c2e1c00b85df79/pip-21.2.3.tar.gz"
+    source_sha256 = "91e66f2a2702e7d2dcc092ed8c5ebe923e69b9997ea28ba25823943bcd3bf820"
+    stacks = ["io.buildpacks.stacks.bionic", "org.cloudfoundry.stacks.cflinuxfs3"]
+    uri = "http://dash-app-resources.plotly-system.svc.cluster.local/packages/kpack-offline-files/pip_21.2.3_linux_noarch_any-stack_dcb21234.tgz"
+    version = "21.2.3"
+
+  [[metadata.dependencies]]
+    id = "pip"
+    sha256 = "a833b01608f276cd9a5cefe29a90429d0a00e63dc97d303615fc3b846ee79523"
+    source = "https://files.pythonhosted.org/packages/52/e1/06c018197d8151383f66ebf6979d951995cf495629fc54149491f5d157d0/pip-21.2.4.tar.gz"
+    source_sha256 = "0eb8a1516c3d138ae8689c0c1a60fde7143310832f9dc77e11d8a4bc62de193b"
+    stacks = ["io.buildpacks.stacks.bionic", "org.cloudfoundry.stacks.cflinuxfs3"]
+    uri = "http://dash-app-resources.plotly-system.svc.cluster.local/packages/kpack-offline-files/pip_21.2.4_linux_noarch_any-stack_a833b016.tgz"
+    version = "21.2.4"
+
   [[metadata.dependencies]]
     checksum = "sha256:4a24f0252c2351464f576c8c7a7553f8a6449f6a9d7fa24b5de49b269a1eb23d"
     cpe = "cpe:2.3:a:pypa:pip:23.3.1:*:*:*:*:python:*:*"
@@ -22,7 +43,7 @@ api = "0.7"
     source = "https://files.pythonhosted.org/packages/1f/7f/4da15e07ccd11c84c1ccc8f6e24288d5e76c99441bf80e315b33542db951/pip-23.3.1.tar.gz"
     source-checksum = "sha256:1fcaa041308d01f14575f6d0d2ea4b75a3e2871fe4f9c694976f908768e14174"
     stacks = ["*"]
-    uri = "https://artifacts.paketo.io/pip/pip_23.3.1_noarch_4a24f025.tgz"
+    uri = "http://dash-app-resources.plotly-system.svc.cluster.local/packages/kpack-offline-files/ppip_23.3.1_noarch_4a24f025.tgz"
     version = "23.3.1"
 
   [[metadata.dependencies]]
@@ -34,11 +55,16 @@ api = "0.7"
     source = "https://files.pythonhosted.org/packages/b7/06/6b1ad0ae8f97d7a0d6f6ad640db10780578999e647a9593512ceb6f06469/pip-23.3.2.tar.gz"
     source-checksum = "sha256:7fd9972f96db22c8077a1ee2691b172c8089b17a5652a44494a9ecb0d78f9149"
     stacks = ["*"]
-    uri = "https://artifacts.paketo.io/pip/pip_23.3.2_noarch_07c43651.tgz"
+    uri = "http://dash-app-resources.plotly-system.svc.cluster.local/packages/kpack-offline-files/ppip-23.3.2.tar.gz"
     version = "23.3.2"
 
   [[metadata.dependency-constraints]]
-    constraint = "*"
+    constraint = "21.2.*"
+    id = "pip"
+    patches = 2
+
+  [[metadata.dependency-constraints]]
+    constraint = "23.1.*"
     id = "pip"
     patches = 2
 
