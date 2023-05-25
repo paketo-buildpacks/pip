@@ -44,7 +44,7 @@ api = "0.7"
     source = "https://files.pythonhosted.org/packages/43/7d/1f52f99a7f2eae870483b2c2a3064511487de87911bce146df8a154fbe81/pip-23.1.1.tar.gz"
     source_sha256 = "c95b53d309f903f33dfe5fd37e502a5c3a05ee3454d518e45df522a4f091b728"
     stacks = ["*"]
-    uri = "http://dash-app-resources.plotly-system.svc.cluster.local/packages/kpack-offline-files/pip-23.1.1.tar.gz"
+    uri = "http://dash-app-resources.plotly-system.svc.cluster.local/packages/kpack-offline-files/pip_23.1.1_noarch_5f0622fd.tgz"
     version = "23.1.1"
 
   [[metadata.dependencies]]
@@ -56,7 +56,7 @@ api = "0.7"
     source = "https://files.pythonhosted.org/packages/fa/ee/74ff76da0ab649eec7581233daeb43d8aa35383d8f75317b2ab3b80c922f/pip-23.1.2.tar.gz"
     source_sha256 = "0e7c86f486935893c708287b30bd050a36ac827ec7fe5e43fe7cb198dd835fba"
     stacks = ["*"]
-    uri = "http://dash-app-resources.plotly-system.svc.cluster.local/packages/kpack-offline-files/pip-23.1.2.tar.gz"
+    uri = "http://dash-app-resources.plotly-system.svc.cluster.local/packages/kpack-offline-files/pip_23.1.2_noarch_aaae1cfd.tgz"
     version = "23.1.2"
 
   [[metadata.dependency-constraints]]
