@@ -21,11 +21,20 @@ func testDefault(t *testing.T, context spec.G, it spec.S) {
 
 		pack   occam.Pack
 		docker occam.Docker
+		source string
 	)
 
 	it.Before(func() {
 		pack = occam.NewPack().WithVerbose()
 		docker = occam.NewDocker()
+
+		var err error
+		source, err = occam.Source(filepath.Join("testdata", "default_app"))
+		Expect(err).NotTo(HaveOccurred())
+	})
+
+	it.After(func() {
+		Expect(os.RemoveAll(source)).To(Succeed())
 	})
 
 	context("when the buildpack is run with pack build", func() {
@@ -49,6 +58,7 @@ func testDefault(t *testing.T, context spec.G, it spec.S) {
 
 		it("builds with the defaults", func() {
 			var err error
+
 			var logs fmt.Stringer
 			image, logs, err = pack.WithNoColor().Build.
 				WithPullPolicy("never").
@@ -57,7 +67,7 @@ func testDefault(t *testing.T, context spec.G, it spec.S) {
 					settings.Buildpacks.Pip.Online,
 					settings.Buildpacks.BuildPlan.Online,
 				).
-				Execute(name, filepath.Join("testdata", "default_app"))
+				Execute(name, source)
 			Expect(err).ToNot(HaveOccurred(), logs.String)
 
 			Expect(logs).To(ContainLines(
@@ -75,6 +85,9 @@ func testDefault(t *testing.T, context spec.G, it spec.S) {
 				MatchRegexp(`      Completed in \d+\.\d+`),
 			))
 			Expect(logs).To(ContainLines(
+				"  Configuring build environment",
+				MatchRegexp(fmt.Sprintf(`    PIP_FIND_LINKS -> "\$PIP_FIND_LINKS \/layers\/%s\/pip-source"`, strings.ReplaceAll(buildpackInfo.Buildpack.ID, "/", "_"))),
+				"",
 				"  Configuring build environment",
 				MatchRegexp(fmt.Sprintf(`    PYTHONPATH -> "\/layers\/%s\/pip\/lib\/python\d+\.\d+\/site-packages:\$PYTHONPATH"`, strings.ReplaceAll(buildpackInfo.Buildpack.ID, "/", "_"))),
 				"",
@@ -127,7 +140,7 @@ func testDefault(t *testing.T, context spec.G, it spec.S) {
 						"BP_LOG_LEVEL": "DEBUG",
 					}).
 					WithSBOMOutputDir(sbomDir).
-					Execute(name, filepath.Join("testdata", "default_app"))
+					Execute(name, source)
 				Expect(err).ToNot(HaveOccurred(), logs.String)
 
 				container, err = docker.Container.Run.
