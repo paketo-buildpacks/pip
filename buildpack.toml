@@ -3,7 +3,7 @@ api = "0.7"
 [buildpack]
   id = "paketo-buildpacks/pip"
   name = "Paketo Buildpack for Pip (Plotly fork)"
-  version = "5.1.1"
+  version = "5.2"
   sbom-formats = ["application/vnd.cyclonedx+json", "application/spdx+json", "application/vnd.syft+json"]
 
   [[buildpack.licenses]]
@@ -15,7 +15,7 @@ api = "0.7"
   pre-package = "./scripts/build.sh"
 
   [metadata.default-versions]
-    pip = "21.2.x"
+    pip = "23.1.2"
 
   [[metadata.dependencies]]
     id = "pip"
