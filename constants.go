@@ -3,6 +3,8 @@ package pip
 // Pip is the name of the layer into which pip dependency is installed.
 const Pip = "pip"
 
+const PipSrc = "pip-source"
+
 // CPython is the name of the python runtime dependency provided by the CPython buildpack: https://github.com/paketo-buildpacks/cpython
 const CPython = "cpython"
 

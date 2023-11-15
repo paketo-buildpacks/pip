@@ -133,34 +133,51 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		result, err := build(buildContext)
 		Expect(err).NotTo(HaveOccurred())
 
-		Expect(result.Layers).To(HaveLen(1))
-		layer := result.Layers[0]
+		Expect(result.Layers).To(HaveLen(2))
+		pipLayer := result.Layers[0]
 
-		Expect(layer.Name).To(Equal("pip"))
+		Expect(pipLayer.Name).To(Equal("pip"))
 
-		Expect(layer.Path).To(Equal(filepath.Join(layersDir, "pip")))
+		Expect(pipLayer.Path).To(Equal(filepath.Join(layersDir, "pip")))
 
-		Expect(layer.SharedEnv).To(HaveLen(2))
-		Expect(layer.SharedEnv["PYTHONPATH.delim"]).To(Equal(":"))
-		Expect(layer.SharedEnv["PYTHONPATH.prepend"]).To(Equal(filepath.Join(layersDir, "pip", "lib/python1.23/site-packages")))
+		Expect(pipLayer.BuildEnv).To(BeEmpty())
+		Expect(pipLayer.LaunchEnv).To(BeEmpty())
+		Expect(pipLayer.ProcessLaunchEnv).To(BeEmpty())
 
-		Expect(layer.BuildEnv).To(BeEmpty())
-		Expect(layer.LaunchEnv).To(BeEmpty())
-		Expect(layer.ProcessLaunchEnv).To(BeEmpty())
+		Expect(pipLayer.Build).To(BeFalse())
+		Expect(pipLayer.Launch).To(BeFalse())
+		Expect(pipLayer.Cache).To(BeFalse())
 
-		Expect(layer.Build).To(BeFalse())
-		Expect(layer.Launch).To(BeFalse())
-		Expect(layer.Cache).To(BeFalse())
+		Expect(pipLayer.Metadata).To(HaveLen(1))
+		Expect(pipLayer.Metadata["dependency_checksum"]).To(Equal("some-sha"))
 
-		Expect(layer.Metadata).To(HaveLen(1))
-		Expect(layer.Metadata["dependency_checksum"]).To(Equal("some-sha"))
+		Expect(pipLayer.SharedEnv).To(HaveLen(2))
+		Expect(pipLayer.SharedEnv["PYTHONPATH.delim"]).To(Equal(":"))
+		Expect(pipLayer.SharedEnv["PYTHONPATH.prepend"]).To(Equal(filepath.Join(layersDir, "pip", "lib/python1.23/site-packages")))
 
-		Expect(layer.SBOM.Formats()).To(HaveLen(2))
+		Expect(pipLayer.SBOM.Formats()).To(HaveLen(2))
 		var actualExtensions []string
-		for _, format := range layer.SBOM.Formats() {
+		for _, format := range pipLayer.SBOM.Formats() {
 			actualExtensions = append(actualExtensions, format.Extension)
 		}
 		Expect(actualExtensions).To(ConsistOf("cdx.json", "spdx.json"))
+
+		pipSrcLayer := result.Layers[1]
+
+		Expect(pipSrcLayer.Name).To(Equal("pip-source"))
+
+		Expect(pipSrcLayer.Path).To(Equal(filepath.Join(layersDir, "pip-source")))
+
+		Expect(pipSrcLayer.LaunchEnv).To(BeEmpty())
+		Expect(pipSrcLayer.ProcessLaunchEnv).To(BeEmpty())
+
+		Expect(pipSrcLayer.Build).To(BeFalse())
+		Expect(pipSrcLayer.Launch).To(BeFalse())
+		Expect(pipSrcLayer.Cache).To(BeFalse())
+
+		Expect(pipSrcLayer.BuildEnv).To(HaveLen(2))
+		Expect(pipSrcLayer.BuildEnv["PIP_FIND_LINKS.delim"]).To(Equal(" "))
+		Expect(pipSrcLayer.BuildEnv["PIP_FIND_LINKS.append"]).To(Equal(filepath.Join(layersDir, "pip-source")))
 
 		Expect(dependencyManager.ResolveCall.Receives.Path).To(Equal(filepath.Join(cnbDir, "buildpack.toml")))
 		Expect(dependencyManager.ResolveCall.Receives.Id).To(Equal("pip"))
@@ -201,14 +218,22 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 			result, err := build(buildContext)
 			Expect(err).NotTo(HaveOccurred())
 
-			Expect(result.Layers).To(HaveLen(1))
-			layer := result.Layers[0]
+			Expect(result.Layers).To(HaveLen(2))
+			pipLayer := result.Layers[0]
 
-			Expect(layer.Name).To(Equal("pip"))
+			Expect(pipLayer.Name).To(Equal("pip"))
 
-			Expect(layer.Build).To(BeTrue())
-			Expect(layer.Launch).To(BeTrue())
-			Expect(layer.Cache).To(BeTrue())
+			Expect(pipLayer.Build).To(BeTrue())
+			Expect(pipLayer.Launch).To(BeTrue())
+			Expect(pipLayer.Cache).To(BeTrue())
+
+			pipSrcLayer := result.Layers[1]
+
+			Expect(pipSrcLayer.Name).To(Equal("pip-source"))
+
+			Expect(pipSrcLayer.Build).To(BeTrue())
+			Expect(pipSrcLayer.Launch).To(BeFalse())
+			Expect(pipSrcLayer.Cache).To(BeTrue())
 
 			Expect(result.Build.BOM).To(Equal(
 				[]packit.BOMEntry{
@@ -261,14 +286,22 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 			result, err := build(buildContext)
 			Expect(err).NotTo(HaveOccurred())
 
-			Expect(result.Layers).To(HaveLen(1))
-			layer := result.Layers[0]
+			Expect(result.Layers).To(HaveLen(2))
+			pipLayer := result.Layers[0]
 
-			Expect(layer.Name).To(Equal("pip"))
+			Expect(pipLayer.Name).To(Equal("pip"))
 
-			Expect(layer.Build).To(BeTrue())
-			Expect(layer.Launch).To(BeFalse())
-			Expect(layer.Cache).To(BeTrue())
+			Expect(pipLayer.Build).To(BeTrue())
+			Expect(pipLayer.Launch).To(BeFalse())
+			Expect(pipLayer.Cache).To(BeTrue())
+
+			pipSrcLayer := result.Layers[1]
+
+			Expect(pipSrcLayer.Name).To(Equal("pip-source"))
+
+			Expect(pipSrcLayer.Build).To(BeTrue())
+			Expect(pipSrcLayer.Launch).To(BeFalse())
+			Expect(pipSrcLayer.Cache).To(BeTrue())
 
 			Expect(buffer.String()).ToNot(ContainSubstring("Executing build process"))
 			Expect(buffer.String()).To(ContainSubstring("Reusing cached layer"))
