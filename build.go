@@ -2,7 +2,6 @@ package pip
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -94,13 +93,20 @@ func Build(
 			return packit.BuildResult{}, err
 		}
 
+		pipSrcLayer, err := context.Layers.Get(PipSrc)
+		if err != nil {
+			return packit.BuildResult{}, err
+		}
+
 		cachedChecksum, ok := pipLayer.Metadata[DependencyChecksumKey].(string)
 		if ok && cargo.Checksum(cachedChecksum).Match(cargo.Checksum(dependency.Checksum)) {
 			logger.Process("Reusing cached layer %s", pipLayer.Path)
+			logger.Process("Reusing cached layer %s", pipSrcLayer.Path)
 			pipLayer.Launch, pipLayer.Build, pipLayer.Cache = launch, build, build
+			pipSrcLayer.Launch, pipSrcLayer.Build, pipSrcLayer.Cache = false, build, build
 
 			return packit.BuildResult{
-				Layers: []packit.Layer{pipLayer},
+				Layers: []packit.Layer{pipLayer, pipSrcLayer},
 				Build:  buildMetadata,
 				Launch: launchMetadata,
 			}, nil
@@ -111,25 +117,25 @@ func Build(
 			return packit.BuildResult{}, err
 		}
 
-		pipLayer.Launch, pipLayer.Build, pipLayer.Cache = launch, build, build
-
-		// Install the pip source to a temporary dir, since we only need access to
-		// it as an intermediate step when installing pip.
-		// It doesn't need to go into a layer, since we won't need it in future builds.
-		pipSrcDir, err := os.MkdirTemp("", "pip-source")
+		pipSrcLayer, err = pipSrcLayer.Reset()
 		if err != nil {
-			return packit.BuildResult{}, fmt.Errorf("failed to create temp pip-source dir: %w", err)
+			return packit.BuildResult{}, err
 		}
+
+		pipLayer.Launch, pipLayer.Build, pipLayer.Cache = launch, build, build
+		//Pip-source layer flags should mirror the Pip layer, but should never be
+		//available at launch.
+		pipSrcLayer.Launch, pipSrcLayer.Build, pipSrcLayer.Cache = false, build, build
 
 		logger.Process("Executing build process")
 		logger.Subprocess(fmt.Sprintf("Installing Pip %s", dependency.Version))
 
 		duration, err := clock.Measure(func() error {
-			err = dependencies.Deliver(dependency, context.CNBPath, pipSrcDir, context.Platform.Path)
+			err = dependencies.Deliver(dependency, context.CNBPath, pipSrcLayer.Path, context.Platform.Path)
 			if err != nil {
 				return err
 			}
-			return installProcess.Execute(pipSrcDir, pipLayer.Path)
+			return installProcess.Execute(pipSrcLayer.Path, pipLayer.Path)
 		})
 		if err != nil {
 			return packit.BuildResult{}, err
@@ -167,6 +173,13 @@ func Build(
 		}
 		pipLayer.SharedEnv.Prepend("PYTHONPATH", strings.TrimRight(sitePackagesPath, "\n"), ":")
 
+		// Append the pip source layer path to PIP_FIND_LINKS so that invocations
+		// of pip in downstream buildpacks have access to the packages bundled with
+		// the pip dependency (setuptools, wheel, etc.).
+
+		pipSrcLayer.BuildEnv.Append("PIP_FIND_LINKS", strings.TrimRight(pipSrcLayer.Path, "\n"), " ")
+
+		logger.EnvironmentVariables(pipSrcLayer)
 		logger.EnvironmentVariables(pipLayer)
 
 		pipLayer.Metadata = map[string]interface{}{
@@ -174,7 +187,7 @@ func Build(
 		}
 
 		return packit.BuildResult{
-			Layers: []packit.Layer{pipLayer},
+			Layers: []packit.Layer{pipLayer, pipSrcLayer},
 			Build:  buildMetadata,
 			Launch: launchMetadata,
 		}, nil
