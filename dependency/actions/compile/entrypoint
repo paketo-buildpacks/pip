@@ -59,6 +59,9 @@ function main() {
   echo "download_dir=${download_dir}"
 
   pip3 --version
+  # "pip download pip" with older pips have seen failures that say "has inconsistent name: filename has 'pip', but metadata has 'unknown'"
+  pip3 install --upgrade pip
+  pip3 --version
   python3 --version
 
   pushd "${download_dir}" > /dev/null
