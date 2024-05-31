@@ -9,11 +9,6 @@ docker run -it \
   ubuntu:jammy \
   bash
 
-# Now on the container
-# This is not required on Github Actions Virtual Environments
-# https://github.com/actions/runner-images/blob/main/images/linux/Ubuntu2004-Readme.md
-apt-get update && apt-get install python3 -y
-
 # Passing
 $ /tmp/test/test.sh \
   --tarballPath /tmp/output_dir/pip_22.2.2_noarch_ff717ff0.tgz \

@@ -21,7 +21,7 @@ check_version() {
     expected_version="${new_expected_version}"
   fi
 
-  actual_version="$(python3 ./pip/setup.py  --version)"
+  actual_version="$(grep -e "^Version:" pip/PKG-INFO | awk -F ': ' '{print $2}')"
   if [[ "${actual_version}" != "${expected_version}" ]]; then
     echo "Version ${actual_version} does not match expected version ${expected_version}"
     exit 1
@@ -67,8 +67,6 @@ main() {
 
   echo "tarballPath=${tarballPath}"
   echo "expectedVersion=${expectedVersion}"
-
-  apt-get update && apt-get install python3-setuptools -y
 
   extract_tarball "${tarballPath}"
   check_version "${expectedVersion}"
