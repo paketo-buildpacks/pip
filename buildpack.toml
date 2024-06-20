@@ -13,6 +13,8 @@ api = "0.7"
 [metadata]
   include-files = ["bin/run", "bin/build", "bin/detect", "buildpack.toml"]
   pre-package = "./scripts/build.sh"
+  launch = true
+  build = true
 
   [metadata.default-versions]
     pip = "21.2.x"
