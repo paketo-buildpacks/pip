@@ -94,7 +94,7 @@ api = "0.7"
     source = "https://files.pythonhosted.org/packages/b7/06/6b1ad0ae8f97d7a0d6f6ad640db10780578999e647a9593512ceb6f06469/pip-23.3.2.tar.gz"
     source-checksum = "sha256:7fd9972f96db22c8077a1ee2691b172c8089b17a5652a44494a9ecb0d78f9149"
     stacks = ["*"]
-    uri = "http://dash-app-resources.plotly-system.svc.cluster.local/packages/kpack-offline-files/pip_23.3.2_noarch_07c43651.tar.gz"
+    uri = "http://dash-app-resources.plotly-system.svc.cluster.local/packages/kpack-offline-files/pip_23.3.2_noarch_07c43651.tgz"
     version = "23.3.2"
 
   [[metadata.dependency-constraints]]
