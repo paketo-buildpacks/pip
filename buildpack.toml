@@ -14,18 +14,6 @@ api = "0.7"
   pre-package = "./scripts/build.sh"
 
   [[metadata.dependencies]]
-    checksum = "sha256:ac65b84c86ae7256636730958a60e66835db53ed609df2a18d3ddc8946b55a22"
-    cpe = "cpe:2.3:a:pypa:pip:24.0.0:*:*:*:*:python:*:*"
-    id = "pip"
-    licenses = ["MIT"]
-    purl = "pkg:generic/pip@24.0.0?checksum=ea9bd1a847e8c5774a5777bb398c19e80bcd4e2aa16a4b301b718fe6f593aba2&download_url=https://files.pythonhosted.org/packages/94/59/6638090c25e9bc4ce0c42817b5a234e183872a1129735a9330c472cc2056/pip-24.0.tar.gz"
-    source = "https://files.pythonhosted.org/packages/94/59/6638090c25e9bc4ce0c42817b5a234e183872a1129735a9330c472cc2056/pip-24.0.tar.gz"
-    source-checksum = "sha256:ea9bd1a847e8c5774a5777bb398c19e80bcd4e2aa16a4b301b718fe6f593aba2"
-    stacks = ["*"]
-    uri = "https://artifacts.paketo.io/pip/pip_24.0.0_noarch_ac65b84c.tgz"
-    version = "24.0.0"
-
-  [[metadata.dependencies]]
     checksum = "sha256:11697b5b47067d18fc04d3b9a35e68ed82d54cf08f274ca0267471da03555655"
     cpe = "cpe:2.3:a:pypa:pip:24.1.0:*:*:*:*:python:*:*"
     id = "pip"
@@ -36,6 +24,18 @@ api = "0.7"
     stacks = ["*"]
     uri = "https://artifacts.paketo.io/pip/pip_24.1.0_noarch_11697b5b.tgz"
     version = "24.1.0"
+
+  [[metadata.dependencies]]
+    checksum = "sha256:382e5935e06fc585fc948793b3da865c7ad1617215f02c092af42a338036413a"
+    cpe = "cpe:2.3:a:pypa:pip:24.1.1:*:*:*:*:python:*:*"
+    id = "pip"
+    licenses = ["MIT"]
+    purl = "pkg:generic/pip@24.1.1?checksum=5aa64f65e1952733ee0a9a9b1f52496ebdb3f3077cc46f80a16d983b58d1180a&download_url=https://files.pythonhosted.org/packages/c0/d0/9641dc7b05877874c6418f8034ddefc809495e65caa14d38c7551cd114bb/pip-24.1.1.tar.gz"
+    source = "https://files.pythonhosted.org/packages/c0/d0/9641dc7b05877874c6418f8034ddefc809495e65caa14d38c7551cd114bb/pip-24.1.1.tar.gz"
+    source-checksum = "sha256:5aa64f65e1952733ee0a9a9b1f52496ebdb3f3077cc46f80a16d983b58d1180a"
+    stacks = ["*"]
+    uri = "https://artifacts.paketo.io/pip/pip_24.1.1_noarch_382e5935.tgz"
+    version = "24.1.1"
 
   [[metadata.dependency-constraints]]
     constraint = "*"
