@@ -17,7 +17,7 @@ api = "0.7"
   build = true
 
   [metadata.default-versions]
-    pip = "21.2.x"
+    pip = "23.3.x"
 
   [[metadata.dependencies]]
     checksum = "sha256:5f0622fdc984d4957cf5ece7d0641fa604c2187f3ddce9fe9ce0019d4d015f03"
