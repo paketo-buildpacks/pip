@@ -55,7 +55,7 @@ jobs:
 
 
       - name: Upload `${{ steps.retrieve.outputs.metadata-filepath }}`
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: metadata.json
           path: ${{ steps.retrieve.outputs.metadata-filepath }}
@@ -175,7 +175,7 @@ jobs:
 
       # If compiled, upload the tarball and checksum file for usage in the Update metadata job
       - name: Upload workflow asset
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: ${{ needs.get-compile-and-test.outputs.should-compile && matrix.includes.checksum == '' && matrix.includes.uri == '' }}
         with:
           name: '${{ needs.retrieve.outputs.id }}-${{ matrix.includes.version }}-${{ matrix.includes.target }}'
@@ -256,7 +256,7 @@ jobs:
           file: "metadata.json"
 
       - name: Upload modified metadata
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: "metadata.json"
           path: "metadata.json"
