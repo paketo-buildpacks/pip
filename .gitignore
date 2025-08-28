@@ -4,3 +4,6 @@
 pip-cnb.tgz
 pip-cnb_*
 /build
+/linux
+/darwin
+/windows
