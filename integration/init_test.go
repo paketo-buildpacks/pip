@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
-	"strings"
 	"testing"
 	"time"
 
@@ -112,8 +111,6 @@ func TestIntegration(t *testing.T) {
 	suite := spec.New("Integration", spec.Report(report.Terminal{}))
 	suite("Default", testDefault, spec.Parallel())
 	suite("LayerReuse", testLayerReuse, spec.Parallel())
-	if strings.Contains(builder.LocalInfo.Stack.ID, "jammy") || strings.Contains(builder.LocalInfo.Stack.ID, "bionic") {
-		suite("Offline", testOffline, spec.Parallel())
-	}
+	suite("Offline", testOffline, spec.Parallel())
 	suite.Run(t)
 }
