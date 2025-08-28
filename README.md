@@ -2,8 +2,7 @@
 The Paketo Buildpack for Pip is a Cloud Native Buildpack that installs pip into a
 layer and places it on the `PATH`.
 
-The buildpack is published for consumption at `gcr.io/paketo-buildpacks/pip` and
-`paketobuildpacks/pip`.
+The buildpack is published for consumption at `paketobuildpacks/pip`.
 
 ## Behavior
 This buildpack always participates.
