@@ -14,18 +14,6 @@ api = "0.7"
   pre-package = "./scripts/build.sh --target linux/amd64 --target linux/arm64"
 
   [[metadata.dependencies]]
-    checksum = "sha256:f9741d6ded6c1f6f8e5333f97d0737dd34d1b25de5a3ed60a8156253dec56464"
-    cpe = "cpe:2.3:a:pypa:pip:25.1.1:*:*:*:*:python:*:*"
-    id = "pip"
-    licenses = ["MIT"]
-    purl = "pkg:generic/pip@25.1.1?checksum=3de45d411d308d5054c2168185d8da7f9a2cd753dbac8acbfa88a8909ecd9077&download_url=https://files.pythonhosted.org/packages/59/de/241caa0ca606f2ec5fe0c1f4261b0465df78d786a38da693864a116c37f4/pip-25.1.1.tar.gz"
-    source = "https://files.pythonhosted.org/packages/59/de/241caa0ca606f2ec5fe0c1f4261b0465df78d786a38da693864a116c37f4/pip-25.1.1.tar.gz"
-    source-checksum = "sha256:3de45d411d308d5054c2168185d8da7f9a2cd753dbac8acbfa88a8909ecd9077"
-    stacks = ["*"]
-    uri = "https://artifacts.paketo.io/pip/pip_25.1.1_noarch_f9741d6d.tgz"
-    version = "25.1.1"
-
-  [[metadata.dependencies]]
     checksum = "sha256:6b54fb994ca5a8fe7df5d671495f480f927ed202aca6766e963eb255f58342e8"
     cpe = "cpe:2.3:a:pypa:pip:25.2.0:*:*:*:*:python:*:*"
     id = "pip"
@@ -36,6 +24,18 @@ api = "0.7"
     stacks = ["*"]
     uri = "https://artifacts.paketo.io/pip/pip_25.2.0_noarch_6b54fb99.tgz"
     version = "25.2.0"
+
+  [[metadata.dependencies]]
+    checksum = "sha256:7e9f0cbb422874c7b95b8a29ce3895e14c298a053b461cfe12a3d69578e15bfc"
+    cpe = "cpe:2.3:a:pypa:pip:25.3.0:*:*:*:*:python:*:*"
+    id = "pip"
+    licenses = ["MIT"]
+    purl = "pkg:generic/pip@25.3.0?checksum=8d0538dbbd7babbd207f261ed969c65de439f6bc9e5dbd3b3b9a77f25d95f343&download_url=https://files.pythonhosted.org/packages/fe/6e/74a3f0179a4a73a53d66ce57fdb4de0080a8baa1de0063de206d6167acc2/pip-25.3.tar.gz"
+    source = "https://files.pythonhosted.org/packages/fe/6e/74a3f0179a4a73a53d66ce57fdb4de0080a8baa1de0063de206d6167acc2/pip-25.3.tar.gz"
+    source-checksum = "sha256:8d0538dbbd7babbd207f261ed969c65de439f6bc9e5dbd3b3b9a77f25d95f343"
+    stacks = ["*"]
+    uri = "https://artifacts.paketo.io/pip/pip_25.3.0_noarch_7e9f0cbb.tgz"
+    version = "25.3.0"
 
   [[metadata.dependency-constraints]]
     constraint = "*"
