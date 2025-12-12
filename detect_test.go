@@ -1,7 +1,6 @@
 package pip_test
 
 import (
-	"os"
 	"testing"
 
 	"github.com/paketo-buildpacks/packit/v2"
@@ -46,11 +45,7 @@ func testDetect(t *testing.T, context spec.G, it spec.S) {
 
 		context("when BP_PIP_VERSION is set", func() {
 			it.Before(func() {
-				os.Setenv("BP_PIP_VERSION", "some-version")
-			})
-
-			it.After(func() {
-				os.Unsetenv("BP_PIP_VERSION")
+				t.Setenv("BP_PIP_VERSION", "some-version")
 			})
 
 			it("returns a build plan that provides the version of pip from BP_PIP_VERSION", func() {
@@ -81,7 +76,7 @@ func testDetect(t *testing.T, context spec.G, it spec.S) {
 
 			context("when the provided version is of the form X.Y", func() {
 				it.Before(func() {
-					os.Setenv("BP_PIP_VERSION", "2.11")
+					t.Setenv("BP_PIP_VERSION", "2.11")
 				})
 
 				it("selects the version X.Y.0", func() {
@@ -114,7 +109,7 @@ func testDetect(t *testing.T, context spec.G, it spec.S) {
 
 			context("when the provided version is of the form X.Y.Z", func() {
 				it.Before(func() {
-					os.Setenv("BP_PIP_VERSION", "22.1.3")
+					t.Setenv("BP_PIP_VERSION", "22.1.3")
 				})
 
 				it("selects the exact provided version X.Y.Z", func() {
@@ -147,7 +142,7 @@ func testDetect(t *testing.T, context spec.G, it spec.S) {
 
 			context("when the provided version is of some other form", func() {
 				it.Before(func() {
-					os.Setenv("BP_PIP_VERSION", "some.other")
+					t.Setenv("BP_PIP_VERSION", "some.other")
 				})
 
 				it("selects the exact provided version", func() {
