@@ -72,6 +72,7 @@ jobs:
       run: ./scripts/integration.sh --builder ${{ matrix.builder }} --token ${{ github.token }}
       env:
         TMPDIR: "${{ runner.temp }}"
+        GIT_TOKEN: ${{ github.token }}
 
   roundup:
     name: Integration Tests
@@ -94,7 +95,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - name: Upload Artifact
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: event-payload
         path: ${{ github.event_path }}
