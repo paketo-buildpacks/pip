@@ -14,18 +14,6 @@ api = "0.7"
   pre-package = "./scripts/build.sh --target linux/amd64 --target linux/arm64"
 
   [[metadata.dependencies]]
-    checksum = "sha256:6b54fb994ca5a8fe7df5d671495f480f927ed202aca6766e963eb255f58342e8"
-    cpe = "cpe:2.3:a:pypa:pip:25.2.0:*:*:*:*:python:*:*"
-    id = "pip"
-    licenses = ["MIT"]
-    purl = "pkg:generic/pip@25.2.0?checksum=578283f006390f85bb6282dffb876454593d637f5d1be494b5202ce4877e71f2&download_url=https://files.pythonhosted.org/packages/20/16/650289cd3f43d5a2fadfd98c68bd1e1e7f2550a1a5326768cddfbcedb2c5/pip-25.2.tar.gz"
-    source = "https://files.pythonhosted.org/packages/20/16/650289cd3f43d5a2fadfd98c68bd1e1e7f2550a1a5326768cddfbcedb2c5/pip-25.2.tar.gz"
-    source-checksum = "sha256:578283f006390f85bb6282dffb876454593d637f5d1be494b5202ce4877e71f2"
-    stacks = ["*"]
-    uri = "https://artifacts.paketo.io/pip/pip_25.2.0_noarch_6b54fb99.tgz"
-    version = "25.2.0"
-
-  [[metadata.dependencies]]
     checksum = "sha256:7e9f0cbb422874c7b95b8a29ce3895e14c298a053b461cfe12a3d69578e15bfc"
     cpe = "cpe:2.3:a:pypa:pip:25.3.0:*:*:*:*:python:*:*"
     id = "pip"
@@ -36,6 +24,18 @@ api = "0.7"
     stacks = ["*"]
     uri = "https://artifacts.paketo.io/pip/pip_25.3.0_noarch_7e9f0cbb.tgz"
     version = "25.3.0"
+
+  [[metadata.dependencies]]
+    checksum = "sha256:8a9e47b039a20d912f1a47749c532f2b4eaf55a7dd1f51deb797e1e990a3183d"
+    cpe = "cpe:2.3:a:pypa:pip:26.0.0:*:*:*:*:python:*:*"
+    id = "pip"
+    licenses = ["MIT"]
+    purl = "pkg:generic/pip@26.0.0?checksum=3ce220a0a17915972fbf1ab451baae1521c4539e778b28127efa79b974aff0fa&download_url=https://files.pythonhosted.org/packages/44/c2/65686a7783a7c27a329706207147e82f23c41221ee9ae33128fc331670a0/pip-26.0.tar.gz"
+    source = "https://files.pythonhosted.org/packages/44/c2/65686a7783a7c27a329706207147e82f23c41221ee9ae33128fc331670a0/pip-26.0.tar.gz"
+    source-checksum = "sha256:3ce220a0a17915972fbf1ab451baae1521c4539e778b28127efa79b974aff0fa"
+    stacks = ["*"]
+    uri = "https://artifacts.paketo.io/pip/pip_26.0.0_noarch_8a9e47b0.tgz"
+    version = "26.0.0"
 
   [[metadata.dependency-constraints]]
     constraint = "*"
