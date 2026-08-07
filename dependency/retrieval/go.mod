@@ -1,6 +1,6 @@
 module github.com/paketo-buildpacks/poetry/retrieval
 
-go 1.25.0
+go 1.26.3
 
 // This is required because of a breaking change in a newer version
 replace github.com/ekzhu/minhash-lsh => github.com/ekzhu/minhash-lsh v0.0.0-20171225071031-5c06ee8586a1
@@ -8,13 +8,13 @@ replace github.com/ekzhu/minhash-lsh => github.com/ekzhu/minhash-lsh v0.0.0-2017
 require (
 	github.com/Masterminds/semver/v3 v3.5.0
 	github.com/joshuatcasey/libdependency v0.25.0
-	github.com/paketo-buildpacks/packit/v2 v2.7.0
+	github.com/paketo-buildpacks/packit/v2 v2.25.6
 )
 
 require (
 	dario.cat/mergo v1.0.2 // indirect
-	github.com/BurntSushi/toml v1.2.1 // indirect
-	github.com/Microsoft/go-winio v0.6.2 // indirect
+	github.com/BurntSushi/toml v1.6.0 // indirect
+	github.com/Microsoft/go-winio v0.6.3-0.20251027160822-ad3df93bed29 // indirect
 	github.com/ProtonMail/go-crypto v1.4.1 // indirect
 	github.com/anchore/packageurl-go v0.2.0 // indirect
 	github.com/cloudflare/circl v1.6.4 // indirect
@@ -35,7 +35,7 @@ require (
 	github.com/kevinburke/ssh_config v1.6.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.4.0 // indirect
 	github.com/moby/sys/mount v0.3.5 // indirect
-	github.com/montanaflynn/stats v0.7.0 // indirect
+	github.com/montanaflynn/stats v0.12.2 // indirect
 	github.com/pjbgf/sha1cd v0.6.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
@@ -44,11 +44,11 @@ require (
 	github.com/skeema/knownhosts v1.3.2 // indirect
 	github.com/ulikunitz/xz v0.5.16 // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
-	golang.org/x/crypto v0.53.0 // indirect
+	golang.org/x/crypto v0.54.0 // indirect
 	golang.org/x/exp v0.0.0-20260410095643-746e56fc9e2f // indirect
-	golang.org/x/net v0.56.0 // indirect
-	golang.org/x/sys v0.46.0 // indirect
-	golang.org/x/text v0.39.0 // indirect
+	golang.org/x/net v0.57.0 // indirect
+	golang.org/x/sys v0.47.0 // indirect
+	golang.org/x/text v0.40.0 // indirect
 	gonum.org/v1/gonum v0.17.0 // indirect
 	gopkg.in/neurosnap/sentences.v1 v1.0.7 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
