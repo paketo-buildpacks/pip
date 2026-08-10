@@ -4,6 +4,7 @@ go 1.26.5
 
 // This is required because of a breaking change in a newer version
 replace github.com/ekzhu/minhash-lsh => github.com/ekzhu/minhash-lsh v0.0.0-20171225071031-5c06ee8586a1
+
 replace github.com/go-enry/go-license-detector/v4 => github.com/go-enry/go-license-detector/v4 v4.3.0
 
 require (
@@ -18,8 +19,8 @@ require (
 	github.com/Microsoft/go-winio v0.6.3-0.20251027160822-ad3df93bed29 // indirect
 	github.com/ProtonMail/go-crypto v1.4.1 // indirect
 	github.com/anchore/packageurl-go v0.2.0 // indirect
-	github.com/cloudflare/circl v1.6.3 // indirect
-	github.com/cyphar/filepath-securejoin v0.6.1 // indirect
+	github.com/cloudflare/circl v1.6.5 // indirect
+	github.com/cyphar/filepath-securejoin v0.7.0 // indirect
 	github.com/dgryski/go-minhash v0.0.0-20190315135803-ad340ca03076 // indirect
 	github.com/ekzhu/minhash-lsh v0.0.0-20190924033628-faac2c6342f8 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
