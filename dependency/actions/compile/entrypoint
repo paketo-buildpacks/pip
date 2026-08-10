@@ -71,10 +71,9 @@ function main() {
       --strip-components=1 \
       --file pip-*.tar.gz
 
-    flit_core_constraints=$(python3 /constraints.py pyproject.toml)
     pip3 --cache-dir=/tmp/pip-cache/ download --no-binary :all: wheel
     pip3 --cache-dir=/tmp/pip-cache/ download --no-binary :all: setuptools
-    pip3 --cache-dir=/tmp/pip-cache/ download --no-binary :all: flit_core${flit_core_constraints}
+    python3 /constraints.py pyproject.toml
 
     tar --create \
       --gunzip \

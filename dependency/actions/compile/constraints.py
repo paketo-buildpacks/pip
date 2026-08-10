@@ -1,12 +1,21 @@
-#!/usr/bin/env python3
-
 import sys
+from subprocess import check_call
+
 import tomllib
 
 file_path = sys.argv[1]
 
 with open(file_path, "rb") as f:
     data = tomllib.load(f)
-    requires = data["build-system"]["requires"][0]
-    _, constraints = requires.split(" ")
-    print(constraints)
+    for entry in data["build-system"]["requires"]:
+        name, constraints = entry.split(" ")
+        check_call(
+            [
+                "pip3",
+                "--cache-dir=/tmp-cache/",
+                "download",
+                "--no-binary",
+                ":all:",
+                f"{name}{constraints}",
+            ]
+        )
