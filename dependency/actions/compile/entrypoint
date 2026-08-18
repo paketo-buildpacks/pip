@@ -59,23 +59,21 @@ function main() {
   echo "download_dir=${download_dir}"
 
   pip3 --version
-  # "pip download pip" with older pips have seen failures that say "has inconsistent name: filename has 'pip', but metadata has 'unknown'"
-  pip3 install --upgrade pip
-  pip3 --version
   python3 --version
 
   pushd "${download_dir}" > /dev/null
     mkdir -p /tmp/pip-cache/
     pip3 --cache-dir=/tmp/pip-cache/ download --no-binary :all: pip=="${version}"
-    pip3 --cache-dir=/tmp/pip-cache/ download --no-binary :all: wheel
-    pip3 --cache-dir=/tmp/pip-cache/ download --no-binary :all: setuptools
-    pip3 --cache-dir=/tmp/pip-cache/ download --no-binary :all: flit_core
 
     # Use globbing to detect the pip tarball
     # https://github.com/paketo-buildpacks/pip/issues/334
     tar --extract \
       --strip-components=1 \
       --file pip-*.tar.gz
+
+    pip3 --cache-dir=/tmp/pip-cache/ download --no-binary :all: wheel
+    pip3 --cache-dir=/tmp/pip-cache/ download --no-binary :all: setuptools
+    python3 /constraints.py pyproject.toml
 
     tar --create \
       --gunzip \
