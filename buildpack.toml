@@ -14,18 +14,6 @@ api = "0.7"
   pre-package = "./scripts/build.sh --target linux/amd64 --target linux/arm64"
 
   [[metadata.dependencies]]
-    checksum = "sha256:85d475907d2501c6a0b4ffcc173fd379a7a476e003d1c5e27d6fb8907933c4e3"
-    cpe = "cpe:2.3:a:pypa:pip:26.2.0:*:*:*:*:python:*:*"
-    id = "pip"
-    licenses = ["MIT"]
-    purl = "pkg:generic/pip@26.2.0?checksum=2d8542afcc84cdd8e846c2b36b2861fad1da376dd98f8e7113e9108a3c331690&download_url=https://files.pythonhosted.org/packages/db/96/e6f8e9d9d7b9cc4457092712a7e919c3186aa2c2fa9ffed2c5d29cc947e8/pip-26.2.tar.gz"
-    source = "https://files.pythonhosted.org/packages/db/96/e6f8e9d9d7b9cc4457092712a7e919c3186aa2c2fa9ffed2c5d29cc947e8/pip-26.2.tar.gz"
-    source-checksum = "sha256:2d8542afcc84cdd8e846c2b36b2861fad1da376dd98f8e7113e9108a3c331690"
-    stacks = ["*"]
-    uri = "https://artifacts.paketo.io/pip/pip_26.2.0_noarch_85d47590.tgz"
-    version = "26.2.0"
-
-  [[metadata.dependencies]]
     checksum = "sha256:df54b01c9718ab33e31aace6cdc85e91f644930255c018660b32c5d75ef9c99e"
     cpe = "cpe:2.3:a:pypa:pip:26.2.1:*:*:*:*:python:*:*"
     id = "pip"
@@ -36,6 +24,18 @@ api = "0.7"
     stacks = ["*"]
     uri = "https://artifacts.paketo.io/pip/pip_26.2.1_noarch_df54b01c.tgz"
     version = "26.2.1"
+
+  [[metadata.dependencies]]
+    checksum = "sha256:001c8d1d4d35952cc0345538d1d2e4b53f33cfc2cacf27938e3ecb3629451a00"
+    cpe = "cpe:2.3:a:pypa:pip:26.2.2:*:*:*:*:python:*:*"
+    id = "pip"
+    licenses = ["JSON", "MIT", "MIT-advertising", "MIT-feh"]
+    purl = "pkg:generic/pip@26.2.2?checksum=3a8e5c800492787f33a4114ef54444546c340df428974ebba17e0fd47e11af2f&download_url=https://files.pythonhosted.org/packages/fa/e8/0842d757e483e895e670f655084cfe8b8c72580c6769a76b30b2789a0608/pip-26.2.2.tar.gz"
+    source = "https://files.pythonhosted.org/packages/fa/e8/0842d757e483e895e670f655084cfe8b8c72580c6769a76b30b2789a0608/pip-26.2.2.tar.gz"
+    source-checksum = "sha256:3a8e5c800492787f33a4114ef54444546c340df428974ebba17e0fd47e11af2f"
+    stacks = ["*"]
+    uri = "https://artifacts.paketo.io/pip/pip_26.2.2_noarch_001c8d1d.tgz"
+    version = "26.2.2"
 
   [[metadata.dependency-constraints]]
     constraint = "*"
